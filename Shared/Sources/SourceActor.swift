@@ -27,7 +27,7 @@ actor SourceActor {
         let filterDescriptor = source.globalStore.storeStdValue(filters)
 
         let pageResultDescriptor: Int32 = (try? source.globalStore.vm.findFunction(name: "get_manga_list")
-            .call(filterDescriptor, Int32(page))) ?? -1
+                                            .call(filterDescriptor, Int32(page))) ?? -1
 
         let result = source.globalStore.readStdValue(pageResultDescriptor) as? MangaPageResult ?? MangaPageResult(manga: [], hasNextPage: false)
         source.globalStore.removeStdValue(pageResultDescriptor)
@@ -40,7 +40,7 @@ actor SourceActor {
         let listingDescriptor = source.globalStore.storeStdValue(listing)
 
         let pageResultDescriptor: Int32 = (try? source.globalStore.vm.findFunction(name: "get_manga_listing")
-            .call(listingDescriptor, Int32(page))) ?? -1
+                                            .call(listingDescriptor, Int32(page))) ?? -1
 
         let result = source.globalStore.readStdValue(pageResultDescriptor) as? MangaPageResult ?? MangaPageResult(manga: [], hasNextPage: false)
         source.globalStore.removeStdValue(pageResultDescriptor)
@@ -53,7 +53,7 @@ actor SourceActor {
         let mangaDescriptor = source.globalStore.storeStdValue(manga)
 
         let resultMangaDescriptor: Int32 = (try? source.globalStore.vm.findFunction(name: "get_manga_details")
-            .call(mangaDescriptor)) ?? -1
+                                                .call(mangaDescriptor)) ?? -1
 
         let manga = source.globalStore.readStdValue(resultMangaDescriptor) as? Manga
         source.globalStore.removeStdValue(resultMangaDescriptor)
@@ -89,7 +89,7 @@ actor SourceActor {
         let chapterDescriptor = source.globalStore.storeStdValue(chapter)
 
         let pageListDescriptor: Int32 = (try? source.globalStore.vm.findFunction(name: "get_page_list")
-            .call(chapterDescriptor)) ?? -1
+                                            .call(chapterDescriptor)) ?? -1
 
         var pages = source.globalStore.readStdValue(pageListDescriptor) as? [Page] ?? []
         source.globalStore.removeStdValue(pageListDescriptor)

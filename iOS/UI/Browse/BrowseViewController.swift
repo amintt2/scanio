@@ -434,10 +434,10 @@ extension BrowseViewController {
             snapshot.appendSections([.installed])
             snapshot.appendItems(viewModel.installedSources, toSection: .installed)
         }
-//        if !viewModel.externalSources.isEmpty {
-//            snapshot.appendSections([.external])
-//            snapshot.appendItems(viewModel.externalSources, toSection: .external)
-//        }
+        //        if !viewModel.externalSources.isEmpty {
+        //            snapshot.appendSections([.external])
+        //            snapshot.appendItems(viewModel.externalSources, toSection: .external)
+        //        }
 
         dataSource.apply(snapshot)
 
@@ -461,10 +461,10 @@ extension BrowseViewController {
             }
             snapshot.appendItems(viewModel.updatesSources, toSection: .updates)
         }
-//        if !viewModel.externalSources.isEmpty {
-//            snapshot.appendSections([.external])
-//            snapshot.appendItems(viewModel.externalSources, toSection: .external)
-//        }
+        //        if !viewModel.externalSources.isEmpty {
+        //            snapshot.appendSections([.external])
+        //            snapshot.appendItems(viewModel.externalSources, toSection: .external)
+        //        }
 
         if #available(iOS 15.0, *) {
             // prevents jumpiness from pull to refresh

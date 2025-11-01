@@ -78,24 +78,24 @@ extension SettingsView {
                                         Group {
                                             let iconSize: CGFloat = 29
                                             switch icon {
-                                                case .system(let name, let color, let inset):
-                                                    Image(systemName: name)
-                                                        .resizable()
-                                                        .renderingMode(.template)
-                                                        .foregroundStyle(.white)
-                                                        .aspectRatio(contentMode: .fit)
-                                                        .padding(CGFloat(inset))
-                                                        .frame(width: iconSize, height: iconSize)
-                                                        .background(color.toColor())
-                                                        .clipShape(RoundedRectangle(cornerRadius: 6.5))
-                                                case .url(let string):
-                                                    SourceImageView(
-                                                        imageUrl: string,
-                                                        width: iconSize,
-                                                        height: iconSize,
-                                                        downsampleWidth: iconSize * 2
-                                                    )
+                                            case .system(let name, let color, let inset):
+                                                Image(systemName: name)
+                                                    .resizable()
+                                                    .renderingMode(.template)
+                                                    .foregroundStyle(.white)
+                                                    .aspectRatio(contentMode: .fit)
+                                                    .padding(CGFloat(inset))
+                                                    .frame(width: iconSize, height: iconSize)
+                                                    .background(color.toColor())
                                                     .clipShape(RoundedRectangle(cornerRadius: 6.5))
+                                            case .url(let string):
+                                                SourceImageView(
+                                                    imageUrl: string,
+                                                    width: iconSize,
+                                                    height: iconSize,
+                                                    downsampleWidth: iconSize * 2
+                                                )
+                                                .clipShape(RoundedRectangle(cornerRadius: 6.5))
                                             }
                                         }
                                         .scaleEffect(0.75)
@@ -137,137 +137,137 @@ extension SettingsView {
 extension SettingsView {
     func onSettingChange(_ key: String) {
         switch key {
-            case "General.appearance", "General.useSystemAppearance":
-                if !UserDefaults.standard.bool(forKey: "General.useSystemAppearance") {
-                    if UserDefaults.standard.integer(forKey: "General.appearance") == 0 {
-                        UIApplication.shared.firstKeyWindow?.overrideUserInterfaceStyle = .light
-                    } else {
-                        UIApplication.shared.firstKeyWindow?.overrideUserInterfaceStyle = .dark
-                    }
+        case "General.appearance", "General.useSystemAppearance":
+            if !UserDefaults.standard.bool(forKey: "General.useSystemAppearance") {
+                if UserDefaults.standard.integer(forKey: "General.appearance") == 0 {
+                    UIApplication.shared.firstKeyWindow?.overrideUserInterfaceStyle = .light
                 } else {
-                    UIApplication.shared.firstKeyWindow?.overrideUserInterfaceStyle = .unspecified
+                    UIApplication.shared.firstKeyWindow?.overrideUserInterfaceStyle = .dark
                 }
+            } else {
+                UIApplication.shared.firstKeyWindow?.overrideUserInterfaceStyle = .unspecified
+            }
 
-            case "Logs.logServer":
-                LogManager.logger.streamUrl = UserDefaults.standard.string(forKey: "Logs.logServer").flatMap(URL.init)
-            case "Logs.export":
-                let url = LogManager.export()
-                let vc = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-                guard let sourceView = path.rootViewController?.view else { return }
-                vc.popoverPresentationController?.sourceView = sourceView
-                path.present(vc)
-            case "Logs.display":
-                path.push(LogViewController())
+        case "Logs.logServer":
+            LogManager.logger.streamUrl = UserDefaults.standard.string(forKey: "Logs.logServer").flatMap(URL.init)
+        case "Logs.export":
+            let url = LogManager.export()
+            let vc = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+            guard let sourceView = path.rootViewController?.view else { return }
+            vc.popoverPresentationController?.sourceView = sourceView
+            path.present(vc)
+        case "Logs.display":
+            path.push(LogViewController())
 
-            case "Advanced.clearTrackedManga":
-                confirmAction(
-                    title: NSLocalizedString("CLEAR_TRACKED_MANGA"),
-                    message: NSLocalizedString("CLEAR_TRACKED_MANGA_TEXT")
-                ) {
-                    Task {
-                        await CoreDataManager.shared.container.performBackgroundTask { context in
-                            CoreDataManager.shared.clearTracks(context: context)
-                            try? context.save()
-                        }
+        case "Advanced.clearTrackedManga":
+            confirmAction(
+                title: NSLocalizedString("CLEAR_TRACKED_MANGA"),
+                message: NSLocalizedString("CLEAR_TRACKED_MANGA_TEXT")
+            ) {
+                Task {
+                    await CoreDataManager.shared.container.performBackgroundTask { context in
+                        CoreDataManager.shared.clearTracks(context: context)
+                        try? context.save()
                     }
                 }
-            case "Advanced.clearNetworkCache":
-                var totalCacheSize = URLCache.shared.currentDiskUsage
-                if let nukeCache = ImagePipeline.shared.configuration.dataCache as? DataCache {
-                    totalCacheSize += nukeCache.totalSize
-                }
-                let message = NSLocalizedString("CLEAR_NETWORK_CACHE_TEXT")
-                    + "\n\n"
-                    + String(
-                        format: NSLocalizedString("CACHE_SIZE_%@"),
-                        ByteCountFormatter.string(fromByteCount: Int64(totalCacheSize), countStyle: .file)
-                    )
+            }
+        case "Advanced.clearNetworkCache":
+            var totalCacheSize = URLCache.shared.currentDiskUsage
+            if let nukeCache = ImagePipeline.shared.configuration.dataCache as? DataCache {
+                totalCacheSize += nukeCache.totalSize
+            }
+            let message = NSLocalizedString("CLEAR_NETWORK_CACHE_TEXT")
+                + "\n\n"
+                + String(
+                    format: NSLocalizedString("CACHE_SIZE_%@"),
+                    ByteCountFormatter.string(fromByteCount: Int64(totalCacheSize), countStyle: .file)
+                )
 
-                confirmAction(
-                    title: NSLocalizedString("CLEAR_NETWORK_CACHE"),
-                    message: message
-                ) {
-                    self.clearNetworkCache()
+            confirmAction(
+                title: NSLocalizedString("CLEAR_NETWORK_CACHE"),
+                message: message
+            ) {
+                self.clearNetworkCache()
+            }
+        case "Advanced.clearReadHistory":
+            confirmAction(
+                title: NSLocalizedString("CLEAR_READ_HISTORY"),
+                message: NSLocalizedString("CLEAR_READ_HISTORY_TEXT")
+            ) {
+                Task {
+                    await CoreDataManager.shared.container.performBackgroundTask { context in
+                        CoreDataManager.shared.clearHistory(context: context)
+                        try? context.save()
+                    }
+                    NotificationCenter.default.post(name: Notification.Name("updateHistory"), object: nil)
                 }
-            case "Advanced.clearReadHistory":
-                confirmAction(
-                    title: NSLocalizedString("CLEAR_READ_HISTORY"),
-                    message: NSLocalizedString("CLEAR_READ_HISTORY_TEXT")
-                ) {
-                    Task {
-                        await CoreDataManager.shared.container.performBackgroundTask { context in
-                            CoreDataManager.shared.clearHistory(context: context)
-                            try? context.save()
+            }
+        case "Advanced.clearExcludingLibrary":
+            confirmAction(
+                title: NSLocalizedString("CLEAR_EXCLUDING_LIBRARY"),
+                message: NSLocalizedString("CLEAR_EXCLUDING_LIBRARY_TEXT")
+            ) {
+                Task {
+                    await CoreDataManager.shared.container.performBackgroundTask { context in
+                        CoreDataManager.shared.clearHistoryExcludingLibrary(context: context)
+                        try? context.save()
+                    }
+                    NotificationCenter.default.post(name: Notification.Name("updateHistory"), object: nil)
+                }
+            }
+        case "Advanced.migrateHistory":
+            confirmAction(
+                title: "Migrate Chapter History",
+                // swiftlint:disable:next line_length
+                message: "This will migrate leftover reading history from old versions that are not currently linked with stored chapters in the local database. This should've happened automatically upon updating, but if it didn't complete, it can be re-executed this way."
+            ) {
+                Task {
+                    (UIApplication.shared.delegate as? AppDelegate)?.showLoadingIndicator(style: .progress)
+                    await CoreDataManager.shared.migrateChapterHistory(progress: { progress in
+                        Task { @MainActor in
+                            (UIApplication.shared.delegate as? AppDelegate)?.indicatorProgress = progress
                         }
-                        NotificationCenter.default.post(name: Notification.Name("updateHistory"), object: nil)
+                    })
+                    NotificationCenter.default.post(name: Notification.Name("updateLibrary"), object: nil)
+                    (UIApplication.shared.delegate as? AppDelegate)?.hideLoadingIndicator()
+                }
+            }
+        case "Advanced.resetSettings":
+            confirmAction(
+                title: NSLocalizedString("RESET_SETTINGS"),
+                message: NSLocalizedString("RESET_SETTINGS_TEXT")
+            ) {
+                self.resetSettings()
+            }
+        case "Advanced.reset":
+            confirmAction(
+                title: NSLocalizedString("RESET"),
+                message: NSLocalizedString("RESET_TEXT")
+            ) {
+                (UIApplication.shared.delegate as? AppDelegate)?.showLoadingIndicator()
+                clearNetworkCache()
+                resetSettings()
+                Task {
+                    await CoreDataManager.shared.container.performBackgroundTask { context in
+                        CoreDataManager.shared.clearLibrary(context: context)
+                        CoreDataManager.shared.clearManga(context: context)
+                        CoreDataManager.shared.clearHistory(context: context)
+                        CoreDataManager.shared.clearChapters(context: context)
+                        CoreDataManager.shared.clearCategories(context: context)
+                        CoreDataManager.shared.clearTracks(context: context)
+                        try? context.save()
                     }
+                    SourceManager.shared.clearSources()
+                    SourceManager.shared.clearSourceLists()
+                    NotificationCenter.default.post(name: Notification.Name("updateLibrary"), object: nil)
+                    NotificationCenter.default.post(name: Notification.Name("updateHistory"), object: nil)
+                    NotificationCenter.default.post(name: Notification.Name("updateTrackers"), object: nil)
+                    NotificationCenter.default.post(name: Notification.Name("updateCategories"), object: nil)
+                    (UIApplication.shared.delegate as? AppDelegate)?.hideLoadingIndicator()
                 }
-            case "Advanced.clearExcludingLibrary":
-                confirmAction(
-                    title: NSLocalizedString("CLEAR_EXCLUDING_LIBRARY"),
-                    message: NSLocalizedString("CLEAR_EXCLUDING_LIBRARY_TEXT")
-                ) {
-                    Task {
-                        await CoreDataManager.shared.container.performBackgroundTask { context in
-                            CoreDataManager.shared.clearHistoryExcludingLibrary(context: context)
-                            try? context.save()
-                        }
-                        NotificationCenter.default.post(name: Notification.Name("updateHistory"), object: nil)
-                    }
-                }
-            case "Advanced.migrateHistory":
-                confirmAction(
-                    title: "Migrate Chapter History",
-                    // swiftlint:disable:next line_length
-                    message: "This will migrate leftover reading history from old versions that are not currently linked with stored chapters in the local database. This should've happened automatically upon updating, but if it didn't complete, it can be re-executed this way."
-                ) {
-                    Task {
-                        (UIApplication.shared.delegate as? AppDelegate)?.showLoadingIndicator(style: .progress)
-                        await CoreDataManager.shared.migrateChapterHistory(progress: { progress in
-                            Task { @MainActor in
-                                (UIApplication.shared.delegate as? AppDelegate)?.indicatorProgress = progress
-                            }
-                        })
-                        NotificationCenter.default.post(name: Notification.Name("updateLibrary"), object: nil)
-                        (UIApplication.shared.delegate as? AppDelegate)?.hideLoadingIndicator()
-                    }
-                }
-            case "Advanced.resetSettings":
-                confirmAction(
-                    title: NSLocalizedString("RESET_SETTINGS"),
-                    message: NSLocalizedString("RESET_SETTINGS_TEXT")
-                ) {
-                    self.resetSettings()
-                }
-            case "Advanced.reset":
-                confirmAction(
-                    title: NSLocalizedString("RESET"),
-                    message: NSLocalizedString("RESET_TEXT")
-                ) {
-                    (UIApplication.shared.delegate as? AppDelegate)?.showLoadingIndicator()
-                    clearNetworkCache()
-                    resetSettings()
-                    Task {
-                        await CoreDataManager.shared.container.performBackgroundTask { context in
-                            CoreDataManager.shared.clearLibrary(context: context)
-                            CoreDataManager.shared.clearManga(context: context)
-                            CoreDataManager.shared.clearHistory(context: context)
-                            CoreDataManager.shared.clearChapters(context: context)
-                            CoreDataManager.shared.clearCategories(context: context)
-                            CoreDataManager.shared.clearTracks(context: context)
-                            try? context.save()
-                        }
-                        SourceManager.shared.clearSources()
-                        SourceManager.shared.clearSourceLists()
-                        NotificationCenter.default.post(name: Notification.Name("updateLibrary"), object: nil)
-                        NotificationCenter.default.post(name: Notification.Name("updateHistory"), object: nil)
-                        NotificationCenter.default.post(name: Notification.Name("updateTrackers"), object: nil)
-                        NotificationCenter.default.post(name: Notification.Name("updateCategories"), object: nil)
-                        (UIApplication.shared.delegate as? AppDelegate)?.hideLoadingIndicator()
-                    }
-                }
-            default:
-                break
+            }
+        default:
+            break
         }
     }
 
@@ -481,23 +481,23 @@ private extension Setting {
         }
 
         switch value {
-            case let .page(page):
-                var results: [SettingPath] = checkCurrent()
-                for item in page.items {
-                    results.append(contentsOf: item.search(for: text, currentPath: path))
-                }
-                return results
-            case let .group(group):
-                var results: [SettingPath] = []
-                for item in group.items {
-                    results.append(contentsOf: item.search(for: text, currentPath: currentPath))
-                }
-                return results
-            case .custom:
-                // skip searching custom views
-                return []
-            default:
-                return checkCurrent()
+        case let .page(page):
+            var results: [SettingPath] = checkCurrent()
+            for item in page.items {
+                results.append(contentsOf: item.search(for: text, currentPath: path))
+            }
+            return results
+        case let .group(group):
+            var results: [SettingPath] = []
+            for item in group.items {
+                results.append(contentsOf: item.search(for: text, currentPath: currentPath))
+            }
+            return results
+        case .custom:
+            // skip searching custom views
+            return []
+        default:
+            return checkCurrent()
         }
     }
 }

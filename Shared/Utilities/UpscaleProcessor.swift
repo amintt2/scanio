@@ -49,11 +49,11 @@ struct UpscaleProcessor: ImageProcessing {
                 LogManager.logger.error("Upscaling model failed to process image")
                 return image
             }
-#if os(iOS) || os(tvOS)
+            #if os(iOS) || os(tvOS)
             return await PlatformImage(cgImage: output, scale: UIScreen.main.scale, orientation: image.imageOrientation)
-#else
+            #else
             return PlatformImage(cgImage: output, size: .init(width: image.size.width, height: image.size.height))
-#endif
+            #endif
         }.get()
     }
 

@@ -82,7 +82,7 @@ class BangumiTracker: OAuthTracker {
             lastReadVolume: result.vol_status.map { Int($0) },
             totalChapters: subject?.eps ?? subject?.total_episodes,
             totalVolumes: subject?.volumes,
-        )
+            )
     }
 
     func getUrl(trackId: String) -> URL? {
@@ -181,13 +181,13 @@ private extension BangumiTracker {
 
     func getStatus(statusString: String?) -> TrackStatus {
         switch statusString {
-            case "wish": return .planning
-            case "collect": return .completed
-            case "do": return .reading
-            case "on_hold": return .paused
-            case "dropped": return .dropped
-            case nil: return .none
-            default: return .planning
+        case "wish": return .planning
+        case "collect": return .completed
+        case "do": return .reading
+        case "on_hold": return .paused
+        case "dropped": return .dropped
+        case nil: return .none
+        default: return .planning
         }
     }
 
@@ -217,12 +217,12 @@ private extension BangumiTracker {
 
         // Fall back to type-based classification
         switch subject.type {
-            case 1: return .manga // Book
-            case 2: return .novel // Anime (but we use for manga context)
-            case 3: return .novel // Music
-            case 4: return .novel // Game
-            case 6: return .novel // Real
-            default: return .manga
+        case 1: return .manga // Book
+        case 2: return .novel // Anime (but we use for manga context)
+        case 3: return .novel // Music
+        case 4: return .novel // Game
+        case 6: return .novel // Real
+        default: return .manga
         }
     }
 }

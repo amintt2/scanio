@@ -45,14 +45,14 @@ class ReaderPagedViewModel {
                 pages = DownloadManager.shared.getDownloadedPagesWithoutContents(for: oldChapter)
             } else {
                 pages = (try? await source?
-                    .getPageList(
-                        manga: manga,
-                        chapter: chapter
-                    )
+                            .getPageList(
+                                manga: manga,
+                                chapter: chapter
+                            )
                 )?
-                    .map {
-                        $0.toOld(sourceId: sourceId, chapterId: chapter.id)
-                    } ?? []
+                .map {
+                    $0.toOld(sourceId: sourceId, chapterId: chapter.id)
+                } ?? []
             }
         }
     }
@@ -67,14 +67,14 @@ class ReaderPagedViewModel {
             preloadedPages = DownloadManager.shared.getDownloadedPagesWithoutContents(for: oldChapter)
         } else {
             preloadedPages = (try? await source?
-                .getPageList(
-                    manga: manga,
-                    chapter: chapter
-                )
+                                .getPageList(
+                                    manga: manga,
+                                    chapter: chapter
+                                )
             )?
-                .map {
-                    $0.toOld(sourceId: sourceId, chapterId: chapter.id)
-                } ?? []
+            .map {
+                $0.toOld(sourceId: sourceId, chapterId: chapter.id)
+            } ?? []
         }
         preloadedChapter = chapter
     }

@@ -285,10 +285,10 @@ class CarouselCollectionView: UICollectionView {
         setContentOffset(newContentOffset, animated: animated)
     }
 
-//    func setCurrentPage(_ page: Int, animated: Bool = false) {
-//        precondition((0..<numberOfItems).contains(page))
-//        setFakePage(page + 1, animated: animated)
-//    }
+    //    func setCurrentPage(_ page: Int, animated: Bool = false) {
+    //        precondition((0..<numberOfItems).contains(page))
+    //        setFakePage(page + 1, animated: animated)
+    //    }
 
     private func loopItems() {
         let page = fakeCurrentPage

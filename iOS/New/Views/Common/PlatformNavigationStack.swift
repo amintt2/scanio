@@ -11,32 +11,32 @@ import SwiftUI
 struct PlatformNavigationStack<Content: View>: View {
     @ViewBuilder let content: Content
 
-#if os(macOS)
+    #if os(macOS)
     @State private var path = NavigationPath()
-#endif
+    #endif
 
     var body: some View {
         if #available(iOS 16.0, macOS 13.0, *) {
-#if os(macOS)
+            #if os(macOS)
             NavigationStack(path: $path.animation(.default)) {
                 content
             }
-#else
+            #else
             NavigationStack {
                 content
             }
-#endif
+            #endif
         } else {
-#if !os(macOS)
+            #if !os(macOS)
             NavigationView {
                 content
             }
             .navigationViewStyle(.stack)
-#else
+            #else
             NavigationView {
                 content
             }
-#endif
+            #endif
         }
     }
 }

@@ -14,7 +14,7 @@ class MangaViewController: UIHostingController<MangaView> {
         manga: AidokuRunner.Manga,
         parent: UIViewController?,
         scrollToChapterKey: String? = nil,
-    ) {
+        ) {
         self.init(rootView: MangaView(
             source: source,
             manga: manga,

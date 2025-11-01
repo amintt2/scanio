@@ -57,10 +57,10 @@ class ReaderTextViewController: BaseViewController {
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
-//            hostingController.view.topAnchor.constraint(equalTo: scrollView.topAnchor),
-//            hostingController.view.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-//            hostingController.view.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-//            hostingController.view.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor)
+            //            hostingController.view.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            //            hostingController.view.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            //            hostingController.view.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            //            hostingController.view.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor)
 
             hostingController.view.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
             hostingController.view.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor),

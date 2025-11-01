@@ -38,9 +38,9 @@ struct FilterListSheetView: View {
             }
             .scrollDismissesKeyboardInteractively()
             .navigationTitle(NSLocalizedString("FILTERS"))
-#if !os(macOS)
+            #if !os(macOS)
             .navigationBarTitleDisplayMode(.inline)
-#endif
+            #endif
             .confirmationDialogOrAlert(
                 NSLocalizedString("CANCEL_CONFIRM"),
                 isPresented: $showConfirm,
@@ -151,21 +151,21 @@ private struct FilterListView: View {
         var ascending: [String: Bool] = [:]
         for filter in enabledFilters.wrappedValue {
             switch filter {
-                case let .text(id, value):
-                    text[id] = value
-                case .sort(let value):
-                    selectedIndexes[value.id] = Int(value.index)
-                    ascending[value.id] = value.ascending
-                case let .check(id, value):
-                    selectedIndexes[id] = value
-                case let .select(id, value):
-                    selectedOptions[id] = value
-                case let .multiselect(id, included, excluded):
-                    includedOptions[id] = included
-                    excludedOptions[id] = excluded
-                case let .range(id, fromValue, toValue):
-                    from[id] = fromValue
-                    to[id] = toValue
+            case let .text(id, value):
+                text[id] = value
+            case .sort(let value):
+                selectedIndexes[value.id] = Int(value.index)
+                ascending[value.id] = value.ascending
+            case let .check(id, value):
+                selectedIndexes[id] = value
+            case let .select(id, value):
+                selectedOptions[id] = value
+            case let .multiselect(id, included, excluded):
+                includedOptions[id] = included
+                excludedOptions[id] = excluded
+            case let .range(id, fromValue, toValue):
+                from[id] = fromValue
+                to[id] = toValue
             }
         }
         self._text = State(initialValue: text)
@@ -183,85 +183,85 @@ private struct FilterListView: View {
             ForEach(Array(filters.enumerated()), id: \.offset) { _, filter in
                 VStack(spacing: 6) {
                     switch filter.value {
-                        case let .text(placeholder):
-                            if showTitles {
-                                titleView(filter.title)
+                    case let .text(placeholder):
+                        if showTitles {
+                            titleView(filter.title)
+                        }
+                        TextFieldWrapper {
+                            if #available(iOS 16.0, *) {
+                                TextField(
+                                    "",
+                                    text: textBinding(for: filter.id),
+                                    prompt: Text(placeholder ?? "").foregroundColor(.gray)
+                                )
+                            } else {
+                                TextField(placeholder ?? "", text: textBinding(for: filter.id))
                             }
-                            TextFieldWrapper {
-                                if #available(iOS 16.0, *) {
-                                    TextField(
-                                        "",
-                                        text: textBinding(for: filter.id),
-                                        prompt: Text(placeholder ?? "").foregroundColor(.gray)
-                                    )
-                                } else {
-                                    TextField(placeholder ?? "", text: textBinding(for: filter.id))
-                                }
-                            }
+                        }
+                        .padding(.horizontal)
+
+                    case let .sort(_, _, defaultValue):
+                        if showTitles {
+                            titleView(filter.title ?? NSLocalizedString("SORT"))
+                        }
+                        SortFilterGroupView(
+                            filter: filter,
+                            selectedOption: selectedIndexBinding(
+                                for: filter.id,
+                                default: defaultValue?.index ?? 0
+                            ),
+                            ascending: ascendingBinding(
+                                for: filter.id,
+                                default: defaultValue?.ascending ?? false
+                            )
+                        )
+                        .padding(.horizontal)
+
+                    case let .check(_, _, defaultValue):
+                        if showTitles {
+                            titleView(filter.title)
+                        }
+                        CheckFilterGroupView(
+                            filter: filter,
+                            state: selectedIndexBinding(
+                                for: filter.id,
+                                default: defaultValue.map({ $0 ? 1 : 2 }) ?? 0
+                            )
+                        )
+
+                    case let .select(value):
+                        if showTitles {
+                            titleView(filter.title)
+                        }
+                        SelectFilterGroupView(
+                            filter: filter,
+                            selectedOption: selectedOptionBinding(
+                                for: filter.id,
+                                default: value.resolvedDefaultValue
+                            )
+                        )
+
+                    case let .multiselect(value):
+                        if showTitles {
+                            titleView(filter.title)
+                        }
+                        MultiSelectFilterGroupView(
+                            filter: filter,
+                            includedOptions: includedOptionsBinding(for: filter.id, default: value.defaultIncluded ?? []),
+                            excludedOptions: excludedOptionsBinding(for: filter.id, default: value.defaultExcluded ?? [])
+                        )
+
+                    case .note(let text):
+                        Text(text)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .multilineTextAlignment(.leading)
                             .padding(.horizontal)
 
-                        case let .sort(_, _, defaultValue):
-                            if showTitles {
-                                titleView(filter.title ?? NSLocalizedString("SORT"))
-                            }
-                            SortFilterGroupView(
-                                filter: filter,
-                                selectedOption: selectedIndexBinding(
-                                    for: filter.id,
-                                    default: defaultValue?.index ?? 0
-                                ),
-                                ascending: ascendingBinding(
-                                    for: filter.id,
-                                    default: defaultValue?.ascending ?? false
-                                )
-                            )
-                            .padding(.horizontal)
-
-                        case let .check(_, _, defaultValue):
-                            if showTitles {
-                                titleView(filter.title)
-                            }
-                            CheckFilterGroupView(
-                                filter: filter,
-                                state: selectedIndexBinding(
-                                    for: filter.id,
-                                    default: defaultValue.map({ $0 ? 1 : 2 }) ?? 0
-                                )
-                            )
-
-                        case let .select(value):
-                            if showTitles {
-                                titleView(filter.title)
-                            }
-                            SelectFilterGroupView(
-                                filter: filter,
-                                selectedOption: selectedOptionBinding(
-                                    for: filter.id,
-                                    default: value.resolvedDefaultValue
-                                )
-                            )
-
-                        case let .multiselect(value):
-                            if showTitles {
-                                titleView(filter.title)
-                            }
-                            MultiSelectFilterGroupView(
-                                filter: filter,
-                                includedOptions: includedOptionsBinding(for: filter.id, default: value.defaultIncluded ?? []),
-                                excludedOptions: excludedOptionsBinding(for: filter.id, default: value.defaultExcluded ?? [])
-                            )
-
-                        case .note(let text):
-                            Text(text)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .multilineTextAlignment(.leading)
-                                .padding(.horizontal)
-
-                        case let .range(min, max, decimal):
-                            if showTitles {
-                                titleView(filter.title)
-                            }
-                            rangeFilterView(filter: filter, min: min, max: max, decimal: decimal)
+                    case let .range(min, max, decimal):
+                        if showTitles {
+                            titleView(filter.title)
+                        }
+                        rangeFilterView(filter: filter, min: min, max: max, decimal: decimal)
                     }
                 }
             }

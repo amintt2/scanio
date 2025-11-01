@@ -161,14 +161,14 @@ class SourceTableViewCell: UITableViewCell {
             }
         } else {
             switch info.sourceId {
-                case LocalSourceRunner.sourceKey:
-                    iconView.image = UIImage.local
-                case let x where x.hasPrefix("kavita"):
-                    iconView.image = UIImage.kavita
-                case let x where x.hasPrefix("komga"):
-                    iconView.image = UIImage.komga
-                default:
-                    break
+            case LocalSourceRunner.sourceKey:
+                iconView.image = UIImage.local
+            case let x where x.hasPrefix("kavita"):
+                iconView.image = UIImage.kavita
+            case let x where x.hasPrefix("komga"):
+                iconView.image = UIImage.komga
+            default:
+                break
             }
         }
     }

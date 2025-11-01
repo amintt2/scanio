@@ -71,8 +71,8 @@ struct CropBordersProcessor: ImageProcessing {
                 // crop white
                 if
                     data[Int(pixelIndex+1)] > whiteThreshold
-                    && data[Int(pixelIndex+2)] > whiteThreshold
-                    && data[Int(pixelIndex+3)] > whiteThreshold
+                        && data[Int(pixelIndex+2)] > whiteThreshold
+                        && data[Int(pixelIndex+3)] > whiteThreshold
                 {
                     continue
                 }
@@ -80,8 +80,8 @@ struct CropBordersProcessor: ImageProcessing {
                 // crop black
                 if
                     data[Int(pixelIndex+1)] < blackThreshold
-                    && data[Int(pixelIndex+2)] < blackThreshold
-                    && data[Int(pixelIndex+3)] < blackThreshold
+                        && data[Int(pixelIndex+2)] < blackThreshold
+                        && data[Int(pixelIndex+3)] < blackThreshold
                 {
                     continue
                 }

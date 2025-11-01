@@ -435,7 +435,7 @@ class LibraryViewController: MangaCollectionViewController {
 
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: animated)
-//        collectionView.setEditing(editing, animated: animated)
+        //        collectionView.setEditing(editing, animated: animated)
         updateNavbarItems()
         updateToolbar()
         reloadItems()
@@ -1027,8 +1027,8 @@ extension LibraryViewController {
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ -> UIMenu? in
             var actions: [UIMenuElement] = []
             let singleAttributes = mangaInfo.count > 1
-            ? .disabled
-            : UIMenuElement.Attributes()
+                ? .disabled
+                : UIMenuElement.Attributes()
 
             if let url = manga.url {
                 actions.append(UIMenu(identifier: .share, options: .displayInline, children: [

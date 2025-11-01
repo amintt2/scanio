@@ -57,10 +57,10 @@ struct SettingHeaderView: View {
 
         static func from(_ value: PageSetting.Icon) -> Self {
             switch value {
-                case let .system(name, color, inset):
-                    .system(name: name, color: color, inset: inset)
-                case let .url(string):
-                    .url(string)
+            case let .system(name, color, inset):
+                .system(name: name, color: color, inset: inset)
+            case let .url(string):
+                .url(string)
             }
         }
     }
@@ -68,31 +68,31 @@ struct SettingHeaderView: View {
     @ViewBuilder
     static func iconView(source: AidokuRunner.Source?, icon: Icon, size: CGFloat) -> some View {
         switch icon {
-            case let .system(name, color, inset):
-                Image(systemName: name)
-                    .resizable()
-                    .renderingMode(.template)
-                    .foregroundStyle(.white)
-                    .aspectRatio(contentMode: .fit)
-                    .padding(CGFloat(inset) / 29 * size)
-                    .frame(width: size, height: size)
-                    .background(color.toColor())
-                    .clipShape(RoundedRectangle(cornerRadius: size * 0.26))
-            case let .url(string):
-                SourceImageView(
-                    source: source,
-                    imageUrl: string,
-                    width: size,
-                    height: size,
-                    downsampleWidth: size * 2
-                )
+        case let .system(name, color, inset):
+            Image(systemName: name)
+                .resizable()
+                .renderingMode(.template)
+                .foregroundStyle(.white)
+                .aspectRatio(contentMode: .fit)
+                .padding(CGFloat(inset) / 29 * size)
+                .frame(width: size, height: size)
+                .background(color.toColor())
                 .clipShape(RoundedRectangle(cornerRadius: size * 0.26))
-            case let .raw(image):
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: size, height: size)
-                    .clipShape(RoundedRectangle(cornerRadius: size * 0.26))
+        case let .url(string):
+            SourceImageView(
+                source: source,
+                imageUrl: string,
+                width: size,
+                height: size,
+                downsampleWidth: size * 2
+            )
+            .clipShape(RoundedRectangle(cornerRadius: size * 0.26))
+        case let .raw(image):
+            image
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: size, height: size)
+                .clipShape(RoundedRectangle(cornerRadius: size * 0.26))
         }
     }
 }

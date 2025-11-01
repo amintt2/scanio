@@ -36,9 +36,9 @@ enum ChapterFilterMethod: CaseIterable, Hashable {
 
     var stringValue: String {
         switch self {
-            case .downloaded: NSLocalizedString("DOWNLOADED", comment: "")
-            case .unread: NSLocalizedString("UNREAD", comment: "")
-            case .locked: NSLocalizedString("LOCKED", comment: "")
+        case .downloaded: NSLocalizedString("DOWNLOADED", comment: "")
+        case .unread: NSLocalizedString("UNREAD", comment: "")
+        case .locked: NSLocalizedString("LOCKED", comment: "")
         }
     }
 }

@@ -75,9 +75,9 @@ struct SelectFilterView: View {
                     )
                 }
                 .navigationTitle(filter.title?.localizedCapitalized ?? "")
-#if !os(macOS)
+                #if !os(macOS)
                 .navigationBarTitleDisplayMode(.inline)
-#endif
+                #endif
             }
         }
         .onChange(of: selectedOption) { _ in
@@ -199,16 +199,16 @@ private struct SelectButtonStyle: ButtonStyle {
         let backgroundColor = selected ? Color.accentColor : Color(uiColor: .secondarySystemBackground)
         return // HStack(spacing: 5) {
             configuration.label
-                .font(.callout)
-//            if selected {
-//                Image(systemName: "checkmark")
-//                    .font(.callout.weight(.medium))
-//            }
-//        }
-        .padding(.vertical, 5)
-        .padding(.horizontal, 12)
-        .foregroundStyle(foregroundColor.opacity(configuration.isPressed ? 0.7 : 1))
-        .background(backgroundColor)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+            .font(.callout)
+            //            if selected {
+            //                Image(systemName: "checkmark")
+            //                    .font(.callout.weight(.medium))
+            //            }
+            //        }
+            .padding(.vertical, 5)
+            .padding(.horizontal, 12)
+            .foregroundStyle(foregroundColor.opacity(configuration.isPressed ? 0.7 : 1))
+            .background(backgroundColor)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }

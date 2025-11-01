@@ -60,12 +60,12 @@ class MyAnimeListApi {
                 if !oauth.tokens!.askedForRefresh {
                     oauth.tokens!.askedForRefresh = true
                     oauth.saveTokens()
-#if !os(macOS)
+                    #if !os(macOS)
                     await (UIApplication.shared.delegate as? AppDelegate)?.presentAlert(
                         title: String(format: NSLocalizedString("%@_TRACKER_LOGIN_NEEDED"), "MyAnimeList"),
                         message: String(format: NSLocalizedString("%@_TRACKER_LOGIN_NEEDED_TEXT"), "MyAnimeList")
                     )
-#endif
+                    #endif
                 }
                 return data
             }

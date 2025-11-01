@@ -31,8 +31,8 @@ struct SourceImageView: View {
                     data: data,
                     contentMode: contentMode
                 )
-                    .frame(width: width, height: height)
-                    .id(state.image != nil ? imageUrl : "placeholder") // ensures only opacity is animated
+                .frame(width: width, height: height)
+                .id(state.image != nil ? imageUrl : "placeholder") // ensures only opacity is animated
             } else {
                 let result = if let image = state.image {
                     image

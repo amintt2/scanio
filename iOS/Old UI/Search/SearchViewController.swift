@@ -492,12 +492,12 @@ extension SearchViewController {
         var section = hoveredIndexPath.section
         if sender.input == UIKeyCommand.inputUpArrow || sender.input == UIKeyCommand.inputDownArrow {
             guard let previousFirstIndexPath = collectionView.indexPathsForVisibleItems.filter({ $0.section == section }).sorted(by: <)[safe: 0]
-                  else { return }
+            else { return }
             section += sender.input == UIKeyCommand.inputUpArrow ? -1 : 1
             guard section >= 0, section < collectionView.numberOfSections else { return }
             collectionView.scrollToItem(at: IndexPath(row: 0, section: section), at: .centeredVertically, animated: true)
             guard let newFirstIndexPath = collectionView.indexPathsForVisibleItems.filter({ $0.section == section }).sorted(by: <)[safe: 0]
-                  else { return }
+            else { return }
             position += newFirstIndexPath.row - previousFirstIndexPath.row
         } else if sender.input == UIKeyCommand.inputLeftArrow || sender.input == UIKeyCommand.inputRightArrow {
             position += sender.input == UIKeyCommand.inputLeftArrow ? -1 : 1

@@ -110,7 +110,7 @@ extension HCollectionGrid {
         horizontalSpacing: CGFloat = 0,
         _ data: Data,
         id: KeyPath<Data.Element,
-        ID>,
+                    ID>,
         @ViewBuilder content: @escaping (Data.Element) -> Content
     ) {
         self.rows = max(1, rows)

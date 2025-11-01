@@ -200,11 +200,11 @@ extension SourceManager {
                 installedVersion < breakingChangeVersion
             {
                 // if there was a breaking change, prompt for migration
-#if !os(macOS)
+                #if !os(macOS)
                 Task { @MainActor in
                     (UIApplication.shared.delegate as? AppDelegate)?.handleSourceMigration(source: newSource)
                 }
-#endif
+                #endif
             }
 
             result = newSource
@@ -243,10 +243,10 @@ extension SourceManager {
         server: String,
         username: String? = nil,
         password: String? = nil,
-    ) async -> String {
+        ) async -> String {
         let keyPrefix = switch kind {
-            case .komga: "komga."
-            case .kavita: "kavita."
+        case .komga: "komga."
+        case .kavita: "kavita."
         }
         let nameEncoded = name.lowercased().replacingOccurrences(of: " ", with: "-")
         var key = "\(keyPrefix)\(nameEncoded)"
@@ -259,8 +259,8 @@ extension SourceManager {
         }
 
         let config = switch kind {
-            case .komga: CustomSourceConfig.komga(key: key, name: name, server: server)
-            case .kavita: CustomSourceConfig.kavita(key: key, name: name, server: server)
+        case .komga: CustomSourceConfig.komga(key: key, name: name, server: server)
+        case .kavita: CustomSourceConfig.kavita(key: key, name: name, server: server)
         }
         let source = config.toSource()
 

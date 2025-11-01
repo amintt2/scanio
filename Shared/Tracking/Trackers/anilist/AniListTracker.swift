@@ -39,45 +39,45 @@ class AniListTracker: OAuthTracker {
         let user = await api.getUser()
         anilistScoreType = user?.mediaListOptions?.scoreFormat
         switch user?.mediaListOptions?.scoreFormat {
-            case "POINT_100": scoreType = .hundredPoint
-            case "POINT_10_DECIMAL": scoreType = .tenPointDecimal
-            case "POINT_10": scoreType = .tenPoint
-            case "POINT_5":
-                scoreType = .optionList
-                scoreOptions = Array(0...5).map { ("\($0) ★", $0 == 0 ? 0 : $0 * 20 - 10) }
-            case "POINT_3":
-                scoreType = .optionList
-                scoreOptions = [
-                    ("-", 0),
-                    ("😦", 35),
-                    ("😐", 60),
-                    ("😊", 85)
-                ]
-            default: break
+        case "POINT_100": scoreType = .hundredPoint
+        case "POINT_10_DECIMAL": scoreType = .tenPointDecimal
+        case "POINT_10": scoreType = .tenPoint
+        case "POINT_5":
+            scoreType = .optionList
+            scoreOptions = Array(0...5).map { ("\($0) ★", $0 == 0 ? 0 : $0 * 20 - 10) }
+        case "POINT_3":
+            scoreType = .optionList
+            scoreOptions = [
+                ("-", 0),
+                ("😦", 35),
+                ("😐", 60),
+                ("😊", 85)
+            ]
+        default: break
         }
     }
 
     func option(for score: Int) -> String? {
         switch anilistScoreType {
-            case "POINT_5":
-                if score == 0 {
-                    return scoreOptions[0].0
-                } else {
-                    let index = Int(max(1, min((Float(score) + 10) / 20, 5)).rounded())
-                    return scoreOptions[index].0
-                }
-            case "POINT_3":
-                if score == 0 {
-                    return scoreOptions[0].0
-                } else if score <= 35 {
-                    return scoreOptions[1].0
-                } else if score <= 60 {
-                    return scoreOptions[2].0
-                } else {
-                    return scoreOptions[3].0
-                }
-            default:
-                return nil
+        case "POINT_5":
+            if score == 0 {
+                return scoreOptions[0].0
+            } else {
+                let index = Int(max(1, min((Float(score) + 10) / 20, 5)).rounded())
+                return scoreOptions[index].0
+            }
+        case "POINT_3":
+            if score == 0 {
+                return scoreOptions[0].0
+            } else if score <= 35 {
+                return scoreOptions[1].0
+            } else if score <= 60 {
+                return scoreOptions[2].0
+            } else {
+                return scoreOptions[3].0
+            }
+        default:
+            return nil
         }
     }
 
@@ -211,34 +211,34 @@ class AniListTracker: OAuthTracker {
 private extension AniListTracker {
     func getStatus(statusString: String?) -> TrackStatus {
         switch statusString {
-            case "CURRENT": return .reading
-            case "PLANNING": return .planning
-            case "COMPLETED": return .completed
-            case "DROPPED": return .dropped
-            case "PAUSED": return .paused
-            case "REPEATING": return .rereading
-            case nil: return .none
-            default: return .planning
+        case "CURRENT": return .reading
+        case "PLANNING": return .planning
+        case "COMPLETED": return .completed
+        case "DROPPED": return .dropped
+        case "PAUSED": return .paused
+        case "REPEATING": return .rereading
+        case nil: return .none
+        default: return .planning
         }
     }
 
     func getPublishingStatus(statusString: String) -> PublishingStatus {
         switch statusString {
-            case "FINISHED": return .completed
-            case "RELEASING": return .ongoing
-            case "NOT_YET_RELEASED": return .notPublished
-            case "CANCELLED": return .cancelled
-            case "HIATUS": return .hiatus
-            default: return .unknown
+        case "FINISHED": return .completed
+        case "RELEASING": return .ongoing
+        case "NOT_YET_RELEASED": return .notPublished
+        case "CANCELLED": return .cancelled
+        case "HIATUS": return .hiatus
+        default: return .unknown
         }
     }
 
     func getMediaType(typeString: String) -> MediaType {
         switch typeString {
-            case "MANGA": return .manga
-            case "NOVEL": return .novel
-            case "ONE_SHOT": return .oneShot
-            default: return .unknown
+        case "MANGA": return .manga
+        case "NOVEL": return .novel
+        case "ONE_SHOT": return .oneShot
+        default: return .unknown
         }
     }
 

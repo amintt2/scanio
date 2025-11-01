@@ -112,9 +112,9 @@ extension DownloadManagerView.ViewModel {
         // Quick comparison by ID and key properties
         for (old, new) in zip(lhs, rhs) {
             if old.id != new.id ||
-               old.totalSize != new.totalSize ||
-               old.chapterCount != new.chapterCount ||
-               old.isInLibrary != new.isInLibrary {
+                old.totalSize != new.totalSize ||
+                old.chapterCount != new.chapterCount ||
+                old.isInLibrary != new.isInLibrary {
                 return false
             }
         }

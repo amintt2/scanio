@@ -28,20 +28,20 @@ struct SourceHomeSkeletonView: View {
         VStack(spacing: 24) {
             ForEach(components.indices, id: \.self) { idx in
                 switch components[idx][0] {
-                    case 0:
-                        PlaceholderHomeImageScrollerView()
-                    case 1:
-                        PlaceholderMangaHomeBigScroller()
-                    case 2:
-                        PlaceholderMangaScroller()
-                    case 3, 4:
-                        PlaceholderMangaHomeList(itemCount: components[idx][1])
-                    case 5:
-                        PlaceholderHomeFiltersView()
-                    case 6:
-                        PlaceholderHomeLinksView()
-                    default:
-                        EmptyView()
+                case 0:
+                    PlaceholderHomeImageScrollerView()
+                case 1:
+                    PlaceholderMangaHomeBigScroller()
+                case 2:
+                    PlaceholderMangaScroller()
+                case 3, 4:
+                    PlaceholderMangaHomeList(itemCount: components[idx][1])
+                case 5:
+                    PlaceholderHomeFiltersView()
+                case 6:
+                    PlaceholderHomeLinksView()
+                default:
+                    EmptyView()
                 }
             }
         }

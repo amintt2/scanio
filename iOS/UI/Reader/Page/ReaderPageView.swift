@@ -214,12 +214,12 @@ class ReaderPageView: UIView {
                 if let processor {
                     let result: Nuke.ImageContainer?
                     switch error {
-                        case .dataLoadingFailed, .dataIsEmpty, .decodingFailed:
-                            result = await Task.detached {
-                                try? processor.processWithoutImage(request: request)
-                            }.value
-                        default:
-                            result = nil
+                    case .dataLoadingFailed, .dataIsEmpty, .decodingFailed:
+                        result = await Task.detached {
+                            try? processor.processWithoutImage(request: request)
+                        }.value
+                    default:
+                        result = nil
                     }
                     if let result {
                         imageView.image = result.image

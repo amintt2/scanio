@@ -44,11 +44,11 @@ extension LibraryMangaObject {
     @objc(removeCategoriesObject:)
     @NSManaged public func removeFromCategories(_ value: CategoryObject)
 
-//    @objc(addCategories:)
-//    @NSManaged public func addToCategories(_ values: NSSet)
+    //    @objc(addCategories:)
+    //    @NSManaged public func addToCategories(_ values: NSSet)
 
-//    @objc(removeCategories:)
-//    @NSManaged public func removeFromCategories(_ values: NSSet)
+    //    @objc(removeCategories:)
+    //    @NSManaged public func removeFromCategories(_ values: NSSet)
 
 }
 

@@ -76,10 +76,10 @@ struct SourceHomeContentView: View {
                             SourceHomeSkeletonView(source: source)
                         } else if let listing = currentListing {
                             switch listing.kind {
-                                case .default:
-                                    HomeGridView.placeholder
-                                case .list:
-                                    PlaceholderMangaHomeList(showTitle: false)
+                            case .default:
+                                HomeGridView.placeholder
+                            case .list:
+                                PlaceholderMangaHomeList(showTitle: false)
                             }
                         }
                     }
@@ -101,23 +101,23 @@ struct SourceHomeContentView: View {
                         // Display listing with listing.kind
                         Group {
                             switch listing.kind {
-                                case .default:
-                                    HomeGridView(source: source, entries: entries, bookmarkedItems: $bookmarkedItems) {
-                                        if hasMore && listingLoadState != .loading {
-                                            await loadEntries()
-                                        }
+                            case .default:
+                                HomeGridView(source: source, entries: entries, bookmarkedItems: $bookmarkedItems) {
+                                    if hasMore && listingLoadState != .loading {
+                                        await loadEntries()
                                     }
-                                case .list:
-                                    HomeListView(
-                                        source: source,
-                                        component: .init(title: nil, value: .mangaList(entries: entries.map { $0.intoLink() }))
-                                    ) {
-                                        if hasMore && listingLoadState != .loading {
-                                            await loadEntries()
-                                        }
+                                }
+                            case .list:
+                                HomeListView(
+                                    source: source,
+                                    component: .init(title: nil, value: .mangaList(entries: entries.map { $0.intoLink() }))
+                                ) {
+                                    if hasMore && listingLoadState != .loading {
+                                        await loadEntries()
                                     }
-                                    .id(listingSelection) // Force recreation on listing change
-                                    .padding(.bottom)
+                                }
+                                .id(listingSelection) // Force recreation on listing change
+                                .padding(.bottom)
                             }
                         }
                         .transition(.opacity)
@@ -221,21 +221,21 @@ struct SourceHomeContentView: View {
             ForEach(home.components.indices, id: \.self) { offset in
                 let component = home.components[offset]
                 switch component.value {
-                    case .imageScroller:
-                        HomeImageScrollerView(source: source, component: component, partial: partial)
-                    case .bigScroller:
-                        HomeBigScrollerView(source: source, component: component, partial: partial)
-                    case .scroller:
-                        HomeScrollerView(source: source, component: component, partial: partial)
-                    case .mangaList:
-                        HomeListView(source: source, component: component, partial: partial)
-                            .id("listing-\(offset)") // Force recreation for listing components
-                    case .mangaChapterList:
-                        HomeChapterListView(source: source, component: component, partial: partial)
-                    case .filters:
-                        HomeFiltersView(source: source, component: component, partial: partial)
-                    case .links:
-                        HomeLinksView(source: source, component: component, partial: partial)
+                case .imageScroller:
+                    HomeImageScrollerView(source: source, component: component, partial: partial)
+                case .bigScroller:
+                    HomeBigScrollerView(source: source, component: component, partial: partial)
+                case .scroller:
+                    HomeScrollerView(source: source, component: component, partial: partial)
+                case .mangaList:
+                    HomeListView(source: source, component: component, partial: partial)
+                        .id("listing-\(offset)") // Force recreation for listing components
+                case .mangaChapterList:
+                    HomeChapterListView(source: source, component: component, partial: partial)
+                case .filters:
+                    HomeFiltersView(source: source, component: component, partial: partial)
+                case .links:
+                    HomeLinksView(source: source, component: component, partial: partial)
                 }
             }
             .transition(.opacity)
@@ -289,12 +289,12 @@ struct SourceHomeContentView: View {
             if componentCount != home.components.count {
                 let result = home.components.flatMap {
                     switch $0.value {
-                        case let .mangaList(_, pageSize, entries, _):
-                            return [3, min(pageSize ?? .max, entries.count)]
-                        case let .mangaChapterList(pageSize, entries, _):
-                            return [4, min(pageSize ?? .max, entries.count)]
-                        default:
-                            return [$0.value.intValue, 0]
+                    case let .mangaList(_, pageSize, entries, _):
+                        return [3, min(pageSize ?? .max, entries.count)]
+                    case let .mangaChapterList(pageSize, entries, _):
+                        return [4, min(pageSize ?? .max, entries.count)]
+                    default:
+                        return [$0.value.intValue, 0]
                     }
                 }
                 UserDefaults.standard.set(result, forKey: storedComponentsKey)

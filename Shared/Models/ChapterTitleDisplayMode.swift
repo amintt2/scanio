@@ -14,9 +14,9 @@ enum ChapterTitleDisplayMode: Int, CaseIterable {
 extension ChapterTitleDisplayMode {
     var localizedTitle: String {
         switch self {
-            case .default: NSLocalizedString("DISPLAY_DEFAULT")
-            case .chapter: NSLocalizedString("DISPLAY_CHAPTER")
-            case .volume: NSLocalizedString("DISPLAY_VOLUME")
+        case .default: NSLocalizedString("DISPLAY_DEFAULT")
+        case .chapter: NSLocalizedString("DISPLAY_CHAPTER")
+        case .volume: NSLocalizedString("DISPLAY_VOLUME")
         }
     }
 }

@@ -36,10 +36,10 @@ struct SourceIconView: View {
             IconView(imageUrl: imageUrl)
         } else {
             let imageName = switch sourceId {
-                case LocalSourceRunner.sourceKey: "local"
-                case let x where x.hasPrefix("kavita"): "kavita"
-                case let x where x.hasPrefix("komga"): "komga"
-                default: "MangaPlaceholder"
+            case LocalSourceRunner.sourceKey: "local"
+            case let x where x.hasPrefix("kavita"): "kavita"
+            case let x where x.hasPrefix("komga"): "komga"
+            default: "MangaPlaceholder"
             }
             Image(imageName)
                 .resizable()

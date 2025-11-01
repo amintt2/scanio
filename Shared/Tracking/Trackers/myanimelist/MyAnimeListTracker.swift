@@ -38,7 +38,7 @@ class MyAnimeListTracker: OAuthTracker {
                     numChaptersRead: highestChapterRead.flatMap { Int(floor($0)) },
                     startDate: earliestReadDate?.dateString(format: "yyyy-MM-dd"),
                     status: highestChapterRead != nil ? "reading" : "plan_to_read",
-                )
+                    )
             )
         }
         return nil
@@ -115,47 +115,47 @@ class MyAnimeListTracker: OAuthTracker {
 private extension MyAnimeListTracker {
     func getStatus(statusString: String) -> TrackStatus? {
         switch statusString {
-            case "reading": return .reading
-            case "plan_to_read": return .planning
-            case "completed": return .completed
-            case "on_hold": return .paused
-            case "dropped": return .dropped
-            default: return nil
+        case "reading": return .reading
+        case "plan_to_read": return .planning
+        case "completed": return .completed
+        case "on_hold": return .paused
+        case "dropped": return .dropped
+        default: return nil
         }
     }
 
     func getStatusString(status: TrackStatus) -> String? {
         switch status.rawValue {
-            case 1: return "reading"
-            case 2: return "plan_to_read"
-            case 3: return "completed"
-            case 4: return "on_hold"
-            case 5: return "dropped"
-            default: return nil
+        case 1: return "reading"
+        case 2: return "plan_to_read"
+        case 3: return "completed"
+        case 4: return "on_hold"
+        case 5: return "dropped"
+        default: return nil
         }
     }
 
     func getPublishingStatus(statusString: String) -> PublishingStatus {
         switch statusString {
-            case "currently_publishing": return .ongoing
-            case "finished": return .completed
-            case "not_yet_published": return .notPublished
-            default: return .ongoing
+        case "currently_publishing": return .ongoing
+        case "finished": return .completed
+        case "not_yet_published": return .notPublished
+        default: return .ongoing
         }
     }
 
     func getMediaType(typeString: String) -> MediaType {
         switch typeString {
-            case "unknown": return .unknown
-            case "manga": return .manga
-            case "novel": return .novel
-            case "light_novel": return .novel
-            case "manhwa": return .manhwa
-            case "manhua": return .manhua
-            case "oel": return .oel
-            case "one_shot": return .oneShot
-            case "doujinshi": return .manga
-            default: return .manga
+        case "unknown": return .unknown
+        case "manga": return .manga
+        case "novel": return .novel
+        case "light_novel": return .novel
+        case "manhwa": return .manhwa
+        case "manhua": return .manhua
+        case "oel": return .oel
+        case "one_shot": return .oneShot
+        case "doujinshi": return .manga
+        default: return .manga
         }
     }
 }

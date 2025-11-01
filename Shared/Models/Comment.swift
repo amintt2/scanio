@@ -19,7 +19,7 @@ struct Comment: Codable, Identifiable, Equatable {
     let likesCount: Int
     let repliesCount: Int
     let parentCommentId: String?
-    
+
     enum CodingKeys: String, CodingKey {
         case id
         case chapterId = "chapter_id"
@@ -33,7 +33,7 @@ struct Comment: Codable, Identifiable, Equatable {
         case repliesCount = "replies_count"
         case parentCommentId = "parent_comment_id"
     }
-    
+
     static func == (lhs: Comment, rhs: Comment) -> Bool {
         lhs.id == rhs.id
     }
@@ -44,7 +44,7 @@ struct CommentLike: Codable, Identifiable {
     let commentId: String
     let userId: String
     let createdAt: Date
-    
+
     enum CodingKeys: String, CodingKey {
         case id
         case commentId = "comment_id"
@@ -57,11 +57,10 @@ struct CreateCommentRequest: Codable {
     let chapterId: String
     let content: String
     let parentCommentId: String?
-    
+
     enum CodingKeys: String, CodingKey {
         case chapterId = "chapter_id"
         case content
         case parentCommentId = "parent_comment_id"
     }
 }
-

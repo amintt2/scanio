@@ -14,7 +14,7 @@ struct User: Codable, Identifiable {
     let avatarUrl: String?
     let createdAt: Date
     let emailConfirmed: Bool
-    
+
     enum CodingKeys: String, CodingKey {
         case id
         case email
@@ -30,7 +30,7 @@ struct AuthSession: Codable {
     let refreshToken: String
     let expiresAt: Date
     let user: User
-    
+
     enum CodingKeys: String, CodingKey {
         case accessToken = "access_token"
         case refreshToken = "refresh_token"
@@ -43,7 +43,7 @@ struct SignUpRequest: Codable {
     let email: String
     let password: String
     let userName: String?
-    
+
     enum CodingKeys: String, CodingKey {
         case email
         case password
@@ -55,4 +55,3 @@ struct SignInRequest: Codable {
     let email: String
     let password: String
 }
-

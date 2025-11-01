@@ -152,8 +152,8 @@ struct HomeListView: View {
     func view(for entry: HomeComponent.Value.Link, position: Int) -> some View {
         let label = HStack(spacing: 12) {
             let mangaKey: String? = switch entry.value {
-                case .manga(let manga): manga.key
-                default: nil
+            case .manga(let manga): manga.key
+            default: nil
             }
             MangaCoverView(
                 source: source,
@@ -223,20 +223,20 @@ struct HomeListView: View {
         if let value = entry.value {
             Button {
                 switch value {
-                    case .url(let urlString):
-                        guard
-                            let url = URL(string: urlString),
-                            url.scheme == "http" || url.scheme == "https"
-                        else { return }
-                        path.present(SFSafariViewController(url: url))
-                    case .listing(let listing):
-                        path.push(SourceListingViewController(source: source, listing: listing))
-                    case .manga(let manga):
-                        if let onSelect {
-                            onSelect(manga)
-                        } else {
-                            path.push(MangaViewController(source: source, manga: manga, parent: path.rootViewController))
-                        }
+                case .url(let urlString):
+                    guard
+                        let url = URL(string: urlString),
+                        url.scheme == "http" || url.scheme == "https"
+                    else { return }
+                    path.present(SFSafariViewController(url: url))
+                case .listing(let listing):
+                    path.push(SourceListingViewController(source: source, listing: listing))
+                case .manga(let manga):
+                    if let onSelect {
+                        onSelect(manga)
+                    } else {
+                        path.push(MangaViewController(source: source, manga: manga, parent: path.rootViewController))
+                    }
                 }
             } label: {
                 label
@@ -252,8 +252,8 @@ struct HomeListView: View {
             var keys: Set<String> = .init()
             for entry in entries {
                 let mangaKey: String? = switch entry.value {
-                    case .manga(let manga): manga.key
-                    default: nil
+                case .manga(let manga): manga.key
+                default: nil
                 }
                 if let mangaKey {
                     if CoreDataManager.shared.hasLibraryManga(

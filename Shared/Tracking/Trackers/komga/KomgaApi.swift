@@ -42,12 +42,12 @@ class KomgaApi {
             return .init(
                 lastReadChapter: data.lastReadContinuousNumberSort,
                 totalChapters: Int(floor(data.maxNumberSort)),
-            )
+                )
         } else {
             return .init(
                 lastReadVolume: Int(floor(data.lastReadContinuousNumberSort)),
                 totalVolumes: Int(floor(data.maxNumberSort)),
-            )
+                )
         }
     }
 

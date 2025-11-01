@@ -79,27 +79,27 @@ class ReaderPageViewController: BaseViewController {
 
     override func configure() {
         switch type {
-            case .info:
-                // info view
-                guard let infoView else { return }
-                infoView.translatesAutoresizingMaskIntoConstraints = false
-                view.addSubview(infoView)
+        case .info:
+            // info view
+            guard let infoView else { return }
+            infoView.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview(infoView)
 
-            case .page:
-                // zoom view
-                let zoomView = ZoomableScrollView(frame: view.bounds)
-                zoomView.translatesAutoresizingMaskIntoConstraints = false
-                view.addSubview(zoomView)
+        case .page:
+            // zoom view
+            let zoomView = ZoomableScrollView(frame: view.bounds)
+            zoomView.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview(zoomView)
 
-                // page view
-                guard let pageView else { return }
-                pageView.translatesAutoresizingMaskIntoConstraints = false
-                zoomView.addSubview(pageView)
-                zoomView.zoomView = pageView
+            // page view
+            guard let pageView else { return }
+            pageView.translatesAutoresizingMaskIntoConstraints = false
+            zoomView.addSubview(pageView)
+            zoomView.zoomView = pageView
 
-                view.addSubview(reloadButton)
+            view.addSubview(reloadButton)
 
-                self.zoomView = zoomView
+            self.zoomView = zoomView
         }
     }
 

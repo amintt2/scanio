@@ -18,7 +18,7 @@ class WasmGlobalStore {
     // std
     var stdDescriptorPointer: Int32 = -1
     var stdDescriptors: [Int32: Any?] = [:]
-//    var stdReferences: [Int32: [Int32]] = [:]
+    //    var stdReferences: [Int32: [Int32]] = [:]
 
     // net
     var requestsPointer: Int32 = -1
@@ -47,9 +47,9 @@ class WasmGlobalStore {
 // MARK: - Memory R/W
 extension WasmGlobalStore {
 
-//    func readString(offset: Int, length: Int) -> String? {
-//        try? vm.runtime.memory().readString(offset: UInt32(offset), length: UInt32(length))
-//    }
+    //    func readString(offset: Int, length: Int) -> String? {
+    //        try? vm.runtime.memory().readString(offset: UInt32(offset), length: UInt32(length))
+    //    }
 
     func readString(offset: Int32, length: Int32) -> String? {
         try? vm.runtime.memory().readString(offset: UInt32(offset), length: UInt32(length))
@@ -67,15 +67,15 @@ extension WasmGlobalStore {
         try? vm.runtime.memory().readBytes(offset: UInt32(offset), length: UInt32(length))
     }
 
-//    func write<T: WasmType & FixedWidthInteger>(value: T, offset: Int32) {
-//        try? vm.runtime.memory().write(values: [value], offset: UInt32(offset))
-//    }
+    //    func write<T: WasmType & FixedWidthInteger>(value: T, offset: Int32) {
+    //        try? vm.runtime.memory().write(values: [value], offset: UInt32(offset))
+    //    }
 
     func write(bytes: [UInt8], offset: Int32) {
         try? vm.runtime.memory().write(bytes: bytes, offset: UInt32(offset))
     }
 
-//    func write(data: Data, offset: Int32) {
-//        try? vm.runtime.memory().write(data: data, offset: UInt32(offset))
-//    }
+    //    func write(data: Data, offset: Int32) {
+    //        try? vm.runtime.memory().write(data: data, offset: UInt32(offset))
+    //    }
 }

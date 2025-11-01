@@ -67,11 +67,11 @@ class SourceInfoHeaderView: UIView {
         subtitleLabel.textColor = .secondaryLabel
         labelStack.addArrangedSubview(subtitleLabel)
 
-//        uninstallButton.titleLabel?.font = .systemFont(ofSize: 14, weight: .semibold)
-//        uninstallButton.setTitle("UNINSTALL", for: .normal)
-//        uninstallButton.setTitleColor(.white, for: .normal)
-//        uninstallButton.layer.cornerRadius = 14
-//        uninstallButton.backgroundColor = tintColor
+        //        uninstallButton.titleLabel?.font = .systemFont(ofSize: 14, weight: .semibold)
+        //        uninstallButton.setTitle("UNINSTALL", for: .normal)
+        //        uninstallButton.setTitleColor(.white, for: .normal)
+        //        uninstallButton.layer.cornerRadius = 14
+        //        uninstallButton.backgroundColor = tintColor
         uninstallButton.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(uninstallButton)
     }

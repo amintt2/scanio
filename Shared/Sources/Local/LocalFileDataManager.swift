@@ -392,7 +392,7 @@ extension LocalFileDataManager {
             toRemove,
             // manga that exist on disk but not in db
             folderMangaIds.subtracting(dbMangaIds),
-        )
+            )
     }
 }
 

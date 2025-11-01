@@ -394,8 +394,8 @@ extension MangaView.ViewModel {
                     // update manga updates
                     for chapter in newChapters
                     where
-                    langFilter != nil ? chapter.lang == langFilter : true
-                    && !scanlatorFilter.isEmpty ? scanlatorFilter.contains(chapter.scanlator ?? "") : true
+                        langFilter != nil ? chapter.lang == langFilter : true
+                        && !scanlatorFilter.isEmpty ? scanlatorFilter.contains(chapter.scanlator ?? "") : true
                     {
                         CoreDataManager.shared.createMangaUpdate(
                             sourceId: sourceKey,
@@ -550,20 +550,20 @@ extension MangaView.ViewModel {
             return []
         }
         return switch chapterSortOption {
-            case .sourceOrder:
-                chapterSortAscending ? chapters.reversed() : chapters
-            case .chapter:
-                if chapterSortAscending {
-                    chapters.sorted(by: { $0.chapterNumber ?? -1 < $1.chapterNumber ?? -1 })
-                } else {
-                    chapters.sorted(by: { $0.chapterNumber ?? -1 > $1.chapterNumber ?? -1 })
-                }
-            case .uploadDate:
-                if chapterSortAscending {
-                    chapters.sorted(by: { $0.dateUploaded ?? .distantPast < $1.dateUploaded ?? .distantPast })
-                } else {
-                    chapters.sorted(by: { $0.dateUploaded ?? .distantPast > $1.dateUploaded ?? .distantPast })
-                }
+        case .sourceOrder:
+            chapterSortAscending ? chapters.reversed() : chapters
+        case .chapter:
+            if chapterSortAscending {
+                chapters.sorted(by: { $0.chapterNumber ?? -1 < $1.chapterNumber ?? -1 })
+            } else {
+                chapters.sorted(by: { $0.chapterNumber ?? -1 > $1.chapterNumber ?? -1 })
+            }
+        case .uploadDate:
+            if chapterSortAscending {
+                chapters.sorted(by: { $0.dateUploaded ?? .distantPast < $1.dateUploaded ?? .distantPast })
+            } else {
+                chapters.sorted(by: { $0.dateUploaded ?? .distantPast > $1.dateUploaded ?? .distantPast })
+            }
         }
     }
 
@@ -589,24 +589,24 @@ extension MangaView.ViewModel {
 
         for filter in chapterFilters {
             switch filter.type {
-                case .downloaded:
-                    chapters = chapters.filter {
-                        let downloaded = !DownloadManager.shared.isChapterDownloaded(
-                            sourceId: manga.sourceKey,
-                            mangaId: manga.key,
-                            chapterId: $0.key
-                        )
-                        return filter.exclude ? downloaded : !downloaded
-                    }
-                case .unread:
-                    chapters = chapters.filter {
-                        let isCompleted = self.readingHistory[$0.id]?.0 == -1
-                        return filter.exclude ? isCompleted : !isCompleted
-                    }
-                case .locked:
-                    chapters = chapters.filter {
-                        filter.exclude ? !$0.locked : $0.locked
-                    }
+            case .downloaded:
+                chapters = chapters.filter {
+                    let downloaded = !DownloadManager.shared.isChapterDownloaded(
+                        sourceId: manga.sourceKey,
+                        mangaId: manga.key,
+                        chapterId: $0.key
+                    )
+                    return filter.exclude ? downloaded : !downloaded
+                }
+            case .unread:
+                chapters = chapters.filter {
+                    let isCompleted = self.readingHistory[$0.id]?.0 == -1
+                    return filter.exclude ? isCompleted : !isCompleted
+                }
+            case .locked:
+                chapters = chapters.filter {
+                    filter.exclude ? !$0.locked : $0.locked
+                }
             }
         }
 
@@ -638,18 +638,18 @@ extension MangaView.ViewModel {
     private func updateReadButton() {
         let nextChapter = getNextChapter()
         switch nextChapter {
-            case .none:
-                return
-            case .allRead:
-                allChaptersRead = true
-                allChaptersLocked = false
-            case .allLocked:
-                allChaptersLocked = true
-            case .chapter(let nextChapter):
-                allChaptersRead = false
-                allChaptersLocked = false
-                readingInProgress = readingHistory[nextChapter.id]?.date ?? 0 > 0
-                self.nextChapter = nextChapter
+        case .none:
+            return
+        case .allRead:
+            allChaptersRead = true
+            allChaptersLocked = false
+        case .allLocked:
+            allChaptersLocked = true
+        case .chapter(let nextChapter):
+            allChaptersRead = false
+            allChaptersLocked = false
+            readingInProgress = readingHistory[nextChapter.id]?.date ?? 0 > 0
+            self.nextChapter = nextChapter
         }
     }
 
@@ -661,21 +661,21 @@ extension MangaView.ViewModel {
         flags |= chapterSortOption.rawValue << 1
         for filter in chapterFilters {
             switch filter.type {
-                case .downloaded:
-                    flags |= ChapterFlagMask.downloadFilterEnabled
-                    if filter.exclude {
-                        flags |= ChapterFlagMask.downloadFilterExcluded
-                    }
-                case .unread:
-                    flags |= ChapterFlagMask.unreadFilterEnabled
-                    if filter.exclude {
-                        flags |= ChapterFlagMask.unreadFilterExcluded
-                    }
-                case .locked:
-                    flags |= ChapterFlagMask.lockedFilterEnabled
-                    if filter.exclude {
-                        flags |= ChapterFlagMask.lockedFilterExcluded
-                    }
+            case .downloaded:
+                flags |= ChapterFlagMask.downloadFilterEnabled
+                if filter.exclude {
+                    flags |= ChapterFlagMask.downloadFilterExcluded
+                }
+            case .unread:
+                flags |= ChapterFlagMask.unreadFilterEnabled
+                if filter.exclude {
+                    flags |= ChapterFlagMask.unreadFilterExcluded
+                }
+            case .locked:
+                flags |= ChapterFlagMask.lockedFilterEnabled
+                if filter.exclude {
+                    flags |= ChapterFlagMask.lockedFilterExcluded
+                }
             }
         }
         return flags

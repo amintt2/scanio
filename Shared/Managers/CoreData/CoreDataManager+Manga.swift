@@ -89,7 +89,7 @@ extension CoreDataManager {
         mangaId: String,
         coverUrl: String?,
         original: Bool = false,
-    ) async -> String? {
+        ) async -> String? {
         await container.performBackgroundTask { context in
             guard let object = self.getManga(
                 sourceId: sourceId,

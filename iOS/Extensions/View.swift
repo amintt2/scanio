@@ -31,14 +31,14 @@ extension View {
         }
     }
 
-//    @ViewBuilder
-//    func hidden(_ hidden: Bool) -> some View {
-//        if hidden {
-//            self.hidden()
-//        } else {
-//            self
-//        }
-//    }
+    //    @ViewBuilder
+    //    func hidden(_ hidden: Bool) -> some View {
+    //        if hidden {
+    //            self.hidden()
+    //        } else {
+    //            self
+    //        }
+    //    }
 }
 
 extension View {
@@ -79,13 +79,13 @@ extension View {
         }
     }
 
-//    func scrollPagingPlease() -> some View {
-//        if #available(iOS 17.0, macOS 14.0, *) {
-//            return self.scrollTargetBehavior(.paging)
-//        } else {
-//            return self
-//        }
-//    }
+    //    func scrollPagingPlease() -> some View {
+    //        if #available(iOS 17.0, macOS 14.0, *) {
+    //            return self.scrollTargetBehavior(.paging)
+    //        } else {
+    //            return self
+    //        }
+    //    }
 
     func scrollBackgroundHiddenPlease() -> some View {
         if #available(iOS 16.0, macOS 13.0, *) {
@@ -132,7 +132,7 @@ extension View {
     func contentMarginsPlease(
         _ edges: Edge.Set = .all,
         _ length: CGFloat?,
-    ) -> some View {
+        ) -> some View {
         if #available(iOS 17.0, *) {
             return self.contentMargins(edges, length)
         } else {
@@ -173,31 +173,31 @@ extension View {
     ) async {
         await withCheckedContinuation { continuation in
             let animation: Animation = switch options {
-                case .linear:
-                    .linear(duration: duration)
-                case .easeIn:
-                    .easeIn(duration: duration)
-                case .easeOut:
-                    .easeOut(duration: duration)
-                case .easeInOut:
-                    .easeInOut(duration: duration)
+            case .linear:
+                .linear(duration: duration)
+            case .easeIn:
+                .easeIn(duration: duration)
+            case .easeOut:
+                .easeOut(duration: duration)
+            case .easeInOut:
+                .easeInOut(duration: duration)
             }
             // todo: this has some bugs
-//            if #available(iOS 17.0, *) {
-//                withAnimation(animation) {
-//                    execute()
-//                } completion: {
-//                    continuation.resume()
-//                }
-//            } else {
-                withAnimation(animation) {
-                    execute()
-                }
+            //            if #available(iOS 17.0, *) {
+            //                withAnimation(animation) {
+            //                    execute()
+            //                } completion: {
+            //                    continuation.resume()
+            //                }
+            //            } else {
+            withAnimation(animation) {
+                execute()
+            }
 
-                DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
-                    continuation.resume()
-                }
-//            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
+                continuation.resume()
+            }
+            //            }
         }
     }
 

@@ -19,7 +19,7 @@ extension View {
         onSubmit: (() -> Void)? = nil,
         onCancel: (() -> Void)? = nil,
         onBookmarkPress: (() -> Void)? = nil,
-    ) -> some View {
+        ) -> some View {
         overlay(
             CustomSearchBar(
                 searchText: text,

@@ -185,26 +185,26 @@ private extension ShikimoriApi {
 
     func getStatusFromTrack(status: TrackStatus) -> String {
         switch status {
-            case .completed: return "completed"
-            case .dropped: return "dropped"
-            case .paused: return "on_hold"
-            case .planning: return "planned"
-            case .reading: return "watching"
-            case .rereading: return "rewatching"
-            default: return ""
+        case .completed: return "completed"
+        case .dropped: return "dropped"
+        case .paused: return "on_hold"
+        case .planning: return "planned"
+        case .reading: return "watching"
+        case .rereading: return "rewatching"
+        default: return ""
         }
     }
 
     func getStatusFromString(status: String?) -> TrackStatus {
         switch status {
-            case "completed": return .completed
-            case "dropped": return .dropped
-            case "on_hold": return .paused
-            case "planned": return .planning
-            case "watching": return .reading
-            case "rewatching": return .rereading
-            case nil: return .none
-            default: return .planning
+        case "completed": return .completed
+        case "dropped": return .dropped
+        case "on_hold": return .paused
+        case "planned": return .planning
+        case "watching": return .reading
+        case "rewatching": return .rereading
+        case nil: return .none
+        default: return .planning
         }
     }
 
@@ -255,12 +255,12 @@ private extension ShikimoriApi {
                 if !oauth.tokens!.askedForRefresh {
                     oauth.tokens!.askedForRefresh = true
                     oauth.saveTokens()
-#if !os(macOS)
+                    #if !os(macOS)
                     await (UIApplication.shared.delegate as? AppDelegate)?.presentAlert(
                         title: String(format: NSLocalizedString("%@_TRACKER_LOGIN_NEEDED"), "Shikimori"),
                         message: String(format: NSLocalizedString("%@_TRACKER_LOGIN_NEEDED_TEXT"), "Shikimori")
                     )
-#endif
+                    #endif
                 }
                 return data
             }

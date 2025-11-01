@@ -70,12 +70,12 @@ struct AddSourceView: View {
                             infoView(
                                 title: NSLocalizedString("ALL_SOURCES_INSTALLED"),
                                 subtitle: NSLocalizedString("ALL_SOURCES_INSTALLED_INFO"),
-                            )
+                                )
                         } else {
                             infoView(
                                 title: NSLocalizedString("NO_AVAILABLE_SOURCES"),
                                 subtitle: NSLocalizedString("NO_AVAILABLE_SOURCES_INFO"),
-                            )
+                                )
                         }
                     } else {
                         let filteredSources = if searchText.isEmpty {
@@ -202,37 +202,37 @@ struct AddSourceView: View {
 
     var builtInSources: some View {
         Section(NSLocalizedString("BUILT_IN_SOURCES")) {
-//            if !SourceManager.shared.sources.contains(where: { $0.key == "demo" }) {
-//                ExternalSourceTableCell(
-//                    source: .init(
-//                        sourceId: "demo",
-//                        name: "Demo Source",
-//                        languages: ["multi"],
-//                        version: 1,
-//                        contentRating: .safe
-//                    ),
-//                    onGet: {
-//                        let config = CustomSourceConfig.demo
-//                        let source = config.toSource()
-//
-//                        // add to coredata
-//                        await CoreDataManager.shared.container.performBackgroundTask { context in
-//                            let result = CoreDataManager.shared.createSource(source: source, context: context)
-//                            result.customSource = config.encode() as NSObject
-//                            try? context.save()
-//                        }
-//
-//                        SourceManager.shared.sources.append(source)
-//                        SourceManager.shared.sortSources()
-//
-//                        NotificationCenter.default.post(name: Notification.Name("updateSourceList"), object: nil)
-//
-//                        dismiss()
-//
-//                        return true
-//                    }
-//                )
-//            }
+            //            if !SourceManager.shared.sources.contains(where: { $0.key == "demo" }) {
+            //                ExternalSourceTableCell(
+            //                    source: .init(
+            //                        sourceId: "demo",
+            //                        name: "Demo Source",
+            //                        languages: ["multi"],
+            //                        version: 1,
+            //                        contentRating: .safe
+            //                    ),
+            //                    onGet: {
+            //                        let config = CustomSourceConfig.demo
+            //                        let source = config.toSource()
+            //
+            //                        // add to coredata
+            //                        await CoreDataManager.shared.container.performBackgroundTask { context in
+            //                            let result = CoreDataManager.shared.createSource(source: source, context: context)
+            //                            result.customSource = config.encode() as NSObject
+            //                            try? context.save()
+            //                        }
+            //
+            //                        SourceManager.shared.sources.append(source)
+            //                        SourceManager.shared.sortSources()
+            //
+            //                        NotificationCenter.default.post(name: Notification.Name("updateSourceList"), object: nil)
+            //
+            //                        dismiss()
+            //
+            //                        return true
+            //                    }
+            //                )
+            //            }
 
             if !SourceManager.shared.sources.contains(where: { $0.key == LocalSourceRunner.sourceKey }) {
                 ExternalSourceTableCell(

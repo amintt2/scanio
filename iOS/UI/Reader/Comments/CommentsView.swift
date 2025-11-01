@@ -9,41 +9,50 @@ import SwiftUI
 
 struct CommentsView: View {
     let chapterId: String
+    var onDismiss: ((Int) -> Void)?
+
     @Environment(\.dismiss) var dismiss
-    
+
     @State private var comments: [Comment] = []
     @State private var isLoading = false
     @State private var newCommentText = ""
     @State private var errorMessage: String?
     @State private var replyingTo: Comment?
-    
+
     var body: some View {
         VStack(spacing: 0) {
-            // Header
+            // Header with liquid glass effect
             HStack {
-                Text("Commentaires")
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Commentaires")
+                        .font(.headline)
+                        .fontWeight(.semibold)
+
+                    Text("\(comments.count) commentaire\(comments.count > 1 ? "s" : "")")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+
                 Spacer()
-                
-                Text("\(comments.count)")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                
+
                 Button(action: {
+                    onDismiss?(comments.count)
                     dismiss()
                 }) {
                     Image(systemName: "xmark.circle.fill")
                         .font(.title2)
                         .foregroundColor(.secondary)
+                        .symbolRenderingMode(.hierarchical)
                 }
             }
             .padding()
-            .background(Color(UIColor.systemBackground))
-            
+            .background(
+                .ultraThinMaterial,
+                in: RoundedRectangle(cornerRadius: 0)
+            )
+
             Divider()
-            
+
             // Comments list
             if isLoading && comments.isEmpty {
                 ProgressView()
@@ -76,7 +85,7 @@ struct CommentsView: View {
                     }
                 }
             }
-            
+
             // Error message
             if let errorMessage {
                 Text(errorMessage)
@@ -85,7 +94,7 @@ struct CommentsView: View {
                     .padding(.horizontal)
                     .padding(.top, 8)
             }
-            
+
             // Reply indicator
             if let replyingTo {
                 HStack {
@@ -102,32 +111,39 @@ struct CommentsView: View {
                 .padding(.vertical, 8)
                 .background(Color(UIColor.secondarySystemBackground))
             }
-            
-            // Input field
+
+            // Input field with liquid glass effect
             HStack(spacing: 12) {
                 TextField("Ajouter un commentaire...", text: $newCommentText, axis: .vertical)
                     .textFieldStyle(.roundedBorder)
                     .lineLimit(1...4)
-                
+
                 Button(action: postComment) {
                     Image(systemName: "arrow.up.circle.fill")
                         .font(.title2)
                         .foregroundColor(newCommentText.isEmpty ? .secondary : .accentColor)
+                        .symbolRenderingMode(.hierarchical)
                 }
                 .disabled(newCommentText.isEmpty || isLoading)
             }
             .padding()
-            .background(Color(UIColor.systemBackground))
+            .background(
+                .ultraThinMaterial,
+                in: RoundedRectangle(cornerRadius: 0)
+            )
         }
         .onAppear {
             loadComments()
         }
+        .onDisappear {
+            onDismiss?(comments.count)
+        }
     }
-    
+
     private func loadComments() {
         isLoading = true
         errorMessage = nil
-        
+
         Task {
             do {
                 comments = try await SupabaseManager.shared.fetchComments(for: chapterId)
@@ -138,14 +154,14 @@ struct CommentsView: View {
             }
         }
     }
-    
+
     private func postComment() {
         guard !newCommentText.isEmpty else { return }
-        
+
         let content = newCommentText
         newCommentText = ""
         errorMessage = nil
-        
+
         Task {
             do {
                 let newComment = try await SupabaseManager.shared.createComment(
@@ -161,7 +177,7 @@ struct CommentsView: View {
             }
         }
     }
-    
+
     private func deleteComment(_ comment: Comment) {
         Task {
             do {
@@ -178,17 +194,17 @@ struct CommentRowView: View {
     let comment: Comment
     let onReply: () -> Void
     let onDelete: () -> Void
-    
+
     @State private var isLiked = false
     @State private var likesCount: Int
-    
+
     init(comment: Comment, onReply: @escaping () -> Void, onDelete: @escaping () -> Void) {
         self.comment = comment
         self.onReply = onReply
         self.onDelete = onDelete
         self._likesCount = State(initialValue: comment.likesCount)
     }
-    
+
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             // Avatar
@@ -200,26 +216,26 @@ struct CommentRowView: View {
                         .font(.headline)
                         .foregroundColor(.white)
                 )
-            
+
             VStack(alignment: .leading, spacing: 4) {
                 // Username and time
                 HStack {
                     Text(comment.userName ?? "Anonyme")
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                    
+
                     Text("• \(timeAgoString(from: comment.createdAt))")
                         .font(.caption)
                         .foregroundColor(.secondary)
-                    
+
                     Spacer()
                 }
-                
+
                 // Comment content
                 Text(comment.content)
                     .font(.body)
                     .fixedSize(horizontal: false, vertical: true)
-                
+
                 // Actions
                 HStack(spacing: 20) {
                     Button(action: toggleLike) {
@@ -233,7 +249,7 @@ struct CommentRowView: View {
                         }
                         .foregroundColor(isLiked ? .red : .secondary)
                     }
-                    
+
                     Button(action: onReply) {
                         HStack(spacing: 4) {
                             Image(systemName: "bubble.left")
@@ -245,9 +261,9 @@ struct CommentRowView: View {
                         }
                         .foregroundColor(.secondary)
                     }
-                    
+
                     Spacer()
-                    
+
                     // Delete button (only for own comments)
                     if comment.userId == SupabaseManager.shared.currentUser?.id {
                         Button(action: onDelete) {
@@ -262,7 +278,7 @@ struct CommentRowView: View {
         }
         .padding()
     }
-    
+
     private func toggleLike() {
         Task {
             do {
@@ -279,10 +295,10 @@ struct CommentRowView: View {
             }
         }
     }
-    
+
     private func timeAgoString(from date: Date) -> String {
         let interval = Date().timeIntervalSince(date)
-        
+
         if interval < 60 {
             return "à l'instant"
         } else if interval < 3600 {
@@ -301,4 +317,3 @@ struct CommentRowView: View {
         }
     }
 }
-

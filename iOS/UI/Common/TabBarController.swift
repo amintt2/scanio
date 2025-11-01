@@ -64,13 +64,13 @@ class TabBarController: UITabBarController {
 
         let historyPath = NavigationCoordinator(rootViewController: nil)
         let historyHostingController = UIHostingController(rootView: HistoryView()
-            .environmentObject(historyPath))
+                                                            .environmentObject(historyPath))
         historyPath.rootViewController = historyHostingController
         let historyViewController = UINavigationController(rootViewController: historyHostingController)
 
         let settingsPath = NavigationCoordinator(rootViewController: nil)
         let settingsHostingController = UIHostingController(rootView: SettingsView()
-            .environmentObject(settingsPath))
+                                                                .environmentObject(settingsPath))
         settingsPath.rootViewController = settingsHostingController
         let settingsViewController = UINavigationController(rootViewController: settingsHostingController)
 

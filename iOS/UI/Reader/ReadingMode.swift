@@ -14,12 +14,12 @@ enum ReadingMode: Int {
 
     init?(_ stringValue: String) {
         switch stringValue {
-            case "rtl": self = .rtl
-            case "ltr": self = .ltr
-            case "vertical": self = .vertical
-            case "webtoon": self = .webtoon
-            case "continuous": self = .continuous
-            default: return nil
+        case "rtl": self = .rtl
+        case "ltr": self = .ltr
+        case "vertical": self = .vertical
+        case "webtoon": self = .webtoon
+        case "continuous": self = .continuous
+        default: return nil
         }
     }
 }

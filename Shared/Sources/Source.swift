@@ -268,7 +268,7 @@ extension Source {
                 canAscend: filter.canAscend ?? false,
                 value: value?["index"] != nil ? SortSelection(index: value?["index"]?.intValue ?? 0,
                                                               ascending: value?["ascending"]?.boolValue ?? false)
-                                              : SortSelection(index: 0, ascending: false)
+                    : SortSelection(index: 0, ascending: false)
             )
         case "check":
             return CheckFilter(name: filter.name ?? "", canExclude: filter.canExclude ?? false, id: filter.id, value: filter.defaultValue?.boolValue)
@@ -364,10 +364,10 @@ extension Source {
         )
     }
 
-//    func modifyUrlRequest(request: URLRequest) -> URLRequest? {
-//        guard !netModule.isRateLimited() else { return nil }
-//        return netModule.modifyRequest(request)
-//    }
+    //    func modifyUrlRequest(request: URLRequest) -> URLRequest? {
+    //        guard !netModule.isRateLimited() else { return nil }
+    //        return netModule.modifyRequest(request)
+    //    }
 
     func handleUrl(url: String) async throws -> DeepLink {
         try await actor.handleUrl(url: url)

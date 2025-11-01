@@ -45,7 +45,7 @@ struct CollectionView: UIViewControllerRepresentable {
         }
 
         func numberOfSections(in collectionView: UICollectionView) -> Int {
-           parent.sections.count
+            parent.sections.count
         }
 
         func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {

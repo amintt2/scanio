@@ -45,9 +45,9 @@ struct FilterHeaderView: View {
         enabledFilters
             .map {
                 switch $0 {
-                    case .text, .sort, .check, .select, .range: 1
-                    case let .multiselect(_, included, excluded):
-                        included.count + excluded.count
+                case .text, .sort, .check, .select, .range: 1
+                case let .multiselect(_, included, excluded):
+                    included.count + excluded.count
                 }
             }
             .reduce(0, +)
@@ -61,20 +61,20 @@ struct FilterHeaderView: View {
                 ForEach(sortedFilters, id: \.self) { filter in
                     if !(filter.hideFromHeader ?? false) {
                         switch filter.value {
-                            case .sort:
-                                SortFilterView(filter: filter, enabledFilters: $enabledFilters)
-                            case let .check(_, _, defaultValue):
-                                // if check filter has a default value then hide it from the list
-                                // we don't want it to appear as enabled when the filters are reset
-                                if defaultValue == nil {
-                                    CheckFilterView(filter: filter, enabledFilters: $enabledFilters)
-                                }
-                            case .select:
-                                SelectFilterView(filter: filter, enabledFilters: $enabledFilters)
-                            case .multiselect:
-                                MultiSelectFilterView(filter: filter, enabledFilters: $enabledFilters)
-                            default:
-                                EmptyView()
+                        case .sort:
+                            SortFilterView(filter: filter, enabledFilters: $enabledFilters)
+                        case let .check(_, _, defaultValue):
+                            // if check filter has a default value then hide it from the list
+                            // we don't want it to appear as enabled when the filters are reset
+                            if defaultValue == nil {
+                                CheckFilterView(filter: filter, enabledFilters: $enabledFilters)
+                            }
+                        case .select:
+                            SelectFilterView(filter: filter, enabledFilters: $enabledFilters)
+                        case .multiselect:
+                            MultiSelectFilterView(filter: filter, enabledFilters: $enabledFilters)
+                        default:
+                            EmptyView()
                         }
                     }
                 }
@@ -137,7 +137,7 @@ struct FilterHeaderView: View {
                                 RoundedRectangle(cornerRadius: 100)
                             }
                         }
-                            .foregroundColor(.init(uiColor: .secondarySystemFill))
+                        .foregroundColor(.init(uiColor: .secondarySystemFill))
                     )
                     .overlay {
                         if enabledFilters.isEmpty {

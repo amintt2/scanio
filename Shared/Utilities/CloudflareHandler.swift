@@ -20,21 +20,21 @@ actor CloudflareHandler: NSObject {
     @MainActor
     private lazy var webView = WKWebView(frame: .zero)
 
-#if !os(macOS)
+    #if !os(macOS)
     @MainActor
     private var popupController: WebViewViewController?
-#endif
+    #endif
 
     @MainActor
     private var popupShown: Bool {
-#if !os(macOS)
+        #if !os(macOS)
         popupController?.presentingViewController != nil
-#else
+        #else
         false
-#endif
+        #endif
     }
 
-#if os(macOS)
+    #if os(macOS)
     @MainActor
     private var parent: NSWindow? {
         NSApplication.shared.windows.first
@@ -44,7 +44,7 @@ actor CloudflareHandler: NSObject {
     private var parentView: NSView? {
         parent?.contentView
     }
-#else
+    #else
     @MainActor
     private var parent: UIViewController? {
         (UIApplication.shared.delegate as? AppDelegate)?.visibleViewController
@@ -54,7 +54,7 @@ actor CloudflareHandler: NSObject {
     private var parentView: UIView? {
         parent?.view
     }
-#endif
+    #endif
 
     func handle(request: URLRequest) async {
         // wait until previous request finishes
@@ -87,10 +87,10 @@ actor CloudflareHandler: NSObject {
 
         Task { @MainActor in
             webView.removeFromSuperview()
-#if !os(macOS)
+            #if !os(macOS)
             popupController?.dismiss(animated: true)
             popupController = nil
-#endif
+            #endif
         }
 
         continuation.resume()
@@ -137,10 +137,10 @@ actor CloudflareHandler: NSObject {
         // cancel timeout
         await cancelTimeout()
 
-#if os(macOS)
+        #if os(macOS)
         // todo
         await finish()
-#else
+        #else
         popupController?.dismiss(animated: true)
         let popup = WebViewViewController(request: request, handler: await proxy(for: request))
         popupController = popup
@@ -157,7 +157,7 @@ actor CloudflareHandler: NSObject {
         ])
 
         parent?.present(popup, animated: true)
-#endif
+        #endif
     }
 
     // check if captcha or verify button is shown, and show the popup if it is
@@ -213,7 +213,7 @@ extension CloudflareHandler {
 
         guard let url = request.url else { return }
 
-#if !os(macOS)
+        #if !os(macOS)
         await MainActor.run {
             if self.popupController == nil {
                 // delay captcha check by 3s (so it loads in)
@@ -226,7 +226,7 @@ extension CloudflareHandler {
                 }
             }
         }
-#endif
+        #endif
 
         // check for old (expired) clearance cookie
         let oldCookie = HTTPCookieStorage.shared.cookies(for: url)?.first { $0.name == "cf_clearance" }
@@ -234,15 +234,15 @@ extension CloudflareHandler {
         // check for clearance cookie
         let hasClearance = webViewCookies.contains(where: {
             $0.name == "cf_clearance" &&
-            $0.value != oldCookie?.value ?? "" &&
-            ($0.domain.contains(url.host ?? "") || (url.host?.contains($0.domain) ?? false))
+                $0.value != oldCookie?.value ?? "" &&
+                ($0.domain.contains(url.host ?? "") || (url.host?.contains($0.domain) ?? false))
         })
         guard hasClearance else { return }
 
         await webView.removeFromSuperview()
-#if !os(macOS)
+        #if !os(macOS)
         await self.popupController?.dismiss(animated: true)
-#endif
+        #endif
 
         // remove old cookie and save new cookies for future requests
         if let oldCookie {

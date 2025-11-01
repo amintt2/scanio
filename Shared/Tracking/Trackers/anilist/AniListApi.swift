@@ -93,12 +93,12 @@ extension AniListApi {
             if isLoggedIn && !oauth.tokens!.askedForRefresh {
                 oauth.tokens!.askedForRefresh = true
                 oauth.saveTokens()
-#if !os(macOS)
+                #if !os(macOS)
                 await (UIApplication.shared.delegate as? AppDelegate)?.presentAlert(
                     title: String(format: NSLocalizedString("%@_TRACKER_LOGIN_NEEDED"), "AniList"),
                     message: String(format: NSLocalizedString("%@_TRACKER_LOGIN_NEEDED_TEXT"), "AniList")
                 )
-#endif
+                #endif
             }
         }
 
@@ -120,13 +120,13 @@ private extension AniListApi {
 
     func getStatusString(status: TrackStatus) -> String? {
         switch status {
-            case .reading: return "CURRENT"
-            case .planning: return "PLANNING"
-            case .completed: return "COMPLETED"
-            case .dropped: return "DROPPED"
-            case .paused: return "PAUSED"
-            case .rereading: return "REPEATING"
-            default: return nil
+        case .reading: return "CURRENT"
+        case .planning: return "PLANNING"
+        case .completed: return "COMPLETED"
+        case .dropped: return "DROPPED"
+        case .paused: return "PAUSED"
+        case .rereading: return "REPEATING"
+        default: return nil
         }
     }
 }

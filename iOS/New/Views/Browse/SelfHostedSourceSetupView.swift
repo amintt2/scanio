@@ -245,18 +245,18 @@ struct SelfHostedSourceSetupView: View {
             if let error {
                 Section {
                     switch error {
-                        case .connection:
-                            LocalSetupView.infoView(
-                                title: LocalizedStringKey(NSLocalizedString("SERVER_ERROR")),
-                                subtitle: LocalizedStringKey(NSLocalizedString("SERVER_ERROR_CONNECTION")),
-                                error: true
-                            )
-                        case .authorization:
-                            LocalSetupView.infoView(
-                                title: LocalizedStringKey(NSLocalizedString("SERVER_ERROR")),
-                                subtitle: LocalizedStringKey(NSLocalizedString("SERVER_ERROR_AUTHENTICATION")),
-                                error: true
-                            )
+                    case .connection:
+                        LocalSetupView.infoView(
+                            title: LocalizedStringKey(NSLocalizedString("SERVER_ERROR")),
+                            subtitle: LocalizedStringKey(NSLocalizedString("SERVER_ERROR_CONNECTION")),
+                            error: true
+                        )
+                    case .authorization:
+                        LocalSetupView.infoView(
+                            title: LocalizedStringKey(NSLocalizedString("SERVER_ERROR")),
+                            subtitle: LocalizedStringKey(NSLocalizedString("SERVER_ERROR_AUTHENTICATION")),
+                            error: true
+                        )
                     }
                 }
             }
@@ -306,16 +306,16 @@ struct SelfHostedSourceSetupView: View {
 
     func submit() {
         switch state {
-            case .initial:
-                Task {
-                    await checkServer()
-                }
-            case .logIn:
-                Task {
-                    await logIn()
-                }
-            default:
-                break
+        case .initial:
+            Task {
+                await checkServer()
+            }
+        case .logIn:
+            Task {
+                await logIn()
+            }
+        default:
+            break
         }
     }
 

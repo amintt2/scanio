@@ -21,18 +21,18 @@ class WasmNetWebViewHandler: NSObject, WKNavigationDelegate, PopupWebViewHandler
         return webView
     }()
 
-#if !os(macOS)
+    #if !os(macOS)
     var popup: WebViewViewController?
-#endif
+    #endif
 
     var done = false
 
     var popupShown: Bool {
-#if !os(macOS)
+        #if !os(macOS)
         popup?.presentingViewController != nil
-#else
+        #else
         false
-#endif
+        #endif
     }
 
     init(netModule: WasmNet, request: URLRequest) {
@@ -41,11 +41,11 @@ class WasmNetWebViewHandler: NSObject, WKNavigationDelegate, PopupWebViewHandler
     }
 
     func load() {
-#if os(macOS)
+        #if os(macOS)
         let view = NSApplication.shared.windows.first?.contentView
-#else
+        #else
         let view = (UIApplication.shared.delegate as? AppDelegate)?.visibleViewController?.view
-#endif
+        #endif
         guard let view = view else {
             netModule.semaphore.signal()
             return
@@ -67,11 +67,11 @@ class WasmNetWebViewHandler: NSObject, WKNavigationDelegate, PopupWebViewHandler
         NSObject.cancelPreviousPerformRequests(withTarget: self)
         webView.removeFromSuperview()
 
-#if os(macOS)
+        #if os(macOS)
         // todo
         timeout()
         return
-#else
+        #else
         popup?.dismiss(animated: true)
         popup = WebViewViewController(request: request, handler: self)
         popup!.view.addSubview(webView)
@@ -86,7 +86,7 @@ class WasmNetWebViewHandler: NSObject, WKNavigationDelegate, PopupWebViewHandler
 
         let vc = (UIApplication.shared.delegate as? AppDelegate)?.visibleViewController
         vc?.present(popup!, animated: true)
-#endif
+        #endif
     }
 
     @objc func timeout() {
@@ -112,7 +112,7 @@ class WasmNetWebViewHandler: NSObject, WKNavigationDelegate, PopupWebViewHandler
             }
 
             // delay captcha check by 3s (so it loads in)
-#if !os(macOS)
+            #if !os(macOS)
             if self.popup == nil {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                     self.checkForCaptcha()
@@ -122,22 +122,22 @@ class WasmNetWebViewHandler: NSObject, WKNavigationDelegate, PopupWebViewHandler
                     self.checkForCaptcha()
                 }
             }
-#endif
+            #endif
 
             // check for clearance cookie
             guard webViewCookies.contains(where: {
                 $0.name == "cf_clearance" &&
-                $0.value != oldCookie?.value ?? "" &&
-                ($0.domain.contains(url.host ?? "") || (url.host?.contains($0.domain) ?? false))
+                    $0.value != oldCookie?.value ?? "" &&
+                    ($0.domain.contains(url.host ?? "") || (url.host?.contains($0.domain) ?? false))
             }) else {
                 return
             }
 
             webView.removeFromSuperview()
             self.done = true
-#if !os(macOS)
+            #if !os(macOS)
             self.popup?.dismiss(animated: true)
-#endif
+            #endif
 
             // save cookies for future requests
             HTTPCookieStorage.shared.setCookies(webViewCookies, for: url, mainDocumentURL: url)

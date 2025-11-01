@@ -25,8 +25,8 @@ struct GIFImage: UIViewRepresentable {
         uiView.image = image
         uiView.animate(withGIFData: data)
         uiView.contentMode = switch contentMode {
-            case .fit: .scaleAspectFit
-            case .fill: .scaleAspectFill
+        case .fit: .scaleAspectFit
+        case .fill: .scaleAspectFill
         }
     }
 }

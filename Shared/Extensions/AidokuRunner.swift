@@ -143,33 +143,33 @@ extension AidokuRunner.Manga {
             url: url,
             status: {
                 switch status {
-                    case .unknown: .unknown
-                    case .ongoing: .ongoing
-                    case .completed: .completed
-                    case .cancelled: .cancelled
-                    case .hiatus: .hiatus
+                case .unknown: .unknown
+                case .ongoing: .ongoing
+                case .completed: .completed
+                case .cancelled: .cancelled
+                case .hiatus: .hiatus
                 }
             }(),
             nsfw: {
                 switch contentRating {
-                    case .unknown: .safe
-                    case .safe: .safe
-                    case .suggestive: .suggestive
-                    case .nsfw: .nsfw
+                case .unknown: .safe
+                case .safe: .safe
+                case .suggestive: .suggestive
+                case .nsfw: .nsfw
                 }
             }(),
             viewer: {
                 switch viewer {
-                    case .unknown: .defaultViewer
-                    case .rightToLeft: .rtl
-                    case .leftToRight: .ltr
-                    case .vertical: .vertical
-                    case .webtoon: .scroll
+                case .unknown: .defaultViewer
+                case .rightToLeft: .rtl
+                case .leftToRight: .ltr
+                case .vertical: .vertical
+                case .webtoon: .scroll
                 }
             }(),
             updateStrategy: updateStrategy,
             nextUpdateTime: nextUpdateTime.flatMap { Date(timeIntervalSince1970: TimeInterval($0)) },
-        )
+            )
     }
 
     func isLocal() -> Bool {
@@ -184,11 +184,11 @@ extension AidokuRunner.Manga {
 extension AidokuRunner.PublishingStatus {
     var title: String {
         switch self {
-            case .unknown: NSLocalizedString("UNKNOWN")
-            case .ongoing: NSLocalizedString("ONGOING")
-            case .completed: NSLocalizedString("COMPLETED")
-            case .cancelled: NSLocalizedString("CANCELLED")
-            case .hiatus: NSLocalizedString("HIATUS")
+        case .unknown: NSLocalizedString("UNKNOWN")
+        case .ongoing: NSLocalizedString("ONGOING")
+        case .completed: NSLocalizedString("COMPLETED")
+        case .cancelled: NSLocalizedString("CANCELLED")
+        case .hiatus: NSLocalizedString("HIATUS")
         }
     }
 }
@@ -196,10 +196,10 @@ extension AidokuRunner.PublishingStatus {
 extension AidokuRunner.ContentRating {
     var title: String {
         switch self {
-            case .unknown: NSLocalizedString("UNKNOWN")
-            case .safe: NSLocalizedString("SAFE")
-            case .suggestive: NSLocalizedString("SUGGESTIVE")
-            case .nsfw: NSLocalizedString("NSFW")
+        case .unknown: NSLocalizedString("UNKNOWN")
+        case .safe: NSLocalizedString("SAFE")
+        case .suggestive: NSLocalizedString("SUGGESTIVE")
+        case .nsfw: NSLocalizedString("NSFW")
         }
     }
 }
@@ -207,26 +207,26 @@ extension AidokuRunner.ContentRating {
 extension AidokuRunner.SourceContentRating {
     var title: String {
         switch self {
-            case .safe: NSLocalizedString("SAFE")
-            case .containsNsfw: NSLocalizedString("CONTAINS_NSFW")
-            case .primarilyNsfw: NSLocalizedString("PRIMARILY_NSFW")
+        case .safe: NSLocalizedString("SAFE")
+        case .containsNsfw: NSLocalizedString("CONTAINS_NSFW")
+        case .primarilyNsfw: NSLocalizedString("PRIMARILY_NSFW")
         }
     }
 
     var stringValue: String {
         switch self {
-            case .safe: "safe"
-            case .containsNsfw: "containsNsfw"
-            case .primarilyNsfw: "primarilyNsfw"
+        case .safe: "safe"
+        case .containsNsfw: "containsNsfw"
+        case .primarilyNsfw: "primarilyNsfw"
         }
     }
 
     init?(stringValue: String) {
         switch stringValue {
-            case "safe": self = .safe
-            case "containsNsfw": self = .containsNsfw
-            case "primarilyNsfw": self = .primarilyNsfw
-            default: return nil
+        case "safe": self = .safe
+        case "containsNsfw": self = .containsNsfw
+        case "primarilyNsfw": self = .primarilyNsfw
+        default: return nil
         }
     }
 }
@@ -377,40 +377,40 @@ extension AidokuRunner.Chapter {
 extension AidokuRunner.Page {
     func toOld(sourceId: String, chapterId: String) -> Page {
         switch content {
-            case let .url(url, context):
-                Page(
-                    sourceId: sourceId,
-                    chapterId: chapterId,
-                    imageURL: url.absoluteString,
-                    context: context,
-                    hasDescription: hasDescription,
-                    description: description
-                )
-            case let .text(text):
-                Page(
-                    sourceId: sourceId,
-                    chapterId: chapterId,
-                    text: text,
-                    hasDescription: hasDescription,
-                    description: description
-                )
-            case let .image(image):
-                Page(
-                    sourceId: sourceId,
-                    chapterId: chapterId,
-                    image: image.image,
-                    hasDescription: hasDescription,
-                    description: description
-                )
-            case let .zipFile(url, filePath):
-                Page(
-                    sourceId: sourceId,
-                    chapterId: chapterId,
-                    imageURL: filePath,
-                    zipURL: url.absoluteString,
-                    hasDescription: hasDescription,
-                    description: description
-                )
+        case let .url(url, context):
+            Page(
+                sourceId: sourceId,
+                chapterId: chapterId,
+                imageURL: url.absoluteString,
+                context: context,
+                hasDescription: hasDescription,
+                description: description
+            )
+        case let .text(text):
+            Page(
+                sourceId: sourceId,
+                chapterId: chapterId,
+                text: text,
+                hasDescription: hasDescription,
+                description: description
+            )
+        case let .image(image):
+            Page(
+                sourceId: sourceId,
+                chapterId: chapterId,
+                image: image.image,
+                hasDescription: hasDescription,
+                description: description
+            )
+        case let .zipFile(url, filePath):
+            Page(
+                sourceId: sourceId,
+                chapterId: chapterId,
+                imageURL: filePath,
+                zipURL: url.absoluteString,
+                hasDescription: hasDescription,
+                description: description
+            )
         }
     }
 }

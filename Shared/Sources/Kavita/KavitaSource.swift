@@ -77,7 +77,7 @@ extension AidokuRunner.Source {
                             NSLocalizedString("ENDED")
                         ],
                         ids: ["0", "1", "2", "3", "4"],
-                    ))
+                        ))
                 ),
                 .init(
                     id: String(KavitaFilterField.formats.rawValue),
@@ -92,7 +92,7 @@ extension AidokuRunner.Source {
                             NSLocalizedString("FORMAT_ARCHIVE")
                         ],
                         ids: ["0", "3", "4", "1"],
-                    ))
+                        ))
                 )
             ],
             staticSettings: [
@@ -228,64 +228,64 @@ actor KavitaSourceRunner: Runner {
         let apiKey = helper.getApiKey()
 
         switch listing.id {
-            case "on_deck":
-                let series = try await helper.getOnDeck(pageNum: page)
-                return .init(
-                    entries: series.map { $0.intoManga(sourceKey: sourceKey, baseUrl: baseUrl, apiKey: apiKey) },
-                    hasNextPage: series.count == 20
-                )
+        case "on_deck":
+            let series = try await helper.getOnDeck(pageNum: page)
+            return .init(
+                entries: series.map { $0.intoManga(sourceKey: sourceKey, baseUrl: baseUrl, apiKey: apiKey) },
+                hasNextPage: series.count == 20
+            )
 
-            case "recently_updated":
-                let series = try await helper.getRecentlyUpdatedSeries()
-                return .init(
-                    entries: series.map { $0.intoManga(sourceKey: sourceKey, baseUrl: baseUrl, apiKey: apiKey) },
-                    hasNextPage: false
-                )
+        case "recently_updated":
+            let series = try await helper.getRecentlyUpdatedSeries()
+            return .init(
+                entries: series.map { $0.intoManga(sourceKey: sourceKey, baseUrl: baseUrl, apiKey: apiKey) },
+                hasNextPage: false
+            )
 
-            case "recently_added":
-                let series = try await helper.getRecentlyAdded(pageNum: page)
-                return .init(
-                    entries: series.map { $0.intoManga(sourceKey: sourceKey, baseUrl: baseUrl, apiKey: apiKey) },
-                    hasNextPage: series.count == 20
-                )
+        case "recently_added":
+            let series = try await helper.getRecentlyAdded(pageNum: page)
+            return .init(
+                entries: series.map { $0.intoManga(sourceKey: sourceKey, baseUrl: baseUrl, apiKey: apiKey) },
+                hasNextPage: series.count == 20
+            )
 
-            case _ where listing.id.hasPrefix("morein-"):
-                guard let genreId = Int(listing.id[listing.id.index(listing.id.startIndex, offsetBy: 7)...]) else {
-                    throw SourceError.message("Invalid genre id")
-                }
-                let series = try await helper.getMoreIn(genreId: genreId, pageNum: page)
-                return .init(
-                    entries: series.map { $0.intoManga(sourceKey: sourceKey, baseUrl: baseUrl, apiKey: apiKey) },
-                    hasNextPage: series.count == 20
-                )
+        case _ where listing.id.hasPrefix("morein-"):
+            guard let genreId = Int(listing.id[listing.id.index(listing.id.startIndex, offsetBy: 7)...]) else {
+                throw SourceError.message("Invalid genre id")
+            }
+            let series = try await helper.getMoreIn(genreId: genreId, pageNum: page)
+            return .init(
+                entries: series.map { $0.intoManga(sourceKey: sourceKey, baseUrl: baseUrl, apiKey: apiKey) },
+                hasNextPage: series.count == 20
+            )
 
-            case _ where listing.id.hasPrefix("filter-"):
-                let encodedFilter = String(listing.id[listing.id.index(listing.id.startIndex, offsetBy: 7)...])
-                let filter = try await helper.decodeFilter(encodedFilter)
-                let series = try await helper.getAllSeriesV2(pageNum: page, filter: filter, context: .dashboard)
-                return .init(
-                    entries: series.map { $0.intoManga(sourceKey: sourceKey, baseUrl: baseUrl, apiKey: apiKey) },
-                    hasNextPage: series.count == 20
-                )
+        case _ where listing.id.hasPrefix("filter-"):
+            let encodedFilter = String(listing.id[listing.id.index(listing.id.startIndex, offsetBy: 7)...])
+            let filter = try await helper.decodeFilter(encodedFilter)
+            let series = try await helper.getAllSeriesV2(pageNum: page, filter: filter, context: .dashboard)
+            return .init(
+                entries: series.map { $0.intoManga(sourceKey: sourceKey, baseUrl: baseUrl, apiKey: apiKey) },
+                hasNextPage: series.count == 20
+            )
 
-            case _ where listing.id.hasPrefix("library-"):
-                let id = String(listing.id[listing.id.index(listing.id.startIndex, offsetBy: 8)...])
+        case _ where listing.id.hasPrefix("library-"):
+            let id = String(listing.id[listing.id.index(listing.id.startIndex, offsetBy: 8)...])
 
-                let filter = KavitaFilterV2(
-                    statements: [.init(comparison: .equal, field: .libraries, value: id)],
+            let filter = KavitaFilterV2(
+                statements: [.init(comparison: .equal, field: .libraries, value: id)],
                 )
-                let res: [KavitaSeries] = try await helper.request(
-                    path: "/api/series/v2",
-                    method: .POST,
-                    body: JSONEncoder().encode(filter)
-                )
-                return .init(
-                    entries: res.map { $0.intoManga(sourceKey: sourceKey, baseUrl: baseUrl, apiKey: apiKey) },
-                    hasNextPage: false
-                )
+            let res: [KavitaSeries] = try await helper.request(
+                path: "/api/series/v2",
+                method: .POST,
+                body: JSONEncoder().encode(filter)
+            )
+            return .init(
+                entries: res.map { $0.intoManga(sourceKey: sourceKey, baseUrl: baseUrl, apiKey: apiKey) },
+                hasNextPage: false
+            )
 
-            default:
-                throw SourceError.message("Invalid listing")
+        default:
+            throw SourceError.message("Invalid listing")
         }
     }
 
@@ -300,8 +300,8 @@ actor KavitaSourceRunner: Runner {
 
             var path: String {
                 switch self {
-                    case .libraries: "/api/library/libraries"
-                    default: "/api/metadata/\(self.rawValue)"
+                case .libraries: "/api/library/libraries"
+                default: "/api/metadata/\(self.rawValue)"
                 }
             }
         }
@@ -558,23 +558,23 @@ actor KavitaSourceRunner: Runner {
     func handleNotification(notification: String) async throws {
         // clear additional login values when logging out
         switch notification {
-            case "login":
-                let isLoggedIn = UserDefaults.standard.string(forKey: "\(sourceKey).login") != nil
-                if !isLoggedIn {
-                    UserDefaults.standard.setValue(nil, forKey: "\(sourceKey).apiKey")
-                    UserDefaults.standard.setValue(nil, forKey: "\(sourceKey).token")
-                    UserDefaults.standard.setValue(nil, forKey: "\(sourceKey).refreshToken")
-                }
+        case "login":
+            let isLoggedIn = UserDefaults.standard.string(forKey: "\(sourceKey).login") != nil
+            if !isLoggedIn {
+                UserDefaults.standard.setValue(nil, forKey: "\(sourceKey).apiKey")
+                UserDefaults.standard.setValue(nil, forKey: "\(sourceKey).token")
+                UserDefaults.standard.setValue(nil, forKey: "\(sourceKey).refreshToken")
+            }
 
-            case "login_oidc":
-                let isLoggedIn = UserDefaults.standard.string(forKey: "\(sourceKey).login_oidc") != nil
-                if !isLoggedIn {
-                    UserDefaults.standard.setValue(nil, forKey: "\(sourceKey).apiKey")
-                    UserDefaults.standard.setValue(nil, forKey: "\(sourceKey).cookie")
-                }
+        case "login_oidc":
+            let isLoggedIn = UserDefaults.standard.string(forKey: "\(sourceKey).login_oidc") != nil
+            if !isLoggedIn {
+                UserDefaults.standard.setValue(nil, forKey: "\(sourceKey).apiKey")
+                UserDefaults.standard.setValue(nil, forKey: "\(sourceKey).cookie")
+            }
 
-            default:
-                break
+        default:
+            break
         }
     }
 }
@@ -592,30 +592,30 @@ extension KavitaSourceRunner {
             for (index, c) in dashComponents.enumerated() {
                 taskGroup.addTask {
                     switch c.streamType {
-                        case .onDeck:
-                            let series = try await helper.getOnDeck()
-                            return (index, NSLocalizedString("ON_DECK"), "on_deck", series)
-                        case .recentlyUpdated:
-                            let series = try await helper.getRecentlyUpdatedSeries()
-                            return (index, NSLocalizedString("RECENTLY_UPDATED_SERIES"), "recently_updated", series)
-                        case .newlyAdded:
-                            let series = try await helper.getRecentlyAdded()
-                            return (index, NSLocalizedString("RECENTLY_ADDED_SERIES"), "recently_added", series)
-                        case .smartFilter:
-                            if let encodedFilter = c.smartFilterEncoded {
-                                let filter = try await helper.decodeFilter(encodedFilter)
-                                let series = try await helper.getAllSeriesV2(filter: filter, context: .dashboard)
-                                return (index, c.name, "filter-\(encodedFilter)", series)
-                            } else {
-                                return (index, "", "", [])
-                            }
-                        case .moreInGenre:
-                            let genres = try await helper.getAllGenres()
-                            guard let randomGenre = genres.randomElement() else {
-                                return (index, "", "", [])
-                            }
-                            let series = try await helper.getMoreIn(genreId: randomGenre.id, pageNum: 0, itemsPerPage: 30)
-                            return (index, String(format: NSLocalizedString("MORE_IN_%@"), randomGenre.title), "morein-\(randomGenre.id)", series)
+                    case .onDeck:
+                        let series = try await helper.getOnDeck()
+                        return (index, NSLocalizedString("ON_DECK"), "on_deck", series)
+                    case .recentlyUpdated:
+                        let series = try await helper.getRecentlyUpdatedSeries()
+                        return (index, NSLocalizedString("RECENTLY_UPDATED_SERIES"), "recently_updated", series)
+                    case .newlyAdded:
+                        let series = try await helper.getRecentlyAdded()
+                        return (index, NSLocalizedString("RECENTLY_ADDED_SERIES"), "recently_added", series)
+                    case .smartFilter:
+                        if let encodedFilter = c.smartFilterEncoded {
+                            let filter = try await helper.decodeFilter(encodedFilter)
+                            let series = try await helper.getAllSeriesV2(filter: filter, context: .dashboard)
+                            return (index, c.name, "filter-\(encodedFilter)", series)
+                        } else {
+                            return (index, "", "", [])
+                        }
+                    case .moreInGenre:
+                        let genres = try await helper.getAllGenres()
+                        guard let randomGenre = genres.randomElement() else {
+                            return (index, "", "", [])
+                        }
+                        let series = try await helper.getMoreIn(genreId: randomGenre.id, pageNum: 0, itemsPerPage: 30)
+                        return (index, String(format: NSLocalizedString("MORE_IN_%@"), randomGenre.title), "morein-\(randomGenre.id)", series)
                     }
                 }
             }

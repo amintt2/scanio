@@ -75,7 +75,7 @@ extension AidokuRunner.Source {
                             NSLocalizedString("HIATUS")
                         ],
                         ids: ["ENDED", "ONGOING", "ABANDONED", "HIATUS"],
-                    ))
+                        ))
                 )
             ],
             staticSettings: [
@@ -322,7 +322,7 @@ actor KomgaSourceRunner: Runner {
                         usesTagStyle: false,
                         options: [NSLocalizedString("ANY")] + publishers,
                         ids: [""] + publishers,
-                    ))
+                        ))
                 )
             )
         }
@@ -342,7 +342,7 @@ actor KomgaSourceRunner: Runner {
                             }
                         },
                         ids: [""] + languages,
-                    ))
+                        ))
                 )
             )
         }
@@ -444,30 +444,30 @@ extension KomgaSourceRunner {
 
         var id: String {
             switch self {
-                case .onDeck: "on_deck"
-                case .keepReading: "keep_reading"
-                case .recentlyAddedBooks: "recently_added_books"
-                case .recentlyAddedSeries: "recently_added_series"
-                case .recentlyUpdatedSeries: "recently_updated_series"
-                case .recentlyReadBooks: "recently_read_books"
+            case .onDeck: "on_deck"
+            case .keepReading: "keep_reading"
+            case .recentlyAddedBooks: "recently_added_books"
+            case .recentlyAddedSeries: "recently_added_series"
+            case .recentlyUpdatedSeries: "recently_updated_series"
+            case .recentlyReadBooks: "recently_read_books"
             }
         }
 
         var name: String {
             switch self {
-                case .onDeck: NSLocalizedString("ON_DECK")
-                case .keepReading: NSLocalizedString("KEEP_READING")
-                case .recentlyAddedBooks: NSLocalizedString("RECENTLY_ADDED_BOOKS")
-                case .recentlyAddedSeries: NSLocalizedString("RECENTLY_ADDED_SERIES")
-                case .recentlyUpdatedSeries: NSLocalizedString("RECENTLY_UPDATED_SERIES")
-                case .recentlyReadBooks: NSLocalizedString("RECENTLY_READ_BOOKS")
+            case .onDeck: NSLocalizedString("ON_DECK")
+            case .keepReading: NSLocalizedString("KEEP_READING")
+            case .recentlyAddedBooks: NSLocalizedString("RECENTLY_ADDED_BOOKS")
+            case .recentlyAddedSeries: NSLocalizedString("RECENTLY_ADDED_SERIES")
+            case .recentlyUpdatedSeries: NSLocalizedString("RECENTLY_UPDATED_SERIES")
+            case .recentlyReadBooks: NSLocalizedString("RECENTLY_READ_BOOKS")
             }
         }
 
         var isBookBased: Bool {
             switch self {
-                case .onDeck, .keepReading, .recentlyAddedBooks, .recentlyReadBooks: true
-                case .recentlyAddedSeries, .recentlyUpdatedSeries: false
+            case .onDeck, .keepReading, .recentlyAddedBooks, .recentlyReadBooks: true
+            case .recentlyAddedSeries, .recentlyUpdatedSeries: false
             }
         }
     }
@@ -495,24 +495,24 @@ extension KomgaSourceRunner {
                         let body: KomgaSearchBody?
 
                         switch listingType {
-                            case .onDeck:
-                                path = "/api/v1/books/ondeck?sort=createdDate%2Cdesc"
-                                method = .GET
-                                body = nil
-                            case .keepReading:
-                                path = "/api/v1/books/list?page=0&size=20&sort=readProgress.readDate%2Cdesc"
-                                method = .POST
-                                body = .init(condition: .allOf([.readStatus(.inProgress), .deleted(false)]))
-                            case .recentlyAddedBooks:
-                                path = "/api/v1/books/list?page=0&size=20&sort=createdDate%2Cdesc"
-                                method = .POST
-                                body = .init(condition: .allOf([.deleted(false)]))
-                            case .recentlyReadBooks:
-                                path = "/api/v1/books/list?page=0&size=20&sort=readProgress.readDate%2Cdesc"
-                                method = .POST
-                                body = .init(condition: .allOf([.readStatus(.read), .deleted(false)]))
-                            default:
-                                throw SourceError.message("Invalid listing type")
+                        case .onDeck:
+                            path = "/api/v1/books/ondeck?sort=createdDate%2Cdesc"
+                            method = .GET
+                            body = nil
+                        case .keepReading:
+                            path = "/api/v1/books/list?page=0&size=20&sort=readProgress.readDate%2Cdesc"
+                            method = .POST
+                            body = .init(condition: .allOf([.readStatus(.inProgress), .deleted(false)]))
+                        case .recentlyAddedBooks:
+                            path = "/api/v1/books/list?page=0&size=20&sort=createdDate%2Cdesc"
+                            method = .POST
+                            body = .init(condition: .allOf([.deleted(false)]))
+                        case .recentlyReadBooks:
+                            path = "/api/v1/books/list?page=0&size=20&sort=readProgress.readDate%2Cdesc"
+                            method = .POST
+                            body = .init(condition: .allOf([.readStatus(.read), .deleted(false)]))
+                        default:
+                            throw SourceError.message("Invalid listing type")
                         }
 
                         let res: KomgaPageResponse<[KomgaBook]> = try await helper.request(path: path, method: method, body: body)
@@ -523,14 +523,14 @@ extension KomgaSourceRunner {
                         let method: HttpMethod
 
                         switch listingType {
-                            case .recentlyAddedSeries:
-                                path = "/api/v1/series/new?page=0&size=20&oneshot=false&deleted=false"
-                                method = .GET
-                            case .recentlyUpdatedSeries:
-                                path = "/api/v1/series/updated?page=0&size=20&oneshot=false&deleted=false"
-                                method = .GET
-                            default:
-                                throw SourceError.message("Invalid listing type")
+                        case .recentlyAddedSeries:
+                            path = "/api/v1/series/new?page=0&size=20&oneshot=false&deleted=false"
+                            method = .GET
+                        case .recentlyUpdatedSeries:
+                            path = "/api/v1/series/updated?page=0&size=20&oneshot=false&deleted=false"
+                            method = .GET
+                        default:
+                            throw SourceError.message("Invalid listing type")
                         }
 
                         let res: KomgaPageResponse<[KomgaSeries]> = try await helper.request(path: path, method: method)
@@ -594,35 +594,35 @@ extension KomgaSourceRunner {
                         let body: KomgaSearchBody?
 
                         switch listingType {
-                            case .onDeck:
-                                path = "/api/v1/books/ondeck?library_id=\(libraryId)&size=20&sort=createdDate%2Cdesc"
-                                method = .GET
-                                body = nil
-                            case .keepReading:
-                                path = "/api/v1/books/list?page=0&size=20&sort=readProgress.readDate%2Cdesc"
-                                method = .POST
-                                body = .init(condition: .allOf([
-                                    .readStatus(.inProgress),
-                                    .deleted(false),
-                                    .libraryId(libraryId)
-                                ]))
-                            case .recentlyAddedBooks:
-                                path = "/api/v1/books/list?page=0&size=20&sort=createdDate%2Cdesc"
-                                method = .POST
-                                body = .init(condition: .allOf([
-                                    .deleted(false),
-                                    .libraryId(libraryId)
-                                ]))
-                            case .recentlyReadBooks:
-                                path = "/api/v1/books/list?page=0&size=20&sort=readProgress.readDate%2Cdesc"
-                                method = .POST
-                                body = .init(condition: .allOf([
-                                    .readStatus(.read),
-                                    .deleted(false),
-                                    .libraryId(libraryId)
-                                ]))
-                            default:
-                                throw SourceError.message("Invalid listing type")
+                        case .onDeck:
+                            path = "/api/v1/books/ondeck?library_id=\(libraryId)&size=20&sort=createdDate%2Cdesc"
+                            method = .GET
+                            body = nil
+                        case .keepReading:
+                            path = "/api/v1/books/list?page=0&size=20&sort=readProgress.readDate%2Cdesc"
+                            method = .POST
+                            body = .init(condition: .allOf([
+                                .readStatus(.inProgress),
+                                .deleted(false),
+                                .libraryId(libraryId)
+                            ]))
+                        case .recentlyAddedBooks:
+                            path = "/api/v1/books/list?page=0&size=20&sort=createdDate%2Cdesc"
+                            method = .POST
+                            body = .init(condition: .allOf([
+                                .deleted(false),
+                                .libraryId(libraryId)
+                            ]))
+                        case .recentlyReadBooks:
+                            path = "/api/v1/books/list?page=0&size=20&sort=readProgress.readDate%2Cdesc"
+                            method = .POST
+                            body = .init(condition: .allOf([
+                                .readStatus(.read),
+                                .deleted(false),
+                                .libraryId(libraryId)
+                            ]))
+                        default:
+                            throw SourceError.message("Invalid listing type")
                         }
 
                         let res: KomgaPageResponse<[KomgaBook]> = try await helper.request(path: path, method: method, body: body)
@@ -633,14 +633,14 @@ extension KomgaSourceRunner {
                         let method: HttpMethod
 
                         switch listingType {
-                            case .recentlyAddedSeries:
-                                path = "/api/v1/series/new?library_id=\(libraryId)&page=0&size=20&oneshot=false&deleted=false"
-                                method = .GET
-                            case .recentlyUpdatedSeries:
-                                path = "/api/v1/series/updated?library_id=\(libraryId)&page=0&size=20&oneshot=false&deleted=false"
-                                method = .GET
-                            default:
-                                throw SourceError.message("Invalid listing type")
+                        case .recentlyAddedSeries:
+                            path = "/api/v1/series/new?library_id=\(libraryId)&page=0&size=20&oneshot=false&deleted=false"
+                            method = .GET
+                        case .recentlyUpdatedSeries:
+                            path = "/api/v1/series/updated?library_id=\(libraryId)&page=0&size=20&oneshot=false&deleted=false"
+                            method = .GET
+                        default:
+                            throw SourceError.message("Invalid listing type")
                         }
 
                         let res: KomgaPageResponse<[KomgaSeries]> = try await helper.request(path: path, method: method)

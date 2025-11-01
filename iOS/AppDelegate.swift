@@ -12,11 +12,11 @@ import SwiftUI
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-#if CANONICAL_BUILD          // true only for App-Store scheme
+    #if CANONICAL_BUILD          // true only for App-Store scheme
     static let canonicalID = "app.aidoku.Aidoku"
-#else
+    #else
     static let canonicalID = Bundle.main.bundleIdentifier ?? ""
-#endif
+    #endif
 
     static let isSideloaded = Bundle.main.bundleIdentifier != canonicalID
 
@@ -471,17 +471,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                                 libraryChaptersIds,
                                 historyMangaIds,
                                 historyChapterIds,
-                            ) = await CoreDataManager.shared.container.performBackgroundTask { context in
-                                let historyObjects = CoreDataManager.shared.getHistory(sourceId: source.id, context: context)
-                                return (
-                                    CoreDataManager.shared.getLibraryManga(sourceId: source.id, context: context)
-                                        .compactMap { $0.manga?.id },
-                                    CoreDataManager.shared.getChapters(sourceId: source.id, context: context)
-                                        .map { ($0.mangaId, $0.id) },
-                                    historyObjects.map { $0.mangaId },
-                                    historyObjects.map { ($0.mangaId, $0.chapterId) },
-                                )
-                            }
+                                ) = await CoreDataManager.shared.container.performBackgroundTask { context in
+                                    let historyObjects = CoreDataManager.shared.getHistory(sourceId: source.id, context: context)
+                                    return (
+                                        CoreDataManager.shared.getLibraryManga(sourceId: source.id, context: context)
+                                            .compactMap { $0.manga?.id },
+                                        CoreDataManager.shared.getChapters(sourceId: source.id, context: context)
+                                            .map { ($0.mangaId, $0.id) },
+                                        historyObjects.map { $0.mangaId },
+                                        historyObjects.map { ($0.mangaId, $0.chapterId) },
+                                        )
+                                }
                             var newMangaIds: [String: String] = [:]
                             var newChapterIds: [String: String] = [:]
                             if source.features.handlesNotifications {

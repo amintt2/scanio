@@ -18,8 +18,8 @@ struct MigrateMangaView: View {
 
     @State var selectedSources: [SourceInfo2] = []
 
-//    private var strategies = MigrationStrategory.allCases
-//    @State private var selectedStrategry: MigrationStrategory = .firstAlternative
+    //    private var strategies = MigrationStrategory.allCases
+    //    @State private var selectedStrategry: MigrationStrategory = .firstAlternative
 
     @State private var migratedManga: [Int: Manga?] = [:]
     @State private var newChapters: [Int: [Chapter]] = [:]
@@ -49,11 +49,11 @@ struct MigrateMangaView: View {
                         selectedSources: $selectedSources
                     ))
                     // TODO: most chapters option
-//                        Picker(selection: $selectedStrategry, label: Text("Migration Strategy")) {
-//                            ForEach(strategies, id: \.self) { strategy in
-//                                Text(strategy.toString())
-//                            }
-//                        }
+                    //                        Picker(selection: $selectedStrategry, label: Text("Migration Strategy")) {
+                    //                            ForEach(strategies, id: \.self) { strategy in
+                    //                                Text(strategy.toString())
+                    //                            }
+                    //                        }
                     Button {
                         Task {
                             await performSearch()
@@ -179,11 +179,11 @@ struct MigrateMangaView: View {
                         let search = try? await source.getSearchMangaList(query: title, page: 1, filters: [])
                         if let newManga = search?.entries.first {
                             // if we need to check chapters
-//                            let chapters = try? await source.getChapterList(manga: newManga)
+                            //                            let chapters = try? await source.getChapterList(manga: newManga)
                             await MainActor.run {
                                 withAnimation {
                                     migratedManga[manga.hashValue] = newManga.toOld()
-//                                    newChapters[manga.hashValue] = chapters
+                                    //                                    newChapters[manga.hashValue] = chapters
                                     states[manga.hashValue] = .done
                                 }
                             }

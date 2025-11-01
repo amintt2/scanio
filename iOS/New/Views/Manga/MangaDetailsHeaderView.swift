@@ -439,27 +439,27 @@ struct MangaDetailsHeaderView: View {
                     title = NSLocalizedString("CONTINUE_READING", comment: "")
                 }
                 switch chapterTitleDisplayMode {
-                    case .volume:
-                        if let volumeNum = chapter.volumeNumber {
-                            title += " " + String(format: NSLocalizedString("VOL_X"), volumeNum)
-                        } else if let chapterNum = chapter.chapterNumber {
-                            // Force display as volume if no volume number
-                            title += " " + String(format: NSLocalizedString("VOL_X"), chapterNum)
-                        }
-                    case .chapter:
-                        if let chapterNum = chapter.chapterNumber {
-                            title += " " + String(format: NSLocalizedString("CH_X"), chapterNum)
-                        } else if let volumeNum = chapter.volumeNumber {
-                            // Force display as chapter if no chapter number
-                            title += " " + String(format: NSLocalizedString("CH_X"), volumeNum)
-                        }
-                    case .default:
-                        if let volumeNum = chapter.volumeNumber {
-                            title += " " + String(format: NSLocalizedString("VOL_X"), volumeNum)
-                        }
-                        if let chapterNum = chapter.chapterNumber {
-                            title += " " + String(format: NSLocalizedString("CH_X"), chapterNum)
-                        }
+                case .volume:
+                    if let volumeNum = chapter.volumeNumber {
+                        title += " " + String(format: NSLocalizedString("VOL_X"), volumeNum)
+                    } else if let chapterNum = chapter.chapterNumber {
+                        // Force display as volume if no volume number
+                        title += " " + String(format: NSLocalizedString("VOL_X"), chapterNum)
+                    }
+                case .chapter:
+                    if let chapterNum = chapter.chapterNumber {
+                        title += " " + String(format: NSLocalizedString("CH_X"), chapterNum)
+                    } else if let volumeNum = chapter.volumeNumber {
+                        // Force display as chapter if no chapter number
+                        title += " " + String(format: NSLocalizedString("CH_X"), volumeNum)
+                    }
+                case .default:
+                    if let volumeNum = chapter.volumeNumber {
+                        title += " " + String(format: NSLocalizedString("VOL_X"), volumeNum)
+                    }
+                    if let chapterNum = chapter.chapterNumber {
+                        title += " " + String(format: NSLocalizedString("CH_X"), chapterNum)
+                    }
                 }
             } else {
                 title = NSLocalizedString("NO_CHAPTERS_AVAILABLE", comment: "")
@@ -506,15 +506,15 @@ private struct MangaActionButtonStyle: ButtonStyle {
     var selected = false
 
     func makeBody(configuration: Configuration) -> some View {
-//        Group {
-//            if selected {
-//                configuration.label
-//                    .foregroundStyle(.white)
-//            } else {
-//                configuration.label
-//                    .foregroundStyle(.tint)
-//            }
-//        }
+        //        Group {
+        //            if selected {
+        //                configuration.label
+        //                    .foregroundStyle(.white)
+        //            } else {
+        //                configuration.label
+        //                    .foregroundStyle(.tint)
+        //            }
+        //        }
         configuration.label
             .foregroundStyle(selected ? Color.white : Color.accentColor)
             .opacity(configuration.isPressed ? 0.4 : 1)
@@ -560,5 +560,5 @@ private struct MangaActionButtonStyle: ButtonStyle {
         scanlatorFilter: $scanlatorFilter,
         descriptionExpanded: Binding.constant(false),
         chapterTitleDisplayMode: $chapterTitleDisplayMode,
-    )
+        )
 }

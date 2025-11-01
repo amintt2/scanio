@@ -437,11 +437,11 @@ extension MangaManager {
         targetDirectory.createDirectory()
         do {
             let data = if #available(iOS 17.0, *) {
-#if !os(macOS)
+                #if !os(macOS)
                 cover.heicData()
-#else
+                #else
                 cover.pngData()
-#endif
+                #endif
             } else {
                 cover.pngData()
             }

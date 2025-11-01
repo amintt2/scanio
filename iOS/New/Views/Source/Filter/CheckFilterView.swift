@@ -43,10 +43,10 @@ struct CheckFilterView: View {
     var body: some View {
         Button {
             switch state {
-                case 0: state = 1
-                case 1: state = canExclude ? 2 : 0
-                case 2: state = 0
-                default: break
+            case 0: state = 1
+            case 1: state = canExclude ? 2 : 0
+            case 2: state = 0
+            default: break
             }
         } label: {
             FilterLabelView(
@@ -56,9 +56,9 @@ struct CheckFilterView: View {
                 icon: {
                     if canExclude {
                         switch state {
-                            case 1: "checkmark"
-                            case 2: "xmark"
-                            default: nil
+                        case 1: "checkmark"
+                        case 2: "xmark"
+                        default: nil
                         }
                     } else {
                         nil
@@ -119,10 +119,10 @@ struct CheckFilterGroupView: View {
     var body: some View {
         Button {
             switch state {
-                case 0: state = 1
-                case 1: state = canExclude ? 2 : 0
-                case 2: state = 0
-                default: break
+            case 0: state = 1
+            case 1: state = canExclude ? 2 : 0
+            case 2: state = 0
+            default: break
             }
         } label: {
             HStack {

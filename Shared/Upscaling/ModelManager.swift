@@ -252,12 +252,12 @@ extension ModelManager {
         let config = info.config?.compactMapValues { $0.toRaw() } ?? [:]
 
         switch modelType.lowercased() {
-            case "multiarray":
-                model = MultiArrayModel(model: mlModel, config: config)
-            case "image":
-                model = ImageModel(model: mlModel, config: config)
-            default:
-                model = nil
+        case "multiarray":
+            model = MultiArrayModel(model: mlModel, config: config)
+        case "image":
+            model = ImageModel(model: mlModel, config: config)
+        default:
+            model = nil
         }
         if let model {
             imageModelCache[fileName] = model

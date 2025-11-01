@@ -57,11 +57,11 @@ struct SourceSearchView: View {
 
                         contentView(scrollProxy: reader)
                     }
-#if os(macOS)
+                    #if os(macOS)
                     .navigationTitle(NSLocalizedString("Search"))
                     .background(Color(NSColor.underPageBackgroundColor))
                     .searchable(text: $searchText)
-#endif
+                    #endif
                     .scrollDismissesKeyboardInteractively()
                     .onChange(of: searchText) { _ in
                         // queue search update (with delay) when text changes
@@ -155,7 +155,7 @@ extension SourceSearchView {
         @Published var entries: [AidokuRunner.Manga] = []
         @Published var error: Error?
         @Published var loadingInitial = true
-//        @Published var showEntries = false
+        //        @Published var showEntries = false
         @Published var bookmarkedItems: Set<String> = .init()
 
         private(set) var hasMore = true
@@ -279,16 +279,16 @@ extension SourceSearchView {
             _ newEntries: [AidokuRunner.Manga],
             scrollProxy: ScrollViewProxy? = nil
         ) async {
-//            await animate(duration: 0.2, options: .easeIn) {
-//                self.showEntries = false
-//            }
+            //            await animate(duration: 0.2, options: .easeIn) {
+            //                self.showEntries = false
+            //            }
             scrollProxy?.scrollTo(0)
             withAnimation {
                 self.entries = newEntries
             }
-//            withAnimation(.easeOut(duration: 0.2)) {
-//                self.showEntries = true
-//            }
+            //            withAnimation(.easeOut(duration: 0.2)) {
+            //                self.showEntries = true
+            //            }
         }
     }
 }

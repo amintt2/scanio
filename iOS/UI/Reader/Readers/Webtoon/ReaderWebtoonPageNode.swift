@@ -245,7 +245,7 @@ extension ReaderWebtoonPageNode {
         } else if let base64 = page.base64 {
             await loadImage(base64: base64)
         } else if let text = page.text {
-             loadText(text)
+            loadText(text)
         } else {
             // TODO: show error
         }
@@ -316,28 +316,28 @@ extension ReaderWebtoonPageNode {
             let error = error as? ImagePipeline.Error
             Task {
                 switch error {
-                    case .dataLoadingFailed, .dataIsEmpty:
-                        // we can still send to image processor even if the request failed
-                        if request.userInfo[.processesKey] as? Bool == true {
-                            let processor = request.processors.first(where: { $0 is PageInterceptorProcessor }) as? PageInterceptorProcessor
-                            if let processor {
-                                let result = await Task.detached {
-                                    try? processor.processWithoutImage(request: request)
-                                }.value
-                                if let result {
-                                    self.image = result.image
-                                    if result.type == .gif, let data = result.data {
-                                        self.imageNode.animate(withGIFData: data)
-                                    }
-                                    if self.isNodeLoaded {
-                                        self.displayPage()
-                                    }
-                                    return
+                case .dataLoadingFailed, .dataIsEmpty:
+                    // we can still send to image processor even if the request failed
+                    if request.userInfo[.processesKey] as? Bool == true {
+                        let processor = request.processors.first(where: { $0 is PageInterceptorProcessor }) as? PageInterceptorProcessor
+                        if let processor {
+                            let result = await Task.detached {
+                                try? processor.processWithoutImage(request: request)
+                            }.value
+                            if let result {
+                                self.image = result.image
+                                if result.type == .gif, let data = result.data {
+                                    self.imageNode.animate(withGIFData: data)
                                 }
+                                if self.isNodeLoaded {
+                                    self.displayPage()
+                                }
+                                return
                             }
                         }
-                    default:
-                        break
+                    }
+                default:
+                    break
                 }
 
                 // TODO: handle failure

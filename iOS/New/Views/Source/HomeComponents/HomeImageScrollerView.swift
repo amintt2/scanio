@@ -79,16 +79,16 @@ struct HomeImageScrollerView: View {
                             if let value = link.value {
                                 Button {
                                     switch value {
-                                        case .url(let urlString):
-                                            guard
-                                                let url = URL(string: urlString),
-                                                url.scheme == "http" || url.scheme == "https"
-                                            else { return }
-                                            path.present(SFSafariViewController(url: url))
-                                        case .listing(let listing):
-                                            path.push(SourceListingViewController(source: source, listing: listing))
-                                        case .manga(let manga):
-                                            path.push(MangaViewController(source: source, manga: manga, parent: path.rootViewController))
+                                    case .url(let urlString):
+                                        guard
+                                            let url = URL(string: urlString),
+                                            url.scheme == "http" || url.scheme == "https"
+                                        else { return }
+                                        path.present(SFSafariViewController(url: url))
+                                    case .listing(let listing):
+                                        path.push(SourceListingViewController(source: source, listing: listing))
+                                    case .manga(let manga):
+                                        path.push(MangaViewController(source: source, manga: manga, parent: path.rootViewController))
                                     }
                                 } label: {
                                     label

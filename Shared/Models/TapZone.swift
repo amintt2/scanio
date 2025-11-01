@@ -68,23 +68,23 @@ enum DefaultTapZones: String, CaseIterable {
 
     var tapZone: TapZone? {
         switch self {
-            case .automatic: nil
-            case .leftRight: .leftRight
-            case .lShaped: .lShaped
-            case .kindle: .kindle
-            case .edge: .edge
-            case .disabled: nil
+        case .automatic: nil
+        case .leftRight: .leftRight
+        case .lShaped: .lShaped
+        case .kindle: .kindle
+        case .edge: .edge
+        case .disabled: nil
         }
     }
 
     var title: String {
         switch self {
-            case .automatic: NSLocalizedString("AUTOMATIC")
-            case .leftRight: NSLocalizedString("ZONE_LEFT_RIGHT")
-            case .lShaped: NSLocalizedString("ZONE_L_SHAPED")
-            case .kindle: NSLocalizedString("ZONE_KINDLE")
-            case .edge: NSLocalizedString("ZONE_EDGE")
-            case .disabled: NSLocalizedString("DISABLED")
+        case .automatic: NSLocalizedString("AUTOMATIC")
+        case .leftRight: NSLocalizedString("ZONE_LEFT_RIGHT")
+        case .lShaped: NSLocalizedString("ZONE_L_SHAPED")
+        case .kindle: NSLocalizedString("ZONE_KINDLE")
+        case .edge: NSLocalizedString("ZONE_EDGE")
+        case .disabled: NSLocalizedString("DISABLED")
         }
     }
 }

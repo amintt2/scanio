@@ -64,7 +64,7 @@ struct MangaToMangaView: View {
                 }
                 if let name = toSource {
                     Text(name)
-                    .font(.footnote)
+                        .font(.footnote)
                 }
             }
             Spacer()

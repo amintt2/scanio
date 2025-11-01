@@ -69,11 +69,11 @@ public class MangaObject: NSManagedObject {
         let contentRating = manga.contentRating.rawValue
         nsfw = Int16(contentRating > 0 ? contentRating - 1 : 0)
         viewer = switch manga.viewer {
-            case .unknown: 0
-            case .rightToLeft: 1
-            case .leftToRight: 2
-            case .vertical: 3
-            case .webtoon: 4
+        case .unknown: 0
+        case .rightToLeft: 1
+        case .leftToRight: 2
+        case .vertical: 3
+        case .webtoon: 4
         }
         neverUpdate = manga.updateStrategy == .never
         nextUpdateTime = manga.nextUpdateTime.flatMap { Date(timeIntervalSince1970: TimeInterval($0)) }
@@ -107,12 +107,12 @@ public class MangaObject: NSManagedObject {
 
     func toNewManga() -> AidokuRunner.Manga {
         let viewer: Viewer = switch viewer {
-            case 0: .unknown
-            case 1: .rightToLeft
-            case 2: .leftToRight
-            case 3: .vertical
-            case 4: .webtoon
-            default: .unknown
+        case 0: .unknown
+        case 1: .rightToLeft
+        case 2: .leftToRight
+        case 3: .vertical
+        case 4: .webtoon
+        default: .unknown
         }
         return AidokuRunner.Manga(
             sourceKey: sourceId,

@@ -157,14 +157,14 @@ struct MangaCoverPageView: View {
                             }
                         }
                         // todo: share sheet doesn't work on ipads
-//                        Button {
-//                            Task {
-//                                let image = try await loadImage(url: url)
-//                                showShareSheet(image: image)
-//                            }
-//                        } label: {
-//                            Label(NSLocalizedString("SHARE"), systemImage: "square.and.arrow.up")
-//                        }
+                        //                        Button {
+                        //                            Task {
+                        //                                let image = try await loadImage(url: url)
+                        //                                showShareSheet(image: image)
+                        //                            }
+                        //                        } label: {
+                        //                            Label(NSLocalizedString("SHARE"), systemImage: "square.and.arrow.up")
+                        //                        }
                     }
                 }
                 .padding(16)

@@ -22,15 +22,15 @@ enum HttpMethod: Int {
 
     var stringValue: String {
         switch self {
-            case .GET: "GET"
-            case .POST: "POST"
-            case .PUT: "PUT"
-            case .HEAD: "HEAD"
-            case .DELETE: "DELETE"
-            case .PATCH: "PATCH"
-            case .OPTIONS: "OPTIONS"
-            case .CONNECT: "CONNECT"
-            case .TRACE: "TRACE"
+        case .GET: "GET"
+        case .POST: "POST"
+        case .PUT: "PUT"
+        case .HEAD: "HEAD"
+        case .DELETE: "DELETE"
+        case .PATCH: "PATCH"
+        case .OPTIONS: "OPTIONS"
+        case .CONNECT: "CONNECT"
+        case .TRACE: "TRACE"
         }
     }
 }
@@ -186,9 +186,9 @@ extension WasmNet {
     }
 
     func isRateLimited() -> Bool {
-//        self.rateLimit > 0
-//            && -(self.lastRequestTime?.timeIntervalSinceNow ?? -self.period) < self.period
-//            && self.passedRequests >= self.rateLimit
+        //        self.rateLimit > 0
+        //            && -(self.lastRequestTime?.timeIntervalSinceNow ?? -self.period) < self.period
+        //            && self.passedRequests >= self.rateLimit
         false
     }
 

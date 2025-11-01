@@ -188,10 +188,10 @@ struct SortButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         let foregroundColor = state == .normal ? Color.primary : Color.white
         let backgroundColor = switch state {
-            case .normal:
-                Color(uiColor: .secondarySystemBackground)
-            case .descending, .ascending:
-                Color.accentColor
+        case .normal:
+            Color(uiColor: .secondarySystemBackground)
+        case .descending, .ascending:
+            Color.accentColor
         }
         return HStack(spacing: 5) {
             configuration.label

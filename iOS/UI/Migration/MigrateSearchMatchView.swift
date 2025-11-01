@@ -28,7 +28,7 @@ struct MigrateSearchMatchView: View {
         self.sourcesToSearch = sourcesToSearch
         _newManga = newManga
         sources = sourcesToSearch.compactMap { SourceManager.shared.source(for: $0.sourceId) }
-//        _searchText = State(initialValue: manga.title ?? "")
+        //        _searchText = State(initialValue: manga.title ?? "")
     }
 
     var body: some View {

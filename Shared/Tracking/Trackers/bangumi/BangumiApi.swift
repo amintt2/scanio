@@ -177,12 +177,12 @@ extension BangumiApi {
                 if !oauth.tokens!.askedForRefresh {
                     oauth.tokens!.askedForRefresh = true
                     oauth.saveTokens()
-#if !os(macOS)
+                    #if !os(macOS)
                     await (UIApplication.shared.delegate as? AppDelegate)?.presentAlert(
                         title: String(format: NSLocalizedString("%@_TRACKER_LOGIN_NEEDED"), "Bangumi"),
                         message: String(format: NSLocalizedString("%@_TRACKER_LOGIN_NEEDED_TEXT"), "Bangumi")
                     )
-#endif
+                    #endif
                 }
                 return (data, response)
             }
@@ -224,13 +224,13 @@ extension BangumiApi {
 private extension BangumiApi {
     func getStatusString(status: TrackStatus?) -> BangumiCollectionStatus? {
         switch status {
-            case .reading: return .doing
-            case .planning: return .wish
-            case .completed: return .collect
-            case .dropped: return .dropped
-            case .paused: return .on_hold
-            case .rereading: return .doing
-            default: return nil
+        case .reading: return .doing
+        case .planning: return .wish
+        case .completed: return .collect
+        case .dropped: return .dropped
+        case .paused: return .on_hold
+        case .rereading: return .doing
+        default: return nil
         }
     }
 }

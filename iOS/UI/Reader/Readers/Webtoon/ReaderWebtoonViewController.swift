@@ -18,7 +18,7 @@ class ReaderWebtoonViewController: ZoomableCollectionViewController {
     var chapter: AidokuRunner.Chapter?
     var readingMode: ReadingMode = .webtoon
 
-//    private let prefetcher = ImagePrefetcher()
+    //    private let prefetcher = ImagePrefetcher()
 
     // Indicates if infinite scroll is enabled
     private lazy var infinite = UserDefaults.standard.bool(forKey: "Reader.verticalInfiniteScroll")
@@ -52,8 +52,8 @@ class ReaderWebtoonViewController: ZoomableCollectionViewController {
 
         collectionNode.delegate = self
         collectionNode.dataSource = self
-//        collectionNode.view.prefetchDataSource = self
-//        collectionNode.isPrefetchingEnabled = true
+        //        collectionNode.view.prefetchDataSource = self
+        //        collectionNode.isPrefetchingEnabled = true
 
         // override texture's automatic decreased preloading range
         collectionNode.setTuningParameters(collectionNode.tuningParameters(for: .display), for: .minimum, rangeType: .display)
@@ -323,7 +323,7 @@ extension ReaderWebtoonViewController {
         }
 
         // queue remove last section if we have three already
-//        let removeLast = chapters.count >= 3
+        //        let removeLast = chapters.count >= 3
 
         chapters.insert(prevChapter, at: 0)
         pages.insert(
@@ -346,15 +346,15 @@ extension ReaderWebtoonViewController {
         await collectionNode.performBatch(animated: false) {
             collectionNode.insertSections(IndexSet(integer: 0))
         }
-//        if removeLast {
-//            chapters.removeLast()
-//            pages.removeLast()
-//
-//            // remove last section
-//            await collectionNode.performBatchUpdates {
-//                self.collectionNode.deleteSections(IndexSet(integer: self.pages.count - 1))
-//            }
-//        }
+        //        if removeLast {
+        //            chapters.removeLast()
+        //            pages.removeLast()
+        //
+        //            // remove last section
+        //            await collectionNode.performBatchUpdates {
+        //                self.collectionNode.deleteSections(IndexSet(integer: self.pages.count - 1))
+        //            }
+        //        }
         self.scrollView.contentOffset = self.collectionNode.contentOffset
         self.zoomView.adjustContentSize()
         CATransaction.commit()
@@ -376,7 +376,7 @@ extension ReaderWebtoonViewController {
         }
 
         // queue remove first section if we have three already
-//        let removeFirst = chapters.count >= 3
+        //        let removeFirst = chapters.count >= 3
 
         chapters.append(nextChapter)
         pages.append(viewModel.preloadedPages + [Page(
@@ -393,13 +393,13 @@ extension ReaderWebtoonViewController {
         await collectionNode.performBatch(animated: false) {
             collectionNode.insertSections(IndexSet(integer: pages.count - 1))
         }
-//        if removeFirst {
-//            chapters.removeFirst()
-//            pages.removeFirst()
-//            await collectionNode.performBatchUpdates {
-//                collectionNode.deleteSections(IndexSet(integer: 0))
-//            }
-//        }
+        //        if removeFirst {
+        //            chapters.removeFirst()
+        //            pages.removeFirst()
+        //            await collectionNode.performBatchUpdates {
+        //                collectionNode.deleteSections(IndexSet(integer: 0))
+        //            }
+        //        }
         scrollView.contentOffset = self.collectionNode.contentOffset
         zoomView.adjustContentSize()
         CATransaction.commit()

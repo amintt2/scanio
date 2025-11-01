@@ -79,8 +79,8 @@ class MangaCollectionViewController: BaseCollectionViewController {
 extension MangaCollectionViewController {
 
     // TODO: list layout
-//    func makeListLayoutSection(environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
-//    }
+    //    func makeListLayoutSection(environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
+    //    }
 
     func makeGridLayoutSection(environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutSection {
         let itemsPerRow = UserDefaults.standard.integer(
@@ -237,11 +237,11 @@ extension MangaCollectionViewController {
                 : "General.portraitRows"
         )
         switch sender.input {
-            case UIKeyCommand.inputLeftArrow: position -= 1
-            case UIKeyCommand.inputRightArrow: position += 1
-            case UIKeyCommand.inputUpArrow: position -= itemsPerRow
-            case UIKeyCommand.inputDownArrow: position += itemsPerRow
-            default: return
+        case UIKeyCommand.inputLeftArrow: position -= 1
+        case UIKeyCommand.inputRightArrow: position += 1
+        case UIKeyCommand.inputUpArrow: position -= itemsPerRow
+        case UIKeyCommand.inputDownArrow: position += itemsPerRow
+        default: return
         }
         if position < 0 {
             guard section > 0 else { return }
@@ -256,7 +256,7 @@ extension MangaCollectionViewController {
             section += 1
             position -= collectionView.numberOfItems(inSection: section - 1) / itemsPerRow * itemsPerRow
             if position >= itemsPerRow {
-               position -= itemsPerRow
+                position -= itemsPerRow
             }
         }
 

@@ -27,14 +27,14 @@ struct GetButton: View {
             }
         } label: {
             switch buttonState {
-                case .default:
-                    Text(NSLocalizedString("BUTTON_GET"))
-                case .loading:
-                    ProgressView()
-                        .progressViewStyle(.circular)
-                        .scaleEffect(0.7)
-                case .error:
-                    Text(NSLocalizedString("BUTTON_ERROR"))
+            case .default:
+                Text(NSLocalizedString("BUTTON_GET"))
+            case .loading:
+                ProgressView()
+                    .progressViewStyle(.circular)
+                    .scaleEffect(0.7)
+            case .error:
+                Text(NSLocalizedString("BUTTON_ERROR"))
             }
         }
         .buttonStyle(.borderless)
@@ -43,6 +43,6 @@ struct GetButton: View {
         .padding(.horizontal, buttonState == .loading ? 4 : 14)
         .background(Color(uiColor: .tertiarySystemFill))
         .clipShape(RoundedRectangle(cornerRadius: 28))
-//        .animation(.default, value: buttonState)
+        //        .animation(.default, value: buttonState)
     }
 }

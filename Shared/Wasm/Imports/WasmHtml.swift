@@ -134,7 +134,7 @@ extension WasmHtml {
                     return self.globalStore.storeStdValue(object)
                 } else if let object = try? (self.globalStore.readStdValue(descriptor) as? SwiftSoup.Element)?.attr(selectorString) {
                     return self.globalStore.storeStdValue(object)
-                 }
+                }
             }
             return -1
         }

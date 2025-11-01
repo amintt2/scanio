@@ -296,7 +296,7 @@ class NewSourceViewController: UIViewController {
                 listingHeaderController.view.superview?.forceNoClip()
             } else {
                 navigationItem.searchController = nil
-//                searchController.isActive = false
+                //                searchController.isActive = false
             }
         }
 
@@ -480,7 +480,7 @@ extension NewSourceViewController {
         // pop the scroll view off the search overlay and put it on the window above everything;
         // stops the content from moving around when the navbar height changes during transition
         let originalFrame = scrollView.frame
-//        let newBounds = scrollView.convert(scrollView.bounds, to: window)
+        //        let newBounds = scrollView.convert(scrollView.bounds, to: window)
         let newOrigin = CGPoint(x: 0, y: view.safeAreaInsets.top)
 
         searchOverlayController.removeFromParent()
@@ -563,8 +563,8 @@ extension NewSourceViewController {
                     self.view.addSubview(self.searchOverlayController.view)
                 }
                 self.searchOverlayController.didMove(toParent: self)
-//                self.searchOverlayController.view.translatesAutoresizingMaskIntoConstraints = false
-//                self.searchOverlayController.view.setNeedsUpdateConstraints()
+                //                self.searchOverlayController.view.translatesAutoresizingMaskIntoConstraints = false
+                //                self.searchOverlayController.view.setNeedsUpdateConstraints()
 
                 scrollView.frame = originalFrame
                 self.searchOverlayController.view.layer.mask = nil

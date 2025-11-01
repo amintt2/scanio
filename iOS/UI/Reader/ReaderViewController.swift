@@ -57,24 +57,15 @@ class ReaderViewController: BaseObservingViewController {
             }()
         )
 
-    // Comments button
-    private lazy var commentsButtonController: UIHostingController<CommentsButtonView> = {
-        let buttonView = CommentsButtonView(commentCount: 0) { [weak self] in
-            self?.openComments()
-        }
-        let hostingController = UIHostingController(rootView: buttonView)
-        hostingController.view.backgroundColor = .clear
-        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
-        return hostingController
-    }()
-    private var commentsButtonBottomConstraint: NSLayoutConstraint?
-    private var commentsButtonTrailingConstraint: NSLayoutConstraint?
+    // Comments button (will be in navbar)
+    private var commentsButton: UIBarButtonItem?
+    private var commentCount: Int = 0
 
     private lazy var barToggleTapGesture: UITapGestureRecognizer = {
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
         tap.numberOfTapsRequired = 1
 
-        let doubleTap = UITapGestureRecognizer(target: self, action: nil)
+        let doubleTap = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap(_:)))
         doubleTap.numberOfTapsRequired = 2
         view.addGestureRecognizer(doubleTap)
 
@@ -106,11 +97,11 @@ class ReaderViewController: BaseObservingViewController {
         self.chapterList = manga.chapters ?? []
         self.chaptersToMark = [chapter]
         self.defaultReadingMode = switch manga.viewer {
-            case .rightToLeft: .rtl
-            case .leftToRight: .ltr
-            case .vertical: .vertical
-            case .webtoon: .webtoon
-            case .unknown: .none
+        case .rightToLeft: .rtl
+        case .leftToRight: .ltr
+        case .vertical: .vertical
+        case .webtoon: .webtoon
+        case .unknown: .none
         }
         super.init()
     }
@@ -133,6 +124,10 @@ class ReaderViewController: BaseObservingViewController {
                 action: #selector(openChapterList)
             )
         ]
+
+        // Comments button with badge
+        commentsButton = createCommentsButton()
+
         let moreButton = UIBarButtonItem(
             image: UIImage(systemName: "safari"),
             style: .plain,
@@ -147,7 +142,8 @@ class ReaderViewController: BaseObservingViewController {
                 style: .plain,
                 target: self,
                 action: #selector(openReaderSettings)
-            )
+            ),
+            commentsButton!
         ]
 
         // fix navbar being clear
@@ -183,9 +179,6 @@ class ReaderViewController: BaseObservingViewController {
 
         add(child: descriptionButtonController)
 
-        // Add comments button
-        add(child: commentsButtonController)
-
         toolbarItems = [toolbarButtonItemView]
         navigationController?.isToolbarHidden = false
         navigationController?.toolbar.fitContentViewToToolbar()
@@ -214,24 +207,12 @@ class ReaderViewController: BaseObservingViewController {
     override func constrain() {
         toolbarViewWidthConstraint?.isActive = true
 
-        commentsButtonTrailingConstraint = commentsButtonController.view.trailingAnchor.constraint(
-            equalTo: view.safeAreaLayoutGuide.trailingAnchor,
-            constant: -16
-        )
-        commentsButtonBottomConstraint = commentsButtonController.view.bottomAnchor.constraint(
-            equalTo: view.safeAreaLayoutGuide.bottomAnchor,
-            constant: -100
-        )
-
         NSLayoutConstraint.activate([
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
 
             descriptionButtonController.view.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            pageDescriptionButtonBottomConstraint,
-
-            commentsButtonTrailingConstraint!,
-            commentsButtonBottomConstraint!
+            pageDescriptionButtonBottomConstraint
         ])
     }
 
@@ -414,6 +395,58 @@ class ReaderViewController: BaseObservingViewController {
         present(SFSafariViewController(url: url), animated: true)
     }
 
+    // Create comments button with badge
+    private func createCommentsButton() -> UIBarButtonItem {
+        let button = UIButton(type: .system)
+
+        // Configure button with SF Symbol
+        let config = UIImage.SymbolConfiguration(pointSize: 17, weight: .regular)
+        let image = UIImage(systemName: "bubble.left.and.bubble.right", withConfiguration: config)
+        button.setImage(image, for: .normal)
+
+        // Add badge if there are comments
+        if commentCount > 0 {
+            let badgeLabel = UILabel()
+            badgeLabel.text = "\(commentCount)"
+            badgeLabel.font = .systemFont(ofSize: 10, weight: .semibold)
+            badgeLabel.textColor = .white
+            badgeLabel.backgroundColor = .systemRed
+            badgeLabel.textAlignment = .center
+            badgeLabel.layer.cornerRadius = 8
+            badgeLabel.layer.masksToBounds = true
+            badgeLabel.translatesAutoresizingMaskIntoConstraints = false
+
+            button.addSubview(badgeLabel)
+
+            NSLayoutConstraint.activate([
+                badgeLabel.topAnchor.constraint(equalTo: button.topAnchor, constant: -4),
+                badgeLabel.trailingAnchor.constraint(equalTo: button.trailingAnchor, constant: 4),
+                badgeLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 16),
+                badgeLabel.heightAnchor.constraint(equalToConstant: 16)
+            ])
+        }
+
+        button.addTarget(self, action: #selector(openComments), for: .touchUpInside)
+
+        return UIBarButtonItem(customView: button)
+    }
+
+    // Update comment count and refresh button
+    private func updateCommentCount(_ count: Int) {
+        commentCount = count
+        commentsButton = createCommentsButton()
+
+        // Update right bar button items
+        if let moreButton = navigationItem.rightBarButtonItems?.first(where: {
+            ($0.customView as? UIButton)?.currentImage == UIImage(systemName: "safari")
+        }),
+        let settingsButton = navigationItem.rightBarButtonItems?.first(where: {
+            ($0.customView as? UIButton)?.currentImage == UIImage(systemName: "textformat.size")
+        }) {
+            navigationItem.rightBarButtonItems = [moreButton, settingsButton, commentsButton!]
+        }
+    }
+
     @objc func openChapterList() {
         var view = ReaderChapterListView(
             chapterList: chapterList,
@@ -444,17 +477,32 @@ class ReaderViewController: BaseObservingViewController {
     }
 
     private func showCommentsView() {
-        let commentsView = CommentsView(chapterId: chapter.id)
+        let commentsView = CommentsView(chapterId: chapter.id, onDismiss: { [weak self] count in
+            // Update comment count when view is dismissed
+            self?.updateCommentCount(count)
+        })
         let vc = UIHostingController(rootView: commentsView)
 
-        // Present as a sheet with medium detent (half screen)
+        // Present as a sheet with custom detent (50% of screen)
         if let sheet = vc.sheetPresentationController {
-            sheet.detents = [.medium(), .large()]
+            // Create custom detent for 50% height
+            let customDetent = UISheetPresentationController.Detent.custom { context in
+                context.maximumDetentValue * 0.5
+            }
+
+            sheet.detents = [customDetent, .large()]
             sheet.prefersGrabberVisible = true
             sheet.preferredCornerRadius = 20
+            sheet.prefersScrollingExpandsWhenScrolledToEdge = true
+            sheet.largestUndimmedDetentIdentifier = customDetent.identifier
         }
 
         present(vc, animated: true)
+    }
+
+    @objc func handleDoubleTap(_ gestureRecognizer: UITapGestureRecognizer) {
+        // Open comments on double tap
+        openComments()
     }
 
     @objc func close() {
@@ -512,10 +560,10 @@ extension ReaderViewController {
 
         if !(reader is ReaderTextViewController) {
             switch readingMode {
-                case .ltr, .rtl, .vertical:
-                    setReader(.paged)
-                case .webtoon, .continuous:
-                    setReader(.scroll)
+            case .ltr, .rtl, .vertical:
+                setReader(.paged)
+            case .webtoon, .continuous:
+                setReader(.scroll)
             }
         }
     }
@@ -523,31 +571,31 @@ extension ReaderViewController {
     func setReader(_ type: Reader) {
         let pageController: ReaderReaderDelegate?
         switch type {
-            case .paged:
-                if readingMode == .rtl {
-                    toolbarView.sliderView.direction = .backward
-                } else {
-                    toolbarView.sliderView.direction = .forward
-                }
-                if !(reader is ReaderPagedViewController) {
-                    pageController = ReaderPagedViewController(source: source, manga: manga)
-                } else {
-                    pageController = nil
-                }
-            case .scroll:
+        case .paged:
+            if readingMode == .rtl {
+                toolbarView.sliderView.direction = .backward
+            } else {
                 toolbarView.sliderView.direction = .forward
-                if !(reader is ReaderWebtoonViewController) {
-                    pageController = ReaderWebtoonViewController(source: source, manga: manga)
-                } else {
-                    pageController = nil
-                }
-            case .text:
-                toolbarView.sliderView.direction = .forward
-                if !(reader is ReaderTextViewController) {
-                    pageController = ReaderTextViewController(source: source, manga: manga)
-                } else {
-                    pageController = nil
-                }
+            }
+            if !(reader is ReaderPagedViewController) {
+                pageController = ReaderPagedViewController(source: source, manga: manga)
+            } else {
+                pageController = nil
+            }
+        case .scroll:
+            toolbarView.sliderView.direction = .forward
+            if !(reader is ReaderWebtoonViewController) {
+                pageController = ReaderWebtoonViewController(source: source, manga: manga)
+            } else {
+                pageController = nil
+            }
+        case .text:
+            toolbarView.sliderView.direction = .forward
+            if !(reader is ReaderTextViewController) {
+                pageController = ReaderTextViewController(source: source, manga: manga)
+            } else {
+                pageController = nil
+            }
         }
         if let pageController {
             reader?.remove()
@@ -739,17 +787,17 @@ extension ReaderViewController {
     func updateTapZone() {
         let enabledTapZone = UserDefaults.standard.string(forKey: "Reader.tapZones")
         let tapZone: TapZone? = switch enabledTapZone {
-            case "auto": switch reader {
-                case is ReaderPagedViewController: .leftRight
-                case is ReaderWebtoonViewController: .lShaped
-                case is ReaderTextViewController: .lShaped
-                default: .leftRight
-            }
-            case "left-right": .leftRight
-            case "l-shaped": .lShaped
-            case "kindle": .kindle
-            case "edge": .edge
-            default: nil
+        case "auto": switch reader {
+        case is ReaderPagedViewController: .leftRight
+        case is ReaderWebtoonViewController: .lShaped
+        case is ReaderTextViewController: .lShaped
+        default: .leftRight
+        }
+        case "left-right": .leftRight
+        case "l-shaped": .lShaped
+        case "kindle": .kindle
+        case "edge": .edge
+        default: nil
         }
         self.tapZone = tapZone
     }
@@ -778,13 +826,13 @@ extension ReaderViewController {
             // handle page moving
             if UserDefaults.standard.bool(forKey: "Reader.invertTapZones") {
                 switch type {
-                    case .left: reader.moveRight()
-                    case .right: reader.moveLeft()
+                case .left: reader.moveRight()
+                case .right: reader.moveLeft()
                 }
             } else {
                 switch type {
-                    case .left: reader.moveLeft()
-                    case .right: reader.moveRight()
+                case .left: reader.moveLeft()
+                case .right: reader.moveRight()
                 }
             }
         } else {

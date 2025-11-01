@@ -1,7 +1,7 @@
 //
 //  Shimmer.swift
 //  SwiftUI-Shimmer
-// 
+//
 //  Created by Vikram Kriplaney on 23.03.21.
 //  Source: https://github.com/markiv/SwiftUI-Shimmer/blob/main/Sources/Shimmer/Shimmer.swift
 //
@@ -47,21 +47,21 @@ struct Shimmer: ViewModifier {
     /*
      Calculating the gradient's animated start and end unit points:
      min,min
-        \
-         ┌───────┐         ┌───────┐
-         │0,0    │ Animate │       │  "forward" gradient
+     \
+     ┌───────┐         ┌───────┐
+     │0,0    │ Animate │       │  "forward" gradient
      LTR │       │ ───────►│    1,1│  / // /
-         └───────┘         └───────┘
-                                    \
-                                  max,max
-                max,min
-                  /
-         ┌───────┐         ┌───────┐
-         │    1,0│ Animate │       │  "backward" gradient
+     └───────┘         └───────┘
+     \
+     max,max
+     max,min
+     /
+     ┌───────┐         ┌───────┐
+     │    1,0│ Animate │       │  "backward" gradient
      RTL │       │ ───────►│0,1    │  \ \\ \
-         └───────┘         └───────┘
-                          /
-                       min,max
+     └───────┘         └───────┘
+     /
+     min,max
      */
 
     /// The start unit point of our gradient, adjusting for layout direction.

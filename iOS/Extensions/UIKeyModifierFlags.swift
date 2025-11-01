@@ -10,10 +10,10 @@ import UIKit
 extension UIKeyModifierFlags {
     /// Command modifier, but uses shift in the simulator to avoid conflicts.
     public static var shiftOrCommand: Self {
-#if targetEnvironment(simulator)
+        #if targetEnvironment(simulator)
         .shift
-#else
+        #else
         .command
-#endif
+        #endif
     }
 }

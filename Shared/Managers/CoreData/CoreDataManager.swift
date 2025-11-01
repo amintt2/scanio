@@ -88,11 +88,11 @@ final class CoreDataManager {
             }
         }
 
-//        do {
-//            try container.initializeCloudKitSchema(options: [.printSchema])
-//        } catch {
-//            print("error initializing cloudkit schema:", error)
-//        }
+        //        do {
+        //            try container.initializeCloudKitSchema(options: [.printSchema])
+        //        } catch {
+        //            print("error initializing cloudkit schema:", error)
+        //        }
 
         return container
     }()
@@ -115,11 +115,11 @@ final class CoreDataManager {
         }
     }
 
-//    func saveIfNeeded() {
-//        if context.hasChanges {
-//            save()
-//        }
-//    }
+    //    func saveIfNeeded() {
+    //        if context.hasChanges {
+    //            save()
+    //        }
+    //    }
 
     func remove(_ objectID: NSManagedObjectID) {
         container.performBackgroundTask { context in
@@ -201,11 +201,11 @@ extension CoreDataManager {
 
                 for
                     transaction in transactions
-                    where transaction.changes != nil && transaction.author == "NSCloudKitMirroringDelegate.import"
+                where transaction.changes != nil && transaction.author == "NSCloudKitMirroringDelegate.import"
                 {
                     for
                         change in transaction.changes!
-                        where entityNames.contains(change.changedObjectID.entity.name) && change.changeType == .insert
+                    where entityNames.contains(change.changedObjectID.entity.name) && change.changeType == .insert
                     {
                         newObjectIds.append(change.changedObjectID)
                     }

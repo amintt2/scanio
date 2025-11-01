@@ -89,9 +89,9 @@ struct MultiSelectFilterView: View {
                     )
                 }
                 .navigationTitle(filter.title?.localizedCapitalized ?? "")
-#if !os(macOS)
+                #if !os(macOS)
                 .navigationBarTitleDisplayMode(.inline)
-#endif
+                #endif
             }
         }
         .onChange(of: includedOptions) { _ in
@@ -282,14 +282,14 @@ private struct GenreButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         let foregroundColor = state == .normal ? Color.primary : Color.white
         let backgroundColor = switch state {
-            case .normal:
-                Color(uiColor: .secondarySystemBackground)
-            case .enabled:
-                Color.accentColor
-            case .included:
-                Color.green
-            case .excluded:
-                Color.red
+        case .normal:
+            Color(uiColor: .secondarySystemBackground)
+        case .enabled:
+            Color.accentColor
+        case .included:
+            Color.green
+        case .excluded:
+            Color.red
         }
         return configuration.label
             .font(.callout)

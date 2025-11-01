@@ -9,7 +9,7 @@ import SwiftUI
 
 struct AuthView: View {
     @Environment(\.dismiss) var dismiss
-    
+
     @State private var isSignUp = false
     @State private var email = ""
     @State private var password = ""
@@ -17,9 +17,9 @@ struct AuthView: View {
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var showingConfirmationAlert = false
-    
+
     var onAuthSuccess: (() -> Void)?
-    
+
     var body: some View {
         NavigationView {
             ScrollView {
@@ -29,17 +29,17 @@ struct AuthView: View {
                         Image(systemName: "book.circle.fill")
                             .font(.system(size: 80))
                             .foregroundColor(.accentColor)
-                        
+
                         Text("Scanio")
                             .font(.largeTitle)
                             .fontWeight(.bold)
-                        
+
                         Text(isSignUp ? "Créer un compte" : "Connexion")
                             .font(.title3)
                             .foregroundColor(.secondary)
                     }
                     .padding(.top, 40)
-                    
+
                     // Form
                     VStack(spacing: 16) {
                         if isSignUp {
@@ -48,19 +48,19 @@ struct AuthView: View {
                                 .textContentType(.username)
                                 .autocapitalization(.none)
                         }
-                        
+
                         TextField("Email", text: $email)
                             .textFieldStyle(.roundedBorder)
                             .textContentType(.emailAddress)
                             .autocapitalization(.none)
                             .keyboardType(.emailAddress)
-                        
+
                         SecureField("Mot de passe", text: $password)
                             .textFieldStyle(.roundedBorder)
                             .textContentType(isSignUp ? .newPassword : .password)
                     }
                     .padding(.horizontal)
-                    
+
                     // Error message
                     if let errorMessage {
                         Text(errorMessage)
@@ -68,7 +68,7 @@ struct AuthView: View {
                             .foregroundColor(.red)
                             .padding(.horizontal)
                     }
-                    
+
                     // Submit button
                     Button(action: handleAuth) {
                         if isLoading {
@@ -86,7 +86,7 @@ struct AuthView: View {
                     .cornerRadius(12)
                     .padding(.horizontal)
                     .disabled(isLoading || email.isEmpty || password.isEmpty)
-                    
+
                     // Toggle sign up/sign in
                     Button(action: {
                         isSignUp.toggle()
@@ -96,7 +96,7 @@ struct AuthView: View {
                             .font(.subheadline)
                             .foregroundColor(.accentColor)
                     }
-                    
+
                     Spacer()
                 }
             }
@@ -117,11 +117,11 @@ struct AuthView: View {
             }
         }
     }
-    
+
     private func handleAuth() {
         errorMessage = nil
         isLoading = true
-        
+
         Task {
             do {
                 if isSignUp {
@@ -152,4 +152,3 @@ struct AuthView: View {
 #Preview {
     AuthView()
 }
-

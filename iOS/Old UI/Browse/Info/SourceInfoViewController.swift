@@ -107,10 +107,10 @@ extension SourceInfoViewController {
             }
 
             cell?.textLabel?.text = NSLocalizedString("LANGUAGE", comment: "")
-//            if let value = UserDefaults.standard.array(forKey: "\(source.id).languages").first,
-//               let index = source.languages.firstIndex(of: value) {
-//                cell?.detailTextLabel?.text = source.languages[index]
-//            }
+            //            if let value = UserDefaults.standard.array(forKey: "\(source.id).languages").first,
+            //               let index = source.languages.firstIndex(of: value) {
+            //                cell?.detailTextLabel?.text = source.languages[index]
+            //            }
             cell?.detailTextLabel?.text = nil
             cell?.accessoryType = .disclosureIndicator
 

@@ -9,10 +9,10 @@ import Foundation
 import AidokuRunner
 
 #if os(OSX)
-    import AppKit
+import AppKit
 //    public typealias UIColor = NSColor
 #else
-    import UIKit
+import UIKit
 #endif
 
 enum PublishingStatus: Int, Codable {
@@ -36,12 +36,12 @@ enum PublishingStatus: Int, Codable {
 
     func toNew() -> AidokuRunner.PublishingStatus {
         switch self {
-            case .unknown: .unknown
-            case .ongoing: .ongoing
-            case .completed: .completed
-            case .cancelled: .cancelled
-            case .hiatus: .hiatus
-            case .notPublished: .unknown
+        case .unknown: .unknown
+        case .ongoing: .ongoing
+        case .completed: .completed
+        case .cancelled: .cancelled
+        case .hiatus: .hiatus
+        case .notPublished: .unknown
         }
     }
 }
@@ -79,9 +79,9 @@ enum MangaContentRating: Int, Codable {
 
     func toNew() -> AidokuRunner.ContentRating {
         switch self {
-            case .safe: .safe
-            case .suggestive: .suggestive
-            case .nsfw: .nsfw
+        case .safe: .safe
+        case .suggestive: .suggestive
+        case .nsfw: .nsfw
         }
     }
 }
@@ -95,11 +95,11 @@ enum MangaViewer: Int, Codable {
 
     func toNew() -> AidokuRunner.Viewer {
         switch self {
-            case .defaultViewer: .unknown
-            case .ltr: .leftToRight
-            case .rtl: .rightToLeft
-            case .vertical: .vertical
-            case .scroll: .webtoon
+        case .defaultViewer: .unknown
+        case .ltr: .leftToRight
+        case .rtl: .rightToLeft
+        case .vertical: .vertical
+        case .scroll: .webtoon
         }
     }
 }

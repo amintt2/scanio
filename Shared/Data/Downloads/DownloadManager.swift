@@ -9,14 +9,14 @@ import Foundation
 
 /*
  File Structure:
-   Downloads/
-     sourceId/
-       mangaId/
-         chapterId/
-           .metadata.json     Chapter info stored here     (title, chapter number, volume number, source order)
-           001.png
-           002.png
-           ...
+ Downloads/
+ sourceId/
+ mangaId/
+ chapterId/
+ .metadata.json     Chapter info stored here     (title, chapter number, volume number, source order)
+ 001.png
+ 002.png
+ ...
  */
 
 // global class to manage downloads
@@ -81,7 +81,7 @@ class DownloadManager {
                     index: (Int(url.deletingPathExtension().lastPathComponent) ?? 1) - 1,
                     imageURL: imageURL,
                     text: text,
-                )
+                    )
             }
             .sorted { $0.index < $1.index }
 

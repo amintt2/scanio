@@ -31,10 +31,10 @@ struct MangaListView: View {
         ScrollView(.vertical) {
             if loading {
                 switch listingKind {
-                    case .default:
-                        HomeGridView.placeholder
-                    case .list:
-                        PlaceholderMangaHomeList(showTitle: false)
+                case .default:
+                    HomeGridView.placeholder
+                case .list:
+                    PlaceholderMangaHomeList(showTitle: false)
                 }
             } else if error != nil {
                 Spacer()
@@ -42,31 +42,31 @@ struct MangaListView: View {
                     .frame(maxWidth: .infinity)
             } else {
                 switch listingKind {
-                    case .default:
-                        HomeGridView(
-                            source: source,
-                            entries: entries,
-                            bookmarkedItems: $bookmarkedItems,
-                            loadMore: {
-                                if hasMore {
-                                    await loadEntries()
-                                }
-                            },
-                            onSelect: onSelect
-                        )
-                    case .list:
-                        HomeListView(
-                            source: source,
-                            component: .init(title: nil, value: .mangaList(entries: entries.map { $0.intoLink() })),
-                            bookmarkedItems: $bookmarkedItems,
-                            loadMore: {
-                                if hasMore {
-                                    await loadEntries()
-                                }
-                            },
-                            onSelect: onSelect
-                        )
-                        .padding(.bottom)
+                case .default:
+                    HomeGridView(
+                        source: source,
+                        entries: entries,
+                        bookmarkedItems: $bookmarkedItems,
+                        loadMore: {
+                            if hasMore {
+                                await loadEntries()
+                            }
+                        },
+                        onSelect: onSelect
+                    )
+                case .list:
+                    HomeListView(
+                        source: source,
+                        component: .init(title: nil, value: .mangaList(entries: entries.map { $0.intoLink() })),
+                        bookmarkedItems: $bookmarkedItems,
+                        loadMore: {
+                            if hasMore {
+                                await loadEntries()
+                            }
+                        },
+                        onSelect: onSelect
+                    )
+                    .padding(.bottom)
                 }
             }
         }
@@ -85,9 +85,9 @@ struct MangaListView: View {
             loading = false
         }
         .navigationTitle(title)
-#if !os(macOS)
+        #if !os(macOS)
         .navigationBarTitleDisplayMode(.inline)
-#endif
+        #endif
         .animation(.default, value: entries)
     }
 

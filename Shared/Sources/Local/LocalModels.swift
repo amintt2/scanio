@@ -27,8 +27,8 @@ enum LocalFileType {
 
     var localizedName: String {
         switch self {
-            case .cbz: NSLocalizedString("CBZ_NAME")
-            case .zip: NSLocalizedString("ZIP_NAME")
+        case .cbz: NSLocalizedString("CBZ_NAME")
+        case .zip: NSLocalizedString("ZIP_NAME")
         }
     }
 }

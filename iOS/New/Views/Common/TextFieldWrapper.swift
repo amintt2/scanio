@@ -18,7 +18,7 @@ struct TextFieldWrapper<Content: View>: View {
         .padding(.horizontal, 10)
         .padding(.vertical, 12)
         .background(RoundedRectangle(cornerRadius: 10)
-            .fill(Color(uiColor: .secondarySystemBackground)))
+                        .fill(Color(uiColor: .secondarySystemBackground)))
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .overlay {
             if hasError {

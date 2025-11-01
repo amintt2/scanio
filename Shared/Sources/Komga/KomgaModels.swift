@@ -48,115 +48,115 @@ enum KomgaSearchCondition {
     case anyOf([KomgaSearchCondition])
     case ageRating(Int?, exclude: Bool = false)
     case author(name: String? = nil, role: String? = nil, exclude: Bool = false)
-//    case collectionId
-//    case complete
+    //    case collectionId
+    //    case complete
     case deleted(Bool)
     case genre(String, exclude: Bool = false)
     case language(String, exclude: Bool = false)
     case libraryId(String, exclude: Bool = false)
-//    case mediaProfile
-//    case mediaStatus
-//    case numberSort
-//    case oneShot
+    //    case mediaProfile
+    //    case mediaStatus
+    //    case numberSort
+    //    case oneShot
     case publisher(String, exclude: Bool = false)
-//    case poster
-//    case readListId
+    //    case poster
+    //    case readListId
     case readStatus(KomgaReadStatus, exclude: Bool = false)
     case releaseDate(Int?, exclude: Bool = false)
     case seriesId(String, exclude: Bool = false)
     case seriesStatus(KomgaSeries.Metadata.Status, exclude: Bool = false)
     case sharingLabel(String, exclude: Bool = false)
     case tag(String, exclude: Bool = false)
-//    case title
-//    case titleSort
+    //    case title
+    //    case titleSort
 }
 
 extension KomgaSearchCondition: Encodable {
     func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         switch self {
-            case .allOf(let array):
-                try container.encode(array, forKey: .allOf)
-            case .anyOf(let array):
-                try container.encode(array, forKey: .anyOf)
-            case .ageRating(let rating, let exclude):
-                if let rating {
-                    try container.encode(ConditionValue(operator: exclude ? "isNot" : "is", value: rating), forKey: .ageRating)
-                } else {
-                    try container.encode(ConditionValue<Int>(operator: exclude ? "isNotNull" : "isNull"), forKey: .ageRating)
-                }
-            case .author(let name, let role, let exclude):
-                try container.encode(ConditionValue(operator: exclude ? "isNot" : "is", value: AuthorValue(name: name, role: role)), forKey: .author)
-            case .deleted(let bool):
-                try container.encode(ConditionValue<String>(operator: bool ? "isTrue" : "isFalse"), forKey: .deleted)
-            case .genre(let genre, let exclude):
-                if genre.isEmpty {
-                    try container.encode(ConditionValue<String>(operator: exclude ? "isNull" : "isNotNull"), forKey: .genre)
-                } else {
-                    try container.encode(ConditionValue(operator: exclude ? "isNot" : "is", value: genre), forKey: .genre)
-                }
-            case .language(let id, let exclude):
-                try container.encode(ConditionValue(operator: (id.isEmpty ? !exclude : exclude) ? "isNot" : "is", value: id), forKey: .language)
-            case .libraryId(let id, let exclude):
-                try container.encode(ConditionValue(operator: (id.isEmpty ? !exclude : exclude) ? "isNot" : "is", value: id), forKey: .libraryId)
-            case .publisher(let id, let exclude):
-                try container.encode(ConditionValue(operator: (id.isEmpty ? !exclude : exclude) ? "isNot" : "is", value: id), forKey: .publisher)
-            case .readStatus(let readStatus, let exclude):
-                try container.encode(ConditionValue(operator: exclude ? "isNot" : "is", value: readStatus.rawValue), forKey: .readStatus)
-            case .releaseDate(let year, let exclude):
-                if let year {
-                    struct ReleaseDate: Encodable {
-                        struct Inner: Encodable {
-                            var `operator`: String
-                            var dateTime: Date?
-                        }
-                        var releaseDate: Inner
+        case .allOf(let array):
+            try container.encode(array, forKey: .allOf)
+        case .anyOf(let array):
+            try container.encode(array, forKey: .anyOf)
+        case .ageRating(let rating, let exclude):
+            if let rating {
+                try container.encode(ConditionValue(operator: exclude ? "isNot" : "is", value: rating), forKey: .ageRating)
+            } else {
+                try container.encode(ConditionValue<Int>(operator: exclude ? "isNotNull" : "isNull"), forKey: .ageRating)
+            }
+        case .author(let name, let role, let exclude):
+            try container.encode(ConditionValue(operator: exclude ? "isNot" : "is", value: AuthorValue(name: name, role: role)), forKey: .author)
+        case .deleted(let bool):
+            try container.encode(ConditionValue<String>(operator: bool ? "isTrue" : "isFalse"), forKey: .deleted)
+        case .genre(let genre, let exclude):
+            if genre.isEmpty {
+                try container.encode(ConditionValue<String>(operator: exclude ? "isNull" : "isNotNull"), forKey: .genre)
+            } else {
+                try container.encode(ConditionValue(operator: exclude ? "isNot" : "is", value: genre), forKey: .genre)
+            }
+        case .language(let id, let exclude):
+            try container.encode(ConditionValue(operator: (id.isEmpty ? !exclude : exclude) ? "isNot" : "is", value: id), forKey: .language)
+        case .libraryId(let id, let exclude):
+            try container.encode(ConditionValue(operator: (id.isEmpty ? !exclude : exclude) ? "isNot" : "is", value: id), forKey: .libraryId)
+        case .publisher(let id, let exclude):
+            try container.encode(ConditionValue(operator: (id.isEmpty ? !exclude : exclude) ? "isNot" : "is", value: id), forKey: .publisher)
+        case .readStatus(let readStatus, let exclude):
+            try container.encode(ConditionValue(operator: exclude ? "isNot" : "is", value: readStatus.rawValue), forKey: .readStatus)
+        case .releaseDate(let year, let exclude):
+            if let year {
+                struct ReleaseDate: Encodable {
+                    struct Inner: Encodable {
+                        var `operator`: String
+                        var dateTime: Date?
+                    }
+                    var releaseDate: Inner
 
-                        init(operator: String, value: Date? = nil) {
-                            self.releaseDate = .init(operator: `operator`, dateTime: value)
-                        }
+                    init(operator: String, value: Date? = nil) {
+                        self.releaseDate = .init(operator: `operator`, dateTime: value)
                     }
-                    if exclude {
-                        // any date outside of the given year (either nil, after end of year, or before start)
-                        guard
-                            let firstOfYear = Date.firstOf(year: year),
-                            let lastOfYear = Date.lastOf(year: year)
-                        else { break }
-                        try container.encode([
-                            ReleaseDate(operator: "after", value: lastOfYear),
-                            ReleaseDate(operator: "before", value: firstOfYear),
-                            ReleaseDate(operator: "isNull")
-                        ], forKey: .anyOf)
-                    } else {
-                        // any date that is within the given year (both after end of prev year and before first of next year)
-                        guard
-                            let firstOfNextYear = Date.firstOf(year: year + 1),
-                            let lastOfPrevYear = Date.lastOf(year: year - 1)
-                        else { break }
-                        try container.encode([
-                            ReleaseDate(operator: "after", value: lastOfPrevYear),
-                            ReleaseDate(operator: "before", value: firstOfNextYear)
-                        ], forKey: .allOf)
-                    }
-                } else {
-                    try container.encode(ConditionValue<Date>(operator: exclude ? "isNull" : "isNotNull"), forKey: .releaseDate)
                 }
-            case .seriesId(let id, let exclude):
-                try container.encode(ConditionValue(operator: exclude ? "isNot" : "is", value: id), forKey: .seriesId)
-            case .seriesStatus(let status, let exclude):
-                try container.encode(ConditionValue(operator: exclude ? "isNot" : "is", value: status.rawValue), forKey: .seriesStatus)
-            case .sharingLabel(let genre, let exclude):
-                if genre.isEmpty {
-                    try container.encode(ConditionValue<String>(operator: exclude ? "isNull" : "isNotNull"), forKey: .genre)
+                if exclude {
+                    // any date outside of the given year (either nil, after end of year, or before start)
+                    guard
+                        let firstOfYear = Date.firstOf(year: year),
+                        let lastOfYear = Date.lastOf(year: year)
+                    else { break }
+                    try container.encode([
+                        ReleaseDate(operator: "after", value: lastOfYear),
+                        ReleaseDate(operator: "before", value: firstOfYear),
+                        ReleaseDate(operator: "isNull")
+                    ], forKey: .anyOf)
                 } else {
-                    try container.encode(ConditionValue(operator: exclude ? "isNot" : "is", value: genre), forKey: .genre)
+                    // any date that is within the given year (both after end of prev year and before first of next year)
+                    guard
+                        let firstOfNextYear = Date.firstOf(year: year + 1),
+                        let lastOfPrevYear = Date.lastOf(year: year - 1)
+                    else { break }
+                    try container.encode([
+                        ReleaseDate(operator: "after", value: lastOfPrevYear),
+                        ReleaseDate(operator: "before", value: firstOfNextYear)
+                    ], forKey: .allOf)
                 }
-            case .tag(let tag, let exclude):
-                if tag.isEmpty {
-                    try container.encode(ConditionValue<String>(operator: exclude ? "isNull" : "isNotNull"), forKey: .tag)
-                } else {
-                    try container.encode(ConditionValue(operator: exclude ? "isNot" : "is", value: tag), forKey: .tag)
-                }
+            } else {
+                try container.encode(ConditionValue<Date>(operator: exclude ? "isNull" : "isNotNull"), forKey: .releaseDate)
+            }
+        case .seriesId(let id, let exclude):
+            try container.encode(ConditionValue(operator: exclude ? "isNot" : "is", value: id), forKey: .seriesId)
+        case .seriesStatus(let status, let exclude):
+            try container.encode(ConditionValue(operator: exclude ? "isNot" : "is", value: status.rawValue), forKey: .seriesStatus)
+        case .sharingLabel(let genre, let exclude):
+            if genre.isEmpty {
+                try container.encode(ConditionValue<String>(operator: exclude ? "isNull" : "isNotNull"), forKey: .genre)
+            } else {
+                try container.encode(ConditionValue(operator: exclude ? "isNot" : "is", value: genre), forKey: .genre)
+            }
+        case .tag(let tag, let exclude):
+            if tag.isEmpty {
+                try container.encode(ConditionValue<String>(operator: exclude ? "isNull" : "isNotNull"), forKey: .tag)
+            } else {
+                try container.encode(ConditionValue(operator: exclude ? "isNot" : "is", value: tag), forKey: .tag)
+            }
         }
     }
 
@@ -248,7 +248,7 @@ extension KomgaBook {
             authors: metadata.authors.map { $0.name },
             url: URL(string: "\(baseUrl)/series/\(seriesId)"),
             tags: metadata.tags,
-        )
+            )
     }
 
     func intoChapter(baseUrl: String, useChapters: Bool) -> AidokuRunner.Chapter {
@@ -268,7 +268,7 @@ extension KomgaBook {
             url: URL(string: "\(baseUrl)/book/\(id)"),
             language: "en",
             thumbnail: "\(baseUrl)/api/v1/books/\(id)/thumbnail",
-        )
+            )
     }
 }
 
@@ -317,10 +317,10 @@ struct KomgaSeries: Codable, Sendable {
 extension KomgaSeries {
     func intoManga(sourceKey: String, baseUrl: String) -> AidokuRunner.Manga {
         let status: AidokuRunner.PublishingStatus = switch metadata.status {
-            case .ended: .completed
-            case .ongoing: .ongoing
-            case .abandoned: .cancelled
-            case .hiatus: .hiatus
+        case .ended: .completed
+        case .ongoing: .ongoing
+        case .abandoned: .cancelled
+        case .hiatus: .hiatus
         }
         let contentRating: AidokuRunner.ContentRating = metadata.ageRating.flatMap {
             if $0 >= 18 {
@@ -332,11 +332,11 @@ extension KomgaSeries {
             }
         } ?? .safe
         let viewer: AidokuRunner.Viewer = switch metadata.readingDirection {
-            case .leftToRight: .leftToRight
-            case .rightToLeft: .rightToLeft
-            case .vertical: .vertical
-            case .scroll, .webtoon: .webtoon
-            case .unknown: .unknown
+        case .leftToRight: .leftToRight
+        case .rightToLeft: .rightToLeft
+        case .vertical: .vertical
+        case .scroll, .webtoon: .webtoon
+        case .unknown: .unknown
         }
 
         return .init(
@@ -365,6 +365,6 @@ extension KomgaSeries {
             status: status,
             contentRating: contentRating,
             viewer: viewer,
-        )
+            )
     }
 }

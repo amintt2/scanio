@@ -33,9 +33,9 @@ class ZoomableCollectionView: ASDisplayNode {
         collectionNode.backgroundColor = .clear
 
         // remove gesture recognizers from the collection view (in order to use scroll view's)
-//        collectionNode.view.gestureRecognizers?.forEach {
-//            collectionNode.view.removeGestureRecognizer($0)
-//        }
+        //        collectionNode.view.gestureRecognizers?.forEach {
+        //            collectionNode.view.removeGestureRecognizer($0)
+        //        }
 
         scrollNode.view.delegate = self
 
@@ -105,11 +105,11 @@ class ZoomableCollectionView: ASDisplayNode {
         return super.hitTest(point, with: event)
     }
 
-//    override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
-//        let orig = collectionNode.hitTest(convert(point, to: collectionNode), with: event)
-//        print(orig as Any)
-//        return super.point(inside: point, with: event)
-//    }
+    //    override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+    //        let orig = collectionNode.hitTest(convert(point, to: collectionNode), with: event)
+    //        print(orig as Any)
+    //        return super.point(inside: point, with: event)
+    //    }
 }
 
 // MARK: - Scroll View Delegate

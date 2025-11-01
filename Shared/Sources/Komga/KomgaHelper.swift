@@ -110,103 +110,103 @@ extension KomgaHelper {
 
         for filter in filters {
             switch filter {
-                case let .text(id, value):
-                    let search = value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? value
-                    var authors: [KomgaBook.Metadata.Author] = []
-                    if id == "author" {
-                        let result: KomgaPageResponse<[KomgaBook.Metadata.Author]> = try await request(
-                            path: "/api/v2/authors?search=\(search)&role=writer"
-                        )
-                        authors.append(contentsOf: result.content)
-                    } else if id == "artist" {
-                        let result: KomgaPageResponse<[KomgaBook.Metadata.Author]> = try await request(
-                            path: "/api/v2/authors?search=\(search)&role=penciller"
-                        )
-                        authors.append(contentsOf: result.content)
-                    }
-                    if !authors.isEmpty {
-                        conditions.append(.anyOf(authors.map {
-                            .author(name: $0.name, role: $0.role, exclude: false)
-                        }))
-                    }
+            case let .text(id, value):
+                let search = value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? value
+                var authors: [KomgaBook.Metadata.Author] = []
+                if id == "author" {
+                    let result: KomgaPageResponse<[KomgaBook.Metadata.Author]> = try await request(
+                        path: "/api/v2/authors?search=\(search)&role=writer"
+                    )
+                    authors.append(contentsOf: result.content)
+                } else if id == "artist" {
+                    let result: KomgaPageResponse<[KomgaBook.Metadata.Author]> = try await request(
+                        path: "/api/v2/authors?search=\(search)&role=penciller"
+                    )
+                    authors.append(contentsOf: result.content)
+                }
+                if !authors.isEmpty {
+                    conditions.append(.anyOf(authors.map {
+                        .author(name: $0.name, role: $0.role, exclude: false)
+                    }))
+                }
 
-                case let .sort(value):
-                    sort.value = Int(value.index)
-                    sort.ascending = value.ascending
+            case let .sort(value):
+                sort.value = Int(value.index)
+                sort.ascending = value.ascending
 
-                case let .multiselect(filterId, included, excluded):
-                    if filterId == "library" {
-                        let includedConditions: [KomgaSearchCondition] = included
-                            .map { .libraryId($0, exclude: false) }
-                        let excludedConditions: [KomgaSearchCondition] = excluded
-                            .map { .libraryId($0, exclude: true) }
-                        let condition: KomgaSearchCondition = if excluded.isEmpty {
-                            .anyOf(includedConditions)
-                        } else {
-                            .allOf(includedConditions + excludedConditions)
-                        }
-                        conditions.append(condition)
-                    } else if filterId == "genre"  || filterId == "tag" {
-                        let includedConditions: [KomgaSearchCondition] = included
-                            .map { filterId == "genre" ? .genre($0) : .tag($0) }
-                        let excludedConditions: [KomgaSearchCondition] = excluded
-                            .map { filterId == "genre" ? .genre($0, exclude: true) : .tag($0, exclude: true) }
-                        let condition: KomgaSearchCondition = if excluded.isEmpty {
-                            .anyOf(includedConditions)
-                        } else {
-                            .allOf(includedConditions + excludedConditions)
-                        }
-                        conditions.append(condition)
+            case let .multiselect(filterId, included, excluded):
+                if filterId == "library" {
+                    let includedConditions: [KomgaSearchCondition] = included
+                        .map { .libraryId($0, exclude: false) }
+                    let excludedConditions: [KomgaSearchCondition] = excluded
+                        .map { .libraryId($0, exclude: true) }
+                    let condition: KomgaSearchCondition = if excluded.isEmpty {
+                        .anyOf(includedConditions)
                     } else {
-                        func filterMap(id: String, exclude: Bool) -> KomgaSearchCondition? {
-                            switch filterId {
-                                case "age_rating":
-                                    if id == "None" {
-                                        .ageRating(nil, exclude: exclude)
-                                    } else {
-                                        Int(id).flatMap { .ageRating($0, exclude: exclude) }
-                                    }
-                                case "release_date":
-                                    if id.isEmpty {
-                                        .releaseDate(nil, exclude: exclude)
-                                    } else {
-                                        Int(id).flatMap { .releaseDate($0, exclude: exclude) }
-                                    }
-                                case "language":
-                                        .language(id, exclude: exclude)
-                                case "publisher":
-                                        .publisher(id, exclude: exclude)
-                                case "sharing_label":
-                                        .sharingLabel(id, exclude: exclude)
-                                case "status":
-                                    KomgaSeries.Metadata.Status(rawValue: id).flatMap { .seriesStatus($0, exclude: exclude) }
-                                default:
-                                    nil
+                        .allOf(includedConditions + excludedConditions)
+                    }
+                    conditions.append(condition)
+                } else if filterId == "genre"  || filterId == "tag" {
+                    let includedConditions: [KomgaSearchCondition] = included
+                        .map { filterId == "genre" ? .genre($0) : .tag($0) }
+                    let excludedConditions: [KomgaSearchCondition] = excluded
+                        .map { filterId == "genre" ? .genre($0, exclude: true) : .tag($0, exclude: true) }
+                    let condition: KomgaSearchCondition = if excluded.isEmpty {
+                        .anyOf(includedConditions)
+                    } else {
+                        .allOf(includedConditions + excludedConditions)
+                    }
+                    conditions.append(condition)
+                } else {
+                    func filterMap(id: String, exclude: Bool) -> KomgaSearchCondition? {
+                        switch filterId {
+                        case "age_rating":
+                            if id == "None" {
+                                .ageRating(nil, exclude: exclude)
+                            } else {
+                                Int(id).flatMap { .ageRating($0, exclude: exclude) }
                             }
-                        }
-                        let includedConditions = included.compactMap { filterMap(id: $0, exclude: false) }
-                        let excludedConditions = excluded.compactMap { filterMap(id: $0, exclude: true) }
-                        let condition: KomgaSearchCondition? = if excluded.isEmpty && !included.isEmpty {
-                            .anyOf(includedConditions)
-                        } else if !included.isEmpty || !excluded.isEmpty {
-                            .allOf(includedConditions + excludedConditions)
-                        } else {
+                        case "release_date":
+                            if id.isEmpty {
+                                .releaseDate(nil, exclude: exclude)
+                            } else {
+                                Int(id).flatMap { .releaseDate($0, exclude: exclude) }
+                            }
+                        case "language":
+                            .language(id, exclude: exclude)
+                        case "publisher":
+                            .publisher(id, exclude: exclude)
+                        case "sharing_label":
+                            .sharingLabel(id, exclude: exclude)
+                        case "status":
+                            KomgaSeries.Metadata.Status(rawValue: id).flatMap { .seriesStatus($0, exclude: exclude) }
+                        default:
                             nil
                         }
-                        if let condition {
-                            conditions.append(condition)
-                        }
                     }
-
-                case let .select(id, value):
-                    if id == "genre" {
-                        conditions.append(.anyOf([
-                            storedTags.contains(value) ? .tag(value) : .genre(value)
-                        ]))
+                    let includedConditions = included.compactMap { filterMap(id: $0, exclude: false) }
+                    let excludedConditions = excluded.compactMap { filterMap(id: $0, exclude: true) }
+                    let condition: KomgaSearchCondition? = if excluded.isEmpty && !included.isEmpty {
+                        .anyOf(includedConditions)
+                    } else if !included.isEmpty || !excluded.isEmpty {
+                        .allOf(includedConditions + excludedConditions)
+                    } else {
+                        nil
                     }
+                    if let condition {
+                        conditions.append(condition)
+                    }
+                }
 
-                default:
-                    continue
+            case let .select(id, value):
+                if id == "genre" {
+                    conditions.append(.anyOf([
+                        storedTags.contains(value) ? .tag(value) : .genre(value)
+                    ]))
+                }
+
+            default:
+                continue
             }
         }
 
@@ -235,98 +235,98 @@ extension KomgaHelper {
         }
 
         switch actualListingId {
-            case "keep_reading":
-                let conditions: [KomgaSearchCondition] = [
-                    .readStatus(.inProgress),
+        case "keep_reading":
+            let conditions: [KomgaSearchCondition] = [
+                .readStatus(.inProgress),
+                .deleted(false)
+            ] + (libraryId.map { [.libraryId($0)] } ?? [])
+            let res: KomgaPageResponse<[KomgaBook]> = try await request(
+                path: "/api/v1/books/list?page=\(page - 1)&size=20&sort=readProgress.readDate%2Cdesc",
+                method: .POST,
+                body: .init(condition: .allOf(conditions))
+            )
+            return .init(
+                entries: res.content.map { $0.intoManga(sourceKey: sourceKey, baseUrl: baseUrl) },
+                hasNextPage: res.totalPages > page
+            )
+
+        case "on_deck":
+            let libraryParam = libraryId.map { "&library_id=\($0)" } ?? ""
+            let res: KomgaPageResponse<[KomgaBook]> = try await request(
+                path: "/api/v1/books/ondeck?page=\(page - 1)&size=20&sort=createdDate%2Cdesc\(libraryParam)",
+                method: .GET
+            )
+            return .init(
+                entries: res.content.map { $0.intoManga(sourceKey: sourceKey, baseUrl: baseUrl) },
+                hasNextPage: res.totalPages > page
+            )
+
+        case "recently_added_books":
+            let conditions: [KomgaSearchCondition] = [.deleted(false)] + (libraryId.map { [.libraryId($0)] } ?? [])
+            let res: KomgaPageResponse<[KomgaBook]> = try await request(
+                path: "/api/v1/books/list?page=\(page - 1)&size=20&sort=createdDate%2Cdesc",
+                method: .POST,
+                body: .init(condition: .allOf(conditions))
+            )
+            return .init(
+                entries: res.content.map { $0.intoManga(sourceKey: sourceKey, baseUrl: baseUrl) },
+                hasNextPage: res.totalPages > page
+            )
+
+        case "recently_added_series":
+            let libraryParam = libraryId.map { "&library_id=\($0)" } ?? ""
+            let res: KomgaPageResponse<[KomgaSeries]> = try await request(
+                path: "/api/v1/series/new?page=\(page - 1)&size=20&oneshot=false&deleted=false\(libraryParam)",
+                method: .GET
+            )
+            return .init(
+                entries: res.content.map { $0.intoManga(sourceKey: sourceKey, baseUrl: baseUrl) },
+                hasNextPage: res.totalPages > page
+            )
+
+        case "recently_updated_series":
+            let libraryParam = libraryId.map { "&library_id=\($0)" } ?? ""
+            let res: KomgaPageResponse<[KomgaSeries]> = try await request(
+                path: "/api/v1/series/updated?page=\(page - 1)&size=20&oneshot=false&deleted=false\(libraryParam)",
+                method: .GET
+            )
+            return .init(
+                entries: res.content.map { $0.intoManga(sourceKey: sourceKey, baseUrl: baseUrl) },
+                hasNextPage: res.totalPages > page
+            )
+
+        case "recently_read_books":
+            let conditions: [KomgaSearchCondition] = [
+                .readStatus(.read),
+                .deleted(false)
+            ] + (libraryId.map { [.libraryId($0)] } ?? [])
+            let res: KomgaPageResponse<[KomgaBook]> = try await request(
+                path: "/api/v1/books/list?page=\(page - 1)&size=20&sort=readProgress.readDate%2Cdesc",
+                method: .POST,
+                body: .init(condition: .allOf(conditions))
+            )
+            return .init(
+                entries: res.content.map { $0.intoManga(sourceKey: sourceKey, baseUrl: baseUrl) },
+                hasNextPage: res.totalPages > page
+            )
+
+        case _ where listing.id.hasPrefix("library-"):
+            let id = String(listing.id[listing.id.index(listing.id.startIndex, offsetBy: 8)...])
+            let res: KomgaPageResponse<[KomgaSeries]> = try await request(
+                path: "/api/v1/series/list?page=\(page - 1)&size=20&sort=metadata.titleSort%2Casc",
+                method: .POST,
+                body: .init(condition: .allOf([
+                    .libraryId(id),
                     .deleted(false)
-                ] + (libraryId.map { [.libraryId($0)] } ?? [])
-                let res: KomgaPageResponse<[KomgaBook]> = try await request(
-                    path: "/api/v1/books/list?page=\(page - 1)&size=20&sort=readProgress.readDate%2Cdesc",
-                    method: .POST,
-                    body: .init(condition: .allOf(conditions))
-                )
-                return .init(
-                    entries: res.content.map { $0.intoManga(sourceKey: sourceKey, baseUrl: baseUrl) },
-                    hasNextPage: res.totalPages > page
-                )
+                ]))
+            )
+            return .init(
+                entries: res.content.map { $0.intoManga(sourceKey: sourceKey, baseUrl: baseUrl) },
+                hasNextPage: res.totalPages > page
+            )
 
-            case "on_deck":
-                let libraryParam = libraryId.map { "&library_id=\($0)" } ?? ""
-                let res: KomgaPageResponse<[KomgaBook]> = try await request(
-                    path: "/api/v1/books/ondeck?page=\(page - 1)&size=20&sort=createdDate%2Cdesc\(libraryParam)",
-                    method: .GET
-                )
-                return .init(
-                    entries: res.content.map { $0.intoManga(sourceKey: sourceKey, baseUrl: baseUrl) },
-                    hasNextPage: res.totalPages > page
-                )
-
-            case "recently_added_books":
-                let conditions: [KomgaSearchCondition] = [.deleted(false)] + (libraryId.map { [.libraryId($0)] } ?? [])
-                let res: KomgaPageResponse<[KomgaBook]> = try await request(
-                    path: "/api/v1/books/list?page=\(page - 1)&size=20&sort=createdDate%2Cdesc",
-                    method: .POST,
-                    body: .init(condition: .allOf(conditions))
-                )
-                return .init(
-                    entries: res.content.map { $0.intoManga(sourceKey: sourceKey, baseUrl: baseUrl) },
-                    hasNextPage: res.totalPages > page
-                )
-
-            case "recently_added_series":
-                let libraryParam = libraryId.map { "&library_id=\($0)" } ?? ""
-                let res: KomgaPageResponse<[KomgaSeries]> = try await request(
-                    path: "/api/v1/series/new?page=\(page - 1)&size=20&oneshot=false&deleted=false\(libraryParam)",
-                    method: .GET
-                )
-                return .init(
-                    entries: res.content.map { $0.intoManga(sourceKey: sourceKey, baseUrl: baseUrl) },
-                    hasNextPage: res.totalPages > page
-                )
-
-            case "recently_updated_series":
-                let libraryParam = libraryId.map { "&library_id=\($0)" } ?? ""
-                let res: KomgaPageResponse<[KomgaSeries]> = try await request(
-                    path: "/api/v1/series/updated?page=\(page - 1)&size=20&oneshot=false&deleted=false\(libraryParam)",
-                    method: .GET
-                )
-                return .init(
-                    entries: res.content.map { $0.intoManga(sourceKey: sourceKey, baseUrl: baseUrl) },
-                    hasNextPage: res.totalPages > page
-                )
-
-            case "recently_read_books":
-                let conditions: [KomgaSearchCondition] = [
-                    .readStatus(.read),
-                    .deleted(false)
-                ] + (libraryId.map { [.libraryId($0)] } ?? [])
-                let res: KomgaPageResponse<[KomgaBook]> = try await request(
-                    path: "/api/v1/books/list?page=\(page - 1)&size=20&sort=readProgress.readDate%2Cdesc",
-                    method: .POST,
-                    body: .init(condition: .allOf(conditions))
-                )
-                return .init(
-                    entries: res.content.map { $0.intoManga(sourceKey: sourceKey, baseUrl: baseUrl) },
-                    hasNextPage: res.totalPages > page
-                )
-
-            case _ where listing.id.hasPrefix("library-"):
-                let id = String(listing.id[listing.id.index(listing.id.startIndex, offsetBy: 8)...])
-                let res: KomgaPageResponse<[KomgaSeries]> = try await request(
-                    path: "/api/v1/series/list?page=\(page - 1)&size=20&sort=metadata.titleSort%2Casc",
-                    method: .POST,
-                    body: .init(condition: .allOf([
-                        .libraryId(id),
-                        .deleted(false)
-                    ]))
-                )
-                return .init(
-                    entries: res.content.map { $0.intoManga(sourceKey: sourceKey, baseUrl: baseUrl) },
-                    hasNextPage: res.totalPages > page
-                )
-
-            default:
-                return .init(entries: [], hasNextPage: false)
+        default:
+            return .init(entries: [], hasNextPage: false)
         }
     }
 }

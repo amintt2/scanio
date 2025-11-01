@@ -302,7 +302,7 @@ extension WasmStd {
                           let value = object.valueByPropertyName(name: keyString) {
                     return self.globalStore.storeStdValue(value)
 
-                // for iOS 14
+                    // for iOS 14
                 } else if let object = self.globalStore.readStdValue(descriptor) as? Manga,
                           let value = object.valueByPropertyName(name: keyString) {
                     return self.globalStore.storeStdValue(value)

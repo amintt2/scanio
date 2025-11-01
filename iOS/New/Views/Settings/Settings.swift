@@ -491,7 +491,7 @@ extension Settings {
                         keyboardType: 3,
                         returnKeyType: 9,
                         autocorrectionDisabled: true,
-                    ))
+                        ))
                 ),
                 .init(
                     key: "Logs.export",

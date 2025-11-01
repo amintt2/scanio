@@ -90,11 +90,11 @@ struct TrackerSettingOptionView: View {
                         Text(
                             // swiftlint:disable:next empty_count
                             "\(count == nil || count == 0 ? "-" : String(format: numberType == .int ? "%.0f" : "%.1f", count!))" +
-                            " / " +
-                            "\(total == nil || total == 0 ? "-" : String(format: numberType == .int ? "%.0f" : "%.1f", total!))"
+                                " / " +
+                                "\(total == nil || total == 0 ? "-" : String(format: numberType == .int ? "%.0f" : "%.1f", total!))"
                         )
-                            .font(.system(size: 14))
-                            .foregroundColor(Color(.label))
+                        .font(.system(size: 14))
+                        .foregroundColor(Color(.label))
                     }
                 }
                 if type == .date {
@@ -106,8 +106,8 @@ struct TrackerSettingOptionView: View {
                                 date = $0
                             }
                         }), displayedComponents: [.date])
-                            .datePickerStyle(CompactDatePickerStyle())
-                            .labelsHidden()
+                        .datePickerStyle(CompactDatePickerStyle())
+                        .labelsHidden()
                         HStack {
                             Image(systemName: "calendar")
                                 .foregroundColor(.secondary)

@@ -370,8 +370,8 @@ extension ReaderPagedViewController {
         }
 
         let forward = switch readingMode {
-            case .rtl: currentPage > page
-            default: currentPage < page
+        case .rtl: currentPage > page
+        default: currentPage < page
         }
 
         pageViewController.setViewControllers(
@@ -591,17 +591,17 @@ extension ReaderPagedViewController {
                 // We're splitting the current page
                 // Smart jump based on navigation direction (index size)
                 switch navigationDirection {
-                    case .forward:
-                        // User came from smaller index
-                        // Jump to first split page
-                        targetDisplayPage = currentPage
-                    case .backward:
-                        // User came from larger index
-                        // Jump to second split page
-                        targetDisplayPage = currentPage + 1
-                    case .unknown:
-                        // Default to first split page when direction is unknown
-                        targetDisplayPage = currentPage
+                case .forward:
+                    // User came from smaller index
+                    // Jump to first split page
+                    targetDisplayPage = currentPage
+                case .backward:
+                    // User came from larger index
+                    // Jump to second split page
+                    targetDisplayPage = currentPage + 1
+                case .unknown:
+                    // Default to first split page when direction is unknown
+                    targetDisplayPage = currentPage
                 }
             } else if pageIndex < currentActualPage {
                 // We're splitting a page before the current page

@@ -92,9 +92,9 @@ extension LocalFileManager {
         }
 
         let fileType = switch pathExtension {
-            case "cbz": LocalFileType.cbz
-            case "zip": LocalFileType.zip
-            default: LocalFileType.zip
+        case "cbz": LocalFileType.cbz
+        case "zip": LocalFileType.zip
+        default: LocalFileType.zip
         }
 
         return ImportFileInfo(
@@ -444,12 +444,12 @@ extension LocalFileManager {
 // MARK: Scanning
 extension LocalFileManager {
     // performs a scan if the last one was over an hour ago (or if one hasn't been run this app launch)
-//    func scanIfNecessary() async {
-//        if lastScanTime < Date().addingTimeInterval(-60 * 60) {
-//            await scanLocalFiles()
-//            lastScanTime = Date()
-//        }
-//    }
+    //    func scanIfNecessary() async {
+    //        if lastScanTime < Date().addingTimeInterval(-60 * 60) {
+    //            await scanLocalFiles()
+    //            lastScanTime = Date()
+    //        }
+    //    }
 
     // scan the local files folder and synchronize the db to match the file system
     func scanLocalFiles() async {
@@ -552,10 +552,10 @@ extension LocalFileManager {
     }
 
     // stop file system listener
-//    func stopFileSystemListener() {
-//        localFolderSource?.cancel()
-//        localFolderSource = nil
-//    }
+    //    func stopFileSystemListener() {
+    //        localFolderSource?.cancel()
+    //        localFolderSource = nil
+    //    }
 
     private func closeLocalFolderFileDescriptor() {
         if let fd = self.localFolderFileDescriptor {

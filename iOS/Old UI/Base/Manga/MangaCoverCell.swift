@@ -29,7 +29,7 @@ class MangaCoverCell: UICollectionViewCell {
                 UIView.animate(withDuration: 0.3) {
                     self.badgeView.alpha = 0
                 } completion: { _ in
-//                    self.badgeLabel.text = ""
+                    //                    self.badgeLabel.text = ""
                     self.badgeView.alpha = 0
                 }
             }

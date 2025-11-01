@@ -108,25 +108,25 @@ struct SettingView: View {
         _requiresObserver = StateObject(wrappedValue: UserDefaultsObserver(keys: keys))
 
         switch setting.value {
-            case .select:
-                let key = key(setting.key)
-                _stringListBinding = Binding(
-                    get: { [SettingsStore.shared.get(key: key)] },
-                    set: { SettingsStore.shared.set(key: key, value: $0.first!) }
-                )
-                _doubleBinding = Binding.constant(0)
-            case .multiselect:
-                _stringListBinding = SettingsStore.shared.binding(key: key(setting.key))
-                _doubleBinding = Binding.constant(0)
-            case .editableList:
-                _stringListBinding = SettingsStore.shared.binding(key: key(setting.key))
-                _doubleBinding = Binding.constant(0)
-            case .stepper:
-                _stringListBinding = Binding.constant([])
-                _doubleBinding = SettingsStore.shared.binding(key: key(setting.key))
-            default:
-                _stringListBinding = Binding.constant([])
-                _doubleBinding = Binding.constant(0)
+        case .select:
+            let key = key(setting.key)
+            _stringListBinding = Binding(
+                get: { [SettingsStore.shared.get(key: key)] },
+                set: { SettingsStore.shared.set(key: key, value: $0.first!) }
+            )
+            _doubleBinding = Binding.constant(0)
+        case .multiselect:
+            _stringListBinding = SettingsStore.shared.binding(key: key(setting.key))
+            _doubleBinding = Binding.constant(0)
+        case .editableList:
+            _stringListBinding = SettingsStore.shared.binding(key: key(setting.key))
+            _doubleBinding = Binding.constant(0)
+        case .stepper:
+            _stringListBinding = Binding.constant([])
+            _doubleBinding = SettingsStore.shared.binding(key: key(setting.key))
+        default:
+            _stringListBinding = Binding.constant([])
+            _doubleBinding = Binding.constant(0)
         }
         if case .toggle = setting.value {
             _toggleValue = State(initialValue: SettingsStore.shared.get(key: key(setting.key)))
@@ -161,32 +161,32 @@ struct SettingView: View {
     @ViewBuilder
     private var content: some View {
         switch setting.value {
-            case let .group(value):
-                groupView(value: value)
-            case let .select(value):
-                selectView(value: value)
-            case let .multiselect(value):
-                multiSelectView(value: value)
-            case let .toggle(value):
-                toggleView(value: value)
-            case let .stepper(value):
-                stepperView(value: value)
-            case let .segment(value):
-                segmentView(value: value)
-            case let .text(value):
-                textView(value: value)
-            case let .button(value):
-                buttonView(value: value)
-            case let .link(value):
-                linkView(value: value)
-            case let .login(value):
-                loginView(value: value)
-            case let .page(value):
-                pageView(value: value)
-            case let .editableList(value):
-                editableListView(value: value)
-            case .custom:
-                customView()
+        case let .group(value):
+            groupView(value: value)
+        case let .select(value):
+            selectView(value: value)
+        case let .multiselect(value):
+            multiSelectView(value: value)
+        case let .toggle(value):
+            toggleView(value: value)
+        case let .stepper(value):
+            stepperView(value: value)
+        case let .segment(value):
+            segmentView(value: value)
+        case let .text(value):
+            textView(value: value)
+        case let .button(value):
+            buttonView(value: value)
+        case let .link(value):
+            linkView(value: value)
+        case let .login(value):
+            loginView(value: value)
+        case let .page(value):
+            pageView(value: value)
+        case let .editableList(value):
+            editableListView(value: value)
+        case .custom:
+            customView()
         }
     }
 
@@ -576,29 +576,29 @@ extension SettingView {
     func textView(value: TextSetting) -> some View {
         let autocapitalizationType: TextInputAutocapitalization? = value.autocapitalizationType.flatMap {
             switch UITextAutocapitalizationType(rawValue: $0) ?? .sentences {
-                case .none: .never
-                case .words: .words
-                case .sentences: .sentences
-                case .allCharacters: .characters
-                @unknown default: .sentences
+            case .none: .never
+            case .words: .words
+            case .sentences: .sentences
+            case .allCharacters: .characters
+            @unknown default: .sentences
             }
         }
         let returnKeyType: SubmitLabel = value.returnKeyType.flatMap {
             switch UIReturnKeyType(rawValue: $0) ?? .default {
-                case .default: .return
-                case .go: .go
-                case .join: .join
-                case .next: .next
-                case .route: .route
-                case .search: .search
-                case .send: .send
-                case .done: .done
-                case .continue: .continue
+            case .default: .return
+            case .go: .go
+            case .join: .join
+            case .next: .next
+            case .route: .route
+            case .search: .search
+            case .send: .send
+            case .done: .done
+            case .continue: .continue
 
-                case .google: .return
-                case .yahoo: .return
-                case .emergencyCall: .return
-                @unknown default: .return
+            case .google: .return
+            case .yahoo: .return
+            case .emergencyCall: .return
+            @unknown default: .return
             }
         } ?? .return
 
@@ -699,16 +699,16 @@ extension SettingView {
                 return
             }
             switch value.method {
-                case .basic:
-                    if #available(iOS 16.0, *) {
-                        showLoginAlert = true
-                    } else {
-                        showLoginAlertView(value: value)
-                    }
-                case .oauth:
-                    handleOAuthLogin(value: value)
-                case .web:
-                    showLoginWebConfirm = true
+            case .basic:
+                if #available(iOS 16.0, *) {
+                    showLoginAlert = true
+                } else {
+                    showLoginAlertView(value: value)
+                }
+            case .oauth:
+                handleOAuthLogin(value: value)
+            case .web:
+                showLoginWebConfirm = true
             }
         } label: {
             if loginLoading {
@@ -1270,11 +1270,11 @@ extension SettingView {
                     }
                     .navigationTitle(setting.title)
                     .toolbar {
-#if !os(macOS)
+                        #if !os(macOS)
                         let placement = ToolbarItemPlacement.topBarTrailing
-#else
+                        #else
                         let placement = ToolbarItemPlacement.primaryAction
-#endif
+                        #endif
                         ToolbarItem(placement: placement) {
                             Button {
                                 showAddAlert = true
@@ -1364,8 +1364,8 @@ extension SettingView {
             }
         }
         .navigationTitle("Settings")
-#if !os(macOS)
+        #if !os(macOS)
         .navigationBarTitleDisplayMode(.inline)
-#endif
+        #endif
     }
 }

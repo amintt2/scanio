@@ -61,7 +61,7 @@ struct HomeBigScrollerView: View {
                     autoScrollInterval: autoScrollInterval,
                     itemHeight: carouselHeight,
                     autoScrollPaused: $autoScrollPaused,
-                ) { offset, entry in
+                    ) { offset, entry in
                     Button {
                         path.push(MangaViewController(source: source, manga: entry, parent: path.rootViewController))
                     } label: {

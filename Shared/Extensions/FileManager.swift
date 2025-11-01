@@ -33,8 +33,8 @@ extension URL {
                                                                    includingPropertiesForKeys: [.contentModificationDateKey]) {
             return urls.sorted {
                 ((try? $0.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate ?? Date.distantPast)
-                >
-                ((try? $1.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate ?? Date.distantPast)
+                    >
+                    ((try? $1.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate ?? Date.distantPast)
             }
         }
         return self.contents

@@ -39,16 +39,16 @@ struct TapZonesSelectView: View {
                                 layoutView(tapZone: regions)
                             } else {
                                 switch tapZone {
-                                    case .automatic:
-                                        ZStack {
-                                            layoutView(tapZone: .leftRight)
-                                                .mask(DiagonalMask(reverse: false))
-                                            layoutView(tapZone: .lShaped)
-                                                .overlay(Color.black.opacity(0.05))
-                                                .mask(DiagonalMask(reverse: true))
-                                        }
-                                    default:
-                                        EmptyView()
+                                case .automatic:
+                                    ZStack {
+                                        layoutView(tapZone: .leftRight)
+                                            .mask(DiagonalMask(reverse: false))
+                                        layoutView(tapZone: .lShaped)
+                                            .overlay(Color.black.opacity(0.05))
+                                            .mask(DiagonalMask(reverse: true))
+                                    }
+                                default:
+                                    EmptyView()
                                 }
                             }
                         }

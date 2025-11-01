@@ -49,7 +49,7 @@ struct KavitaHelper: Sendable {
         path: String,
         method: HttpMethod = .GET,
         body: Data? = nil,
-    ) async throws(SourceError) -> T {
+        ) async throws(SourceError) -> T {
         func doRequest() async throws(SourceError) -> T? {
 
             let url = try getServerUrl(path: path)
@@ -251,58 +251,58 @@ extension KavitaHelper {
 
         for filter in filters {
             switch filter {
-                case let .text(id, value):
-                    struct Result: Decodable {
-                        let id: Int
-                        let name: String
+            case let .text(id, value):
+                struct Result: Decodable {
+                    let id: Int
+                    let name: String
+                }
+                if id == "author" {
+                    let authors: [Result] = try await request(path: "/api/metadata/people-by-role?role=3")
+                    if let author = authors.first(where: { $0.name == value }) {
+                        statements.append(.init(comparison: .equal, field: .writers, value: String(author.id)))
                     }
-                    if id == "author" {
-                        let authors: [Result] = try await request(path: "/api/metadata/people-by-role?role=3")
-                        if let author = authors.first(where: { $0.name == value }) {
-                            statements.append(.init(comparison: .equal, field: .writers, value: String(author.id)))
-                        }
-                    } else if id == "artist" {
-                        let artists: [Result] = try await request(path: "/api/metadata/people-by-role?role=4")
-                        if let artist = artists.first(where: { $0.name == value }) {
-                            statements.append(.init(comparison: .equal, field: .penciller, value: String(artist.id)))
-                        }
+                } else if id == "artist" {
+                    let artists: [Result] = try await request(path: "/api/metadata/people-by-role?role=4")
+                    if let artist = artists.first(where: { $0.name == value }) {
+                        statements.append(.init(comparison: .equal, field: .penciller, value: String(artist.id)))
                     }
+                }
 
-                case let .sort(value):
-                    let field: KavitaSortField = switch value.index {
-                        case 0: .sortName
-                        case 1: .createdDate
-                        case 2: .lastModifiedDate
-                        case 3: .lastChapterAdded
-                        case 4: .timeToRead
-                        case 5: .releaseYear
-                        case 6: .readProgress
-                        case 7: .averageRating
-                        case 8: .random
-                        default: .sortName
-                    }
-                    sort = .init(sortField: field, isAscending: value.ascending)
+            case let .sort(value):
+                let field: KavitaSortField = switch value.index {
+                case 0: .sortName
+                case 1: .createdDate
+                case 2: .lastModifiedDate
+                case 3: .lastChapterAdded
+                case 4: .timeToRead
+                case 5: .releaseYear
+                case 6: .readProgress
+                case 7: .averageRating
+                case 8: .random
+                default: .sortName
+                }
+                sort = .init(sortField: field, isAscending: value.ascending)
 
-                case let .multiselect(filterId, included, excluded):
-                    guard let field = Int(filterId).flatMap({ KavitaFilterField(rawValue: $0) }) else { continue }
-                    if !included.isEmpty {
-                        statements.append(.init(comparison: .contains, field: field, value: included.joined(separator: ",")))
-                    }
-                    if !excluded.isEmpty {
-                        statements.append(.init(comparison: .notContains, field: field, value: excluded.joined(separator: ",")))
-                    }
+            case let .multiselect(filterId, included, excluded):
+                guard let field = Int(filterId).flatMap({ KavitaFilterField(rawValue: $0) }) else { continue }
+                if !included.isEmpty {
+                    statements.append(.init(comparison: .contains, field: field, value: included.joined(separator: ",")))
+                }
+                if !excluded.isEmpty {
+                    statements.append(.init(comparison: .notContains, field: field, value: excluded.joined(separator: ",")))
+                }
 
-                case let .select(id, value):
-                    if id == "genre" {
-                        if let genre = storedGenres.first(where: { $0.title == value }) {
-                            statements.append(.init(comparison: .contains, field: .genres, value: genre.id))
-                        } else if let tag = storedTags.first(where: { $0.title == value }) {
-                            statements.append(.init(comparison: .contains, field: .tags, value: tag.id))
-                        }
+            case let .select(id, value):
+                if id == "genre" {
+                    if let genre = storedGenres.first(where: { $0.title == value }) {
+                        statements.append(.init(comparison: .contains, field: .genres, value: genre.id))
+                    } else if let tag = storedTags.first(where: { $0.title == value }) {
+                        statements.append(.init(comparison: .contains, field: .tags, value: tag.id))
                     }
+                }
 
-                default:
-                    continue
+            default:
+                continue
             }
         }
 
