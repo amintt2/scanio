@@ -43,10 +43,11 @@ class ZoomableCollectionView: ASDisplayNode {
         scrollNode.view.bouncesZoom = false
         scrollNode.view.addSubview(dummyZoomView)
 
-        let zoomingTap = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap(_:)))
-        zoomingTap.numberOfTapsRequired = 2
+        // Disable double-tap zoom to allow comments to open instead
+        // let zoomingTap = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap(_:)))
+        // zoomingTap.numberOfTapsRequired = 2
+        // dummyZoomView.addGestureRecognizer(zoomingTap)
 
-        dummyZoomView.addGestureRecognizer(zoomingTap)
         dummyZoomView.isUserInteractionEnabled = true
     }
 

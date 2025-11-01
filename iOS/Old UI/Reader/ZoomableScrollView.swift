@@ -24,6 +24,9 @@ class ZoomableScrollView: UIScrollView {
         return zoomingTap
     }()
 
+    // Disable double-tap zoom to allow comments to open instead
+    var doubleTapZoomEnabled = false
+
     var zoomEnabled = true {
         didSet {
             isScrollEnabled = zoomEnabled
@@ -53,7 +56,10 @@ class ZoomableScrollView: UIScrollView {
     }
 
     func configure() {
-        zoomView.addGestureRecognizer(zoomingTap)
+        // Only add double-tap zoom gesture if enabled
+        if doubleTapZoomEnabled {
+            zoomView.addGestureRecognizer(zoomingTap)
+        }
         zoomView.isUserInteractionEnabled = true
     }
 
