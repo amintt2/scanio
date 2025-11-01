@@ -232,6 +232,187 @@ class SupabaseManager {
             throw SupabaseError.networkError
         }
     }
+
+    // MARK: - Profile API
+
+    func fetchProfile(userId: String? = nil) async throws -> UserProfile {
+        guard isAuthenticated else { throw SupabaseError.notAuthenticated }
+
+        let targetUserId = userId ?? currentSession?.user.id ?? ""
+        let url = URL(string: "\(supabaseURL)/rest/v1/scanio_profiles?id=eq.\(targetUserId)")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
+        request.setValue("Bearer \(currentSession?.accessToken ?? "")", forHTTPHeaderField: "Authorization")
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            throw SupabaseError.networkError
+        }
+
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let profiles = try decoder.decode([UserProfile].self, from: data)
+        guard let profile = profiles.first else {
+            throw SupabaseError.profileNotFound
+        }
+        return profile
+    }
+
+    func updateProfile(userName: String? = nil, avatarUrl: String? = nil, bio: String? = nil, isPublic: Bool? = nil) async throws -> UserProfile {
+        guard isAuthenticated, let userId = currentSession?.user.id else {
+            throw SupabaseError.notAuthenticated
+        }
+
+        let url = URL(string: "\(supabaseURL)/rest/v1/scanio_profiles?id=eq.\(userId)")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "PATCH"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
+        request.setValue("Bearer \(currentSession?.accessToken ?? "")", forHTTPHeaderField: "Authorization")
+        request.setValue("return=representation", forHTTPHeaderField: "Prefer")
+
+        let body = UpdateProfileRequest(userName: userName, avatarUrl: avatarUrl, bio: bio, isPublic: isPublic)
+        request.httpBody = try JSONEncoder().encode(body)
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            throw SupabaseError.networkError
+        }
+
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let profiles = try decoder.decode([UserProfile].self, from: data)
+        guard let profile = profiles.first else {
+            throw SupabaseError.invalidResponse
+        }
+        return profile
+    }
+
+    func fetchUserStats(userId: String? = nil) async throws -> UserStats {
+        guard isAuthenticated else { throw SupabaseError.notAuthenticated }
+
+        let targetUserId = userId ?? currentSession?.user.id ?? ""
+        let url = URL(string: "\(supabaseURL)/rest/v1/rpc/scanio_get_user_stats")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
+        request.setValue("Bearer \(currentSession?.accessToken ?? "")", forHTTPHeaderField: "Authorization")
+
+        let body = ["p_user_id": targetUserId]
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            throw SupabaseError.networkError
+        }
+
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        let stats = try decoder.decode([UserStats].self, from: data)
+        guard let stat = stats.first else {
+            throw SupabaseError.invalidResponse
+        }
+        return stat
+    }
+
+    // MARK: - Reading History API
+
+    func upsertReadingHistory(
+        canonicalMangaId: String,
+        sourceId: String,
+        mangaId: String,
+        chapterNumber: String,
+        chapterTitle: String?,
+        pageNumber: Int,
+        totalPages: Int,
+        isCompleted: Bool
+    ) async throws {
+        guard isAuthenticated else { throw SupabaseError.notAuthenticated }
+
+        let url = URL(string: "\(supabaseURL)/rest/v1/scanio_reading_history")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
+        request.setValue("Bearer \(currentSession?.accessToken ?? "")", forHTTPHeaderField: "Authorization")
+        request.setValue("resolution=merge-duplicates", forHTTPHeaderField: "Prefer")
+
+        let body = UpsertReadingHistoryRequest(
+            canonicalMangaId: canonicalMangaId,
+            sourceId: sourceId,
+            mangaId: mangaId,
+            chapterNumber: chapterNumber,
+            chapterTitle: chapterTitle,
+            pageNumber: pageNumber,
+            totalPages: totalPages,
+            isCompleted: isCompleted
+        )
+        request.httpBody = try JSONEncoder().encode(body)
+
+        let (_, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            throw SupabaseError.networkError
+        }
+    }
+
+    func fetchReadingHistory(limit: Int = 20) async throws -> [ReadingHistoryWithManga] {
+        guard isAuthenticated, let userId = currentSession?.user.id else {
+            throw SupabaseError.notAuthenticated
+        }
+
+        let url = URL(string: "\(supabaseURL)/rest/v1/scanio_reading_history_with_manga?user_id=eq.\(userId)&order=last_read_at.desc&limit=\(limit)")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
+        request.setValue("Bearer \(currentSession?.accessToken ?? "")", forHTTPHeaderField: "Authorization")
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            throw SupabaseError.networkError
+        }
+
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return try decoder.decode([ReadingHistoryWithManga].self, from: data)
+    }
+
+    func fetchCurrentlyReading() async throws -> [MangaProgressWithManga] {
+        guard isAuthenticated, let userId = currentSession?.user.id else {
+            throw SupabaseError.notAuthenticated
+        }
+
+        let url = URL(string: "\(supabaseURL)/rest/v1/scanio_manga_progress_with_manga?user_id=eq.\(userId)&order=last_read_at.desc")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
+        request.setValue("Bearer \(currentSession?.accessToken ?? "")", forHTTPHeaderField: "Authorization")
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            throw SupabaseError.networkError
+        }
+
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return try decoder.decode([MangaProgressWithManga].self, from: data)
+    }
 }
 
 // MARK: - Errors
@@ -241,6 +422,8 @@ enum SupabaseError: LocalizedError {
     case authenticationFailed
     case networkError
     case invalidResponse
+    case profileNotFound
+    case invalidData
 
     var errorDescription: String? {
         switch self {
@@ -252,6 +435,10 @@ enum SupabaseError: LocalizedError {
             return "Network error. Please try again"
         case .invalidResponse:
             return "Invalid response from server"
+        case .profileNotFound:
+            return "Profile not found"
+        case .invalidData:
+            return "Invalid data provided"
         }
     }
 }
