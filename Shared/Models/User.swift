@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct User: Codable, Identifiable {
+struct SupabaseUser: Codable, Identifiable {
     let id: String
     let email: String
     let userName: String?
@@ -29,7 +29,7 @@ struct AuthSession: Codable {
     let accessToken: String
     let refreshToken: String
     let expiresAt: Date
-    let user: User
+    let user: SupabaseUser
 
     enum CodingKeys: String, CodingKey {
         case accessToken = "access_token"

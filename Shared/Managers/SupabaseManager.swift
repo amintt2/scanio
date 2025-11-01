@@ -10,10 +10,10 @@ import Foundation
 class SupabaseManager {
     static let shared = SupabaseManager()
 
-    private let supabaseURL: String
-    private let supabaseAnonKey: String
+    internal let supabaseURL: String
+    internal let supabaseAnonKey: String
 
-    private var currentSession: AuthSession?
+    internal var currentSession: AuthSession?
 
     private init() {
         // Load from environment or configuration
@@ -52,13 +52,13 @@ class SupabaseManager {
         return session.expiresAt > Date()
     }
 
-    var currentUser: User? {
+    var currentUser: SupabaseUser? {
         currentSession?.user
     }
 
     // MARK: - Authentication
 
-    func signUp(email: String, password: String, userName: String?) async throws -> User {
+    func signUp(email: String, password: String, userName: String?) async throws -> SupabaseUser {
         let url = URL(string: "\(supabaseURL)/auth/v1/signup")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -80,7 +80,7 @@ class SupabaseManager {
         return session.user
     }
 
-    func signIn(email: String, password: String) async throws -> User {
+    func signIn(email: String, password: String) async throws -> SupabaseUser {
         let url = URL(string: "\(supabaseURL)/auth/v1/token?grant_type=password")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
