@@ -57,6 +57,19 @@ class ReaderViewController: BaseObservingViewController {
             }()
         )
 
+    // Comments button
+    private lazy var commentsButtonController: UIHostingController<CommentsButtonView> = {
+        let buttonView = CommentsButtonView(commentCount: 0) { [weak self] in
+            self?.openComments()
+        }
+        let hostingController = UIHostingController(rootView: buttonView)
+        hostingController.view.backgroundColor = .clear
+        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+        return hostingController
+    }()
+    private var commentsButtonBottomConstraint: NSLayoutConstraint?
+    private var commentsButtonTrailingConstraint: NSLayoutConstraint?
+
     private lazy var barToggleTapGesture: UITapGestureRecognizer = {
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
         tap.numberOfTapsRequired = 1
@@ -170,6 +183,9 @@ class ReaderViewController: BaseObservingViewController {
 
         add(child: descriptionButtonController)
 
+        // Add comments button
+        add(child: commentsButtonController)
+
         toolbarItems = [toolbarButtonItemView]
         navigationController?.isToolbarHidden = false
         navigationController?.toolbar.fitContentViewToToolbar()
@@ -198,12 +214,24 @@ class ReaderViewController: BaseObservingViewController {
     override func constrain() {
         toolbarViewWidthConstraint?.isActive = true
 
+        commentsButtonTrailingConstraint = commentsButtonController.view.trailingAnchor.constraint(
+            equalTo: view.safeAreaLayoutGuide.trailingAnchor,
+            constant: -16
+        )
+        commentsButtonBottomConstraint = commentsButtonController.view.bottomAnchor.constraint(
+            equalTo: view.safeAreaLayoutGuide.bottomAnchor,
+            constant: -100
+        )
+
         NSLayoutConstraint.activate([
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
 
             descriptionButtonController.view.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            pageDescriptionButtonBottomConstraint
+            pageDescriptionButtonBottomConstraint,
+
+            commentsButtonTrailingConstraint!,
+            commentsButtonBottomConstraint!
         ])
     }
 
@@ -397,6 +425,35 @@ class ReaderViewController: BaseObservingViewController {
             self.loadCurrentChapter()
         }
         let vc = UIHostingController(rootView: view)
+        present(vc, animated: true)
+    }
+
+    @objc func openComments() {
+        // Check if user is authenticated
+        if !SupabaseManager.shared.isAuthenticated {
+            // Show auth view
+            let authView = AuthView { [weak self] in
+                // After successful auth, open comments
+                self?.showCommentsView()
+            }
+            let vc = UIHostingController(rootView: authView)
+            present(vc, animated: true)
+        } else {
+            showCommentsView()
+        }
+    }
+
+    private func showCommentsView() {
+        let commentsView = CommentsView(chapterId: chapter.id)
+        let vc = UIHostingController(rootView: commentsView)
+
+        // Present as a sheet with medium detent (half screen)
+        if let sheet = vc.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+            sheet.prefersGrabberVisible = true
+            sheet.preferredCornerRadius = 20
+        }
+
         present(vc, animated: true)
     }
 
