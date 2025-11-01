@@ -9,7 +9,6 @@ import SwiftUI
 
 struct CommentsView: View {
     let chapterId: String
-    var onDismiss: ((Int) -> Void)?
 
     @Environment(\.dismiss) var dismiss
 
@@ -36,7 +35,6 @@ struct CommentsView: View {
                 Spacer()
 
                 Button(action: {
-                    onDismiss?(comments.count)
                     dismiss()
                 }) {
                     Image(systemName: "xmark.circle.fill")
@@ -134,9 +132,6 @@ struct CommentsView: View {
         }
         .onAppear {
             loadComments()
-        }
-        .onDisappear {
-            onDismiss?(comments.count)
         }
     }
 

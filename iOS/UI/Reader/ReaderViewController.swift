@@ -477,24 +477,30 @@ class ReaderViewController: BaseObservingViewController {
     }
 
     private func showCommentsView() {
-        let commentsView = CommentsView(chapterId: chapter.id, onDismiss: { [weak self] count in
-            // Update comment count when view is dismissed
-            self?.updateCommentCount(count)
-        })
+        let commentsView = CommentsView(chapterId: chapter.id)
         let vc = UIHostingController(rootView: commentsView)
 
         // Present as a sheet with custom detent (50% of screen)
         if let sheet = vc.sheetPresentationController {
-            // Create custom detent for 50% height
-            let customDetent = UISheetPresentationController.Detent.custom { context in
-                context.maximumDetentValue * 0.5
+            if #available(iOS 16.0, *) {
+                // Create custom detent for 50% height
+                let customDetent = UISheetPresentationController.Detent.custom { context in
+                    context.maximumDetentValue * 0.5
+                }
+
+                sheet.detents = [customDetent, .large()]
+                sheet.largestUndimmedDetentIdentifier = customDetent.identifier
+            } else {
+                // Fallback to medium detent for iOS 15
+                sheet.detents = [
+                    UISheetPresentationController.Detent.medium(),
+                    UISheetPresentationController.Detent.large()
+                ]
             }
 
-            sheet.detents = [customDetent, .large()]
             sheet.prefersGrabberVisible = true
             sheet.preferredCornerRadius = 20
             sheet.prefersScrollingExpandsWhenScrolledToEdge = true
-            sheet.largestUndimmedDetentIdentifier = customDetent.identifier
         }
 
         present(vc, animated: true)
