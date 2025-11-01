@@ -19,6 +19,15 @@ enum Settings {
         ]))),
         .init(value: .group(.init(items: [
             .init(
+                key: "Profile",
+                title: "Profil",
+                value: .page(.init(
+                    items: [],
+                    inlineTitle: true,
+                    icon: .system(name: "person.circle.fill", color: "purple")
+                ))
+            ),
+            .init(
                 title: NSLocalizedString("APPEARANCE"),
                 value: .page(.init(
                     items: appearanceSettings,

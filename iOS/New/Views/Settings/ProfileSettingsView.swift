@@ -44,55 +44,57 @@ struct ProfileSettingsView: View {
     }
     
     // MARK: - Sign In Section
-    
+
     private var signInSection: some View {
-        Section {
-            VStack(spacing: 16) {
-                Image(systemName: "person.circle.fill")
-                    .font(.system(size: 60))
-                    .foregroundColor(.gray)
-                
-                Text("Créez un compte pour accéder à toutes les fonctionnalités")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-                
-                Button {
-                    showingSignUp = true
-                } label: {
-                    Text("Créer un compte")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.accentColor)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
+        Group {
+            Section {
+                VStack(spacing: 16) {
+                    Image(systemName: "person.circle.fill")
+                        .font(.system(size: 60))
+                        .foregroundColor(.gray)
+
+                    Text("Créez un compte pour accéder à toutes les fonctionnalités")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+
+                    Button {
+                        showingSignUp = true
+                    } label: {
+                        Text("Créer un compte")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.accentColor)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                    }
+
+                    Button {
+                        showingSignIn = true
+                    } label: {
+                        Text("Se connecter")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.gray.opacity(0.2))
+                            .foregroundColor(.primary)
+                            .cornerRadius(10)
+                    }
                 }
-                
-                Button {
-                    showingSignIn = true
-                } label: {
-                    Text("Se connecter")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.gray.opacity(0.2))
-                        .foregroundColor(.primary)
-                        .cornerRadius(10)
+                .padding(.vertical)
+            }
+
+            Section {
+                VStack(alignment: .leading, spacing: 8) {
+                    Label("Commentaires et reviews", systemImage: "bubble.left.and.bubble.right")
+                    Label("Historique de lecture", systemImage: "clock.arrow.circlepath")
+                    Label("Classement personnel", systemImage: "star.fill")
+                    Label("Profil public", systemImage: "person.2")
                 }
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+            } header: {
+                Text("Fonctionnalités disponibles")
             }
-            .padding(.vertical)
-        }
-        
-        Section {
-            VStack(alignment: .leading, spacing: 8) {
-                Label("Commentaires et reviews", systemImage: "bubble.left.and.bubble.right")
-                Label("Historique de lecture", systemImage: "clock.arrow.circlepath")
-                Label("Classement personnel", systemImage: "star.fill")
-                Label("Profil public", systemImage: "person.2")
-            }
-            .font(.subheadline)
-            .foregroundColor(.secondary)
-        } header: {
-            Text("Fonctionnalités disponibles")
         }
     }
     
@@ -280,7 +282,7 @@ class ProfileViewModel: ObservableObject {
     }
     
     func signOut() {
-        // TODO: Implement sign out in SupabaseManager
+        supabase.signOut()
         isAuthenticated = false
         profile = nil
         stats = nil

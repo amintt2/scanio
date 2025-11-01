@@ -15,6 +15,28 @@
 		04B48CFF2CD6B3B000F719D0 /* ShikimoriQueries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B48CFD2CD6B3AD00F719D0 /* ShikimoriQueries.swift */; };
 		0C807DDD27D47C2D0042EE7B /* CircularProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C807DDC27D47C2D0042EE7B /* CircularProgressView.swift */; };
 		1EBF58DD2EB6BA460045EE05 /* CommentsFeatureStubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58DC2EB6BA460045EE05 /* CommentsFeatureStubs.swift */; };
+		1EBF58DF2EB6CD070045EE05 /* SupabaseManager+Rankings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58DE2EB6CD070045EE05 /* SupabaseManager+Rankings.swift */; };
+		1EBF58E02EB6CD070045EE05 /* SupabaseManager+Rankings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58DE2EB6CD070045EE05 /* SupabaseManager+Rankings.swift */; };
+		1EBF58E22EB6CD420045EE05 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E12EB6CD420045EE05 /* UserProfile.swift */; };
+		1EBF58E32EB6CD420045EE05 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E12EB6CD420045EE05 /* UserProfile.swift */; };
+		1EBF58EA2EB6CDEC0045EE05 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E92EB6CDEC0045EE05 /* SignUpView.swift */; };
+		1EBF58EB2EB6CDEC0045EE05 /* ProfileSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E62EB6CDEC0045EE05 /* ProfileSettingsView.swift */; };
+		1EBF58EC2EB6CDEC0045EE05 /* EditProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E42EB6CDEC0045EE05 /* EditProfileView.swift */; };
+		1EBF58ED2EB6CDEC0045EE05 /* PersonalRankingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E52EB6CDEC0045EE05 /* PersonalRankingsView.swift */; };
+		1EBF58EE2EB6CDEC0045EE05 /* ReadingHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E72EB6CDEC0045EE05 /* ReadingHistoryView.swift */; };
+		1EBF58EF2EB6CDEC0045EE05 /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E82EB6CDEC0045EE05 /* SignInView.swift */; };
+		1EBF58F02EB6CDEC0045EE05 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E92EB6CDEC0045EE05 /* SignUpView.swift */; };
+		1EBF58F12EB6CDEC0045EE05 /* ProfileSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E62EB6CDEC0045EE05 /* ProfileSettingsView.swift */; };
+		1EBF58F22EB6CDEC0045EE05 /* EditProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E42EB6CDEC0045EE05 /* EditProfileView.swift */; };
+		1EBF58F32EB6CDEC0045EE05 /* PersonalRankingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E52EB6CDEC0045EE05 /* PersonalRankingsView.swift */; };
+		1EBF58F42EB6CDEC0045EE05 /* ReadingHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E72EB6CDEC0045EE05 /* ReadingHistoryView.swift */; };
+		1EBF58F52EB6CDEC0045EE05 /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E82EB6CDEC0045EE05 /* SignInView.swift */; };
+		1EBF58F72EB6D1F80045EE05 /* SupabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58F62EB6D1F80045EE05 /* SupabaseManager.swift */; };
+		1EBF58F82EB6D1F80045EE05 /* SupabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58F62EB6D1F80045EE05 /* SupabaseManager.swift */; };
+		1EBF58FB2EB6D22D0045EE05 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58F92EB6D22D0045EE05 /* Comment.swift */; };
+		1EBF58FC2EB6D22D0045EE05 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58FA2EB6D22D0045EE05 /* User.swift */; };
+		1EBF58FD2EB6D22D0045EE05 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58F92EB6D22D0045EE05 /* Comment.swift */; };
+		1EBF58FE2EB6D22D0045EE05 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58FA2EB6D22D0045EE05 /* User.swift */; };
 		37F3E66D2850F62100A944E0 /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F3E66C2850F62100A944E0 /* Collection.swift */; };
 		48177B8E2B75C40400AD41B4 /* MangaUpdatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48177B8D2B75C40400AD41B4 /* MangaUpdatesView.swift */; };
 		48177B902B75C63700AD41B4 /* CoreDataManager+MangaUpdates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48177B8F2B75C63700AD41B4 /* CoreDataManager+MangaUpdates.swift */; };
@@ -519,6 +541,17 @@
 		04B48CFD2CD6B3AD00F719D0 /* ShikimoriQueries.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShikimoriQueries.swift; sourceTree = "<group>"; };
 		0C807DDC27D47C2D0042EE7B /* CircularProgressView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircularProgressView.swift; sourceTree = "<group>"; };
 		1EBF58DC2EB6BA460045EE05 /* CommentsFeatureStubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsFeatureStubs.swift; sourceTree = "<group>"; };
+		1EBF58DE2EB6CD070045EE05 /* SupabaseManager+Rankings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SupabaseManager+Rankings.swift"; sourceTree = "<group>"; };
+		1EBF58E12EB6CD420045EE05 /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
+		1EBF58E42EB6CDEC0045EE05 /* EditProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileView.swift; sourceTree = "<group>"; };
+		1EBF58E52EB6CDEC0045EE05 /* PersonalRankingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalRankingsView.swift; sourceTree = "<group>"; };
+		1EBF58E62EB6CDEC0045EE05 /* ProfileSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSettingsView.swift; sourceTree = "<group>"; };
+		1EBF58E72EB6CDEC0045EE05 /* ReadingHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingHistoryView.swift; sourceTree = "<group>"; };
+		1EBF58E82EB6CDEC0045EE05 /* SignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInView.swift; sourceTree = "<group>"; };
+		1EBF58E92EB6CDEC0045EE05 /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
+		1EBF58F62EB6D1F80045EE05 /* SupabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseManager.swift; sourceTree = "<group>"; };
+		1EBF58F92EB6D22D0045EE05 /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
+		1EBF58FA2EB6D22D0045EE05 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		37F3E66C2850F62100A944E0 /* Collection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collection.swift; sourceTree = "<group>"; };
 		48177B8D2B75C40400AD41B4 /* MangaUpdatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaUpdatesView.swift; sourceTree = "<group>"; };
 		48177B8F2B75C63700AD41B4 /* CoreDataManager+MangaUpdates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CoreDataManager+MangaUpdates.swift"; sourceTree = "<group>"; };
@@ -1035,6 +1068,9 @@
 		FB02E1F5288D7C6700B9E2DE /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				1EBF58F92EB6D22D0045EE05 /* Comment.swift */,
+				1EBF58FA2EB6D22D0045EE05 /* User.swift */,
+				1EBF58E12EB6CD420045EE05 /* UserProfile.swift */,
 				FB3F49EA2B7C6B7700D3CC75 /* ChapterFlagMask.swift */,
 				FB3F49E42B7C3BA400D3CC75 /* ChapterSortOption.swift */,
 				FB3F49E72B7C3C2B00D3CC75 /* ChapterFilterOption.swift */,
@@ -1779,6 +1815,12 @@
 		FB7984152E0C9F4D000761A9 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				1EBF58E42EB6CDEC0045EE05 /* EditProfileView.swift */,
+				1EBF58E52EB6CDEC0045EE05 /* PersonalRankingsView.swift */,
+				1EBF58E62EB6CDEC0045EE05 /* ProfileSettingsView.swift */,
+				1EBF58E72EB6CDEC0045EE05 /* ReadingHistoryView.swift */,
+				1EBF58E82EB6CDEC0045EE05 /* SignInView.swift */,
+				1EBF58E92EB6CDEC0045EE05 /* SignUpView.swift */,
 				FB7C288F2E898D85009FF6AF /* Backups */,
 				FBB516482E2F057200749F4E /* Download Manager */,
 				FBFF58902E7F2641009367B7 /* Settings.swift */,
@@ -1973,6 +2015,8 @@
 		FBE578FE2899840E00F9F1B5 /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				1EBF58F62EB6D1F80045EE05 /* SupabaseManager.swift */,
+				1EBF58DE2EB6CD070045EE05 /* SupabaseManager+Rankings.swift */,
 				FB0CAA6728A9B5AC0024561A /* Manga */,
 				FB0CAA4A28A2AD2E0024561A /* CoreData */,
 			);
@@ -2317,6 +2361,7 @@
 				FB7F05F42DDCCF4A0036B116 /* ReaderPageDescriptionButtonView.swift in Sources */,
 				FB6340CE27947BCA0072A2A2 /* ExternalSourceInfo.swift in Sources */,
 				FB3F49EB2B7C6B7700D3CC75 /* ChapterFlagMask.swift in Sources */,
+				1EBF58E32EB6CD420045EE05 /* UserProfile.swift in Sources */,
 				FB034E982EAAFA850072EEEB /* KavitaTracker.swift in Sources */,
 				FB4E57992E3529C0006EF27C /* TabBarController.swift in Sources */,
 				FB67EE6627F4D7BF00C468EA /* WasmGlobalStore.swift in Sources */,
@@ -2446,6 +2491,7 @@
 				FB716DFF283DA2D900F1BB5D /* LogStore.swift in Sources */,
 				FB72502827CC06AA0037F1C9 /* SegmentTableViewCell.swift in Sources */,
 				FB2BE5E329527A6E00FAD8A7 /* ReaderInfoPageView.swift in Sources */,
+				1EBF58DF2EB6CD070045EE05 /* SupabaseManager+Rankings.swift in Sources */,
 				723D3AFD2E0DC5C4003ED4CF /* DownloadManagerView.swift in Sources */,
 				723D3AFE2E0DC5C4003ED4CF /* MangaDownloadDetailView.swift in Sources */,
 				FB67EE6327F3D2E300C468EA /* WasmAidoku.swift in Sources */,
@@ -2494,6 +2540,8 @@
 				FB8E48DB2DC00783002A3621 /* SelectHighlightButtonStyle.swift in Sources */,
 				FB0C088C280E4D1C00A7332B /* DeepLink.swift in Sources */,
 				FB662EB92DA813E300007514 /* SelectFilterView.swift in Sources */,
+				1EBF58FB2EB6D22D0045EE05 /* Comment.swift in Sources */,
+				1EBF58FC2EB6D22D0045EE05 /* User.swift in Sources */,
 				FB662EBA2DA813E300007514 /* SourceSearchView.swift in Sources */,
 				FB662EBB2DA813E300007514 /* HomeLinksView.swift in Sources */,
 				FB662EBC2DA813E300007514 /* SourceHomeSkeletonView.swift in Sources */,
@@ -2520,6 +2568,7 @@
 				FB662ECE2DA813E300007514 /* SettingView.swift in Sources */,
 				FB662ECF2DA813E300007514 /* HomeListView.swift in Sources */,
 				FB662ED02DA813E300007514 /* SourceSettingsView.swift in Sources */,
+				1EBF58F72EB6D1F80045EE05 /* SupabaseManager.swift in Sources */,
 				FBE7A5892DE0D64500CA5B60 /* AddSourceView.swift in Sources */,
 				FB662ED12DA813E300007514 /* HomeFiltersView.swift in Sources */,
 				FB662ED22DA813E300007514 /* SearchFilterHeaderView.swift in Sources */,
@@ -2542,6 +2591,12 @@
 				FB4275162960C80000131377 /* SmallSectionHeaderConfiguration.swift in Sources */,
 				FBE53F1029CCFC1A00899601 /* SearchBar.swift in Sources */,
 				FB9A48392967E45800FFC414 /* MangaGridView.swift in Sources */,
+				1EBF58F02EB6CDEC0045EE05 /* SignUpView.swift in Sources */,
+				1EBF58F12EB6CDEC0045EE05 /* ProfileSettingsView.swift in Sources */,
+				1EBF58F22EB6CDEC0045EE05 /* EditProfileView.swift in Sources */,
+				1EBF58F32EB6CDEC0045EE05 /* PersonalRankingsView.swift in Sources */,
+				1EBF58F42EB6CDEC0045EE05 /* ReadingHistoryView.swift in Sources */,
+				1EBF58F52EB6CDEC0045EE05 /* SignInView.swift in Sources */,
 				FB4275192961203100131377 /* SemanticVersion.swift in Sources */,
 				FBECCED02DE0C845007D5467 /* KomgaModels.swift in Sources */,
 				FBAE7BEE2AF2DC5D00D530EE /* LegacySource.swift in Sources */,
@@ -2664,6 +2719,8 @@
 				FB4EEBCB27A35171005081A3 /* HistoryObject.swift in Sources */,
 				FB248CCC2EA58CEE00BECD2E /* KavitaModels.swift in Sources */,
 				FB7983FA2E0C663B000761A9 /* MultiArrayModel.swift in Sources */,
+				1EBF58FD2EB6D22D0045EE05 /* Comment.swift in Sources */,
+				1EBF58FE2EB6D22D0045EE05 /* User.swift in Sources */,
 				FB9B9EB127F6559D009ED073 /* WasmStd.swift in Sources */,
 				FB0E1CCB288AE50700B67BA9 /* OAuthTracker.swift in Sources */,
 				FB1B4869277CE76B0056D02C /* MangaModels.swift in Sources */,
@@ -2678,6 +2735,7 @@
 				FB14B12B2DF4D23B0067E4D4 /* NSLocalizedString.swift in Sources */,
 				FB14B12D2DF4D2920067E4D4 /* AniListTracker.swift in Sources */,
 				FB9A65932781F8B10071F1A2 /* LibraryView.swift in Sources */,
+				1EBF58E22EB6CD420045EE05 /* UserProfile.swift in Sources */,
 				FB4B0AD8285BC9690066A13B /* TrackStatus.swift in Sources */,
 				FB1B483F277CE1920056D02C /* Aidoku.xcdatamodeld in Sources */,
 				FB4EEBBD27A2F103005081A3 /* LibraryMangaObject.swift in Sources */,
@@ -2689,6 +2747,12 @@
 				FBF9DC0628205FCE0056FA9A /* DownloadManager.swift in Sources */,
 				FBCA1B252888A910007149C5 /* TrackObject.swift in Sources */,
 				FB7864872848215500125DC0 /* Reachability.swift in Sources */,
+				1EBF58EA2EB6CDEC0045EE05 /* SignUpView.swift in Sources */,
+				1EBF58EB2EB6CDEC0045EE05 /* ProfileSettingsView.swift in Sources */,
+				1EBF58EC2EB6CDEC0045EE05 /* EditProfileView.swift in Sources */,
+				1EBF58ED2EB6CDEC0045EE05 /* PersonalRankingsView.swift in Sources */,
+				1EBF58EE2EB6CDEC0045EE05 /* ReadingHistoryView.swift in Sources */,
+				1EBF58EF2EB6CDEC0045EE05 /* SignInView.swift in Sources */,
 				FB4B0ADE285C2C570066A13B /* TrackSearchItem.swift in Sources */,
 				FB0CAA6228A9988A0024561A /* MangaInfo.swift in Sources */,
 				FB67EE6427F3D2E300C468EA /* WasmAidoku.swift in Sources */,
@@ -2708,6 +2772,7 @@
 				FBAE7BEF2AF2DC5D00D530EE /* LegacySource.swift in Sources */,
 				FB7B7EDB278CEA6A001E6EAF /* FileManager.swift in Sources */,
 				FB55C0B22DF244580019A551 /* LocalSource.swift in Sources */,
+				1EBF58F82EB6D1F80045EE05 /* SupabaseManager.swift in Sources */,
 				FB0CAA6128A998880024561A /* Manga.swift in Sources */,
 				FB72501427CAAC9F0037F1C9 /* Backup.swift in Sources */,
 				FB4EEBC527A34ED4005081A3 /* ChapterObject.swift in Sources */,
@@ -2722,6 +2787,7 @@
 				04B48CFE2CD6B3B000F719D0 /* ShikimoriQueries.swift in Sources */,
 				FB7B7ED5278CE692001E6EAF /* Source.swift in Sources */,
 				FB1B4867277CE76B0056D02C /* Chapter.swift in Sources */,
+				1EBF58E02EB6CD070045EE05 /* SupabaseManager+Rankings.swift in Sources */,
 				FB14B12A2DF4D20F0067E4D4 /* AidokuRunner.swift in Sources */,
 				FB63D5012E38124E004FF4DC /* EditedKeys.swift in Sources */,
 				FBA748A12E81C0D200D9BE86 /* BangumiTracker.swift in Sources */,
@@ -2965,7 +3031,7 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportsDocumentBrowser = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3006,7 +3072,7 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportsDocumentBrowser = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

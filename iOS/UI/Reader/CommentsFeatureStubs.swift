@@ -1,12 +1,5 @@
 import SwiftUI
 
-// MARK: - Placeholder SupabaseManager
-final class SupabaseManager {
-    static let shared = SupabaseManager()
-    // Toggle this to simulate authentication state in previews/tests
-    var isAuthenticated: Bool = false
-}
-
 // MARK: - Placeholder CommentsButtonView
 struct CommentsButtonView: View {
     let commentCount: Int
@@ -37,7 +30,7 @@ struct AuthView: View {
             Text("Authentication Required")
                 .font(.headline)
             Button("Sign In (Stub)") {
-                SupabaseManager.shared.isAuthenticated = true
+                // Note: This is a stub - real authentication is handled by SupabaseManager
                 onAuthenticated()
             }
         }

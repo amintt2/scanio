@@ -273,7 +273,9 @@ extension SettingsView {
 
     @ViewBuilder
     func pageContentHandler(_ key: String) -> (some View)? {
-        if key == "Library.categories" {
+        if key == "Profile" {
+            ProfileSettingsView()
+        } else if key == "Library.categories" {
             CategoriesView()
         } else if key == "Reader.tapZones" {
             TapZonesSelectView()
