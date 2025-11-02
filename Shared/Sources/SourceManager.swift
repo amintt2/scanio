@@ -228,6 +228,21 @@ extension SourceManager {
 
         NotificationCenter.default.post(name: Notification.Name("updateSourceList"), object: nil)
 
+        // Sync to Supabase if authenticated
+        if SupabaseManager.shared.isAuthenticated {
+            Task {
+                do {
+                    try await SupabaseManager.shared.addUserSource(
+                        sourceId: result.id,
+                        sourceName: result.name,
+                        sourceLang: result.languages.first
+                    )
+                } catch {
+                    LogManager.logger.error("Failed to sync source to Supabase: \(error.localizedDescription)")
+                }
+            }
+        }
+
         return result
     }
 
@@ -287,6 +302,21 @@ extension SourceManager {
         sortSources()
 
         NotificationCenter.default.post(name: Notification.Name("updateSourceList"), object: nil)
+
+        // Sync to Supabase if authenticated
+        if SupabaseManager.shared.isAuthenticated {
+            Task {
+                do {
+                    try await SupabaseManager.shared.addUserSource(
+                        sourceId: source.id,
+                        sourceName: source.name,
+                        sourceLang: source.languages.first
+                    )
+                } catch {
+                    LogManager.logger.error("Failed to sync custom source to Supabase: \(error.localizedDescription)")
+                }
+            }
+        }
 
         return key
     }

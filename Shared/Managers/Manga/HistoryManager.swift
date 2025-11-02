@@ -165,4 +165,82 @@ extension HistoryManager {
         }
         NotificationCenter.default.post(name: .historyRemoved, object: Manga(sourceId: sourceId, id: mangaId))
     }
+
+    // MARK: - Supabase Sync Helpers
+
+    private func syncProgressToSupabase(
+        chapter: Chapter,
+        progress: Int,
+        totalPages: Int,
+        completed: Bool
+    ) async {
+        do {
+            // Get manga title from CoreData
+            let manga = await CoreDataManager.shared.getManga(sourceId: chapter.sourceId, mangaId: chapter.mangaId)
+            let mangaTitle = manga?.title ?? "Unknown"
+
+            // Get or create canonical manga
+            let canonicalId = try await SupabaseManager.shared.getOrCreateCanonicalManga(
+                title: mangaTitle,
+                sourceId: chapter.sourceId,
+                mangaId: chapter.mangaId
+            )
+
+            // Sync to Supabase
+            try await SupabaseManager.shared.upsertReadingHistory(
+                canonicalMangaId: canonicalId,
+                sourceId: chapter.sourceId,
+                mangaId: chapter.mangaId,
+                chapterId: chapter.id,
+                chapterNumber: String(format: "%.1f", chapter.chapterNum ?? 0),
+                chapterTitle: chapter.title,
+                pageNumber: progress,
+                totalPages: totalPages,
+                isCompleted: completed
+            )
+        } catch {
+            LogManager.logger.error("Failed to sync progress to Supabase: \(error.localizedDescription)")
+        }
+    }
+
+    private func syncCompletedToSupabase(
+        sourceId: String,
+        mangaId: String,
+        chapter: AidokuRunner.Chapter
+    ) async {
+        do {
+            // Get manga title from CoreData
+            let manga = await CoreDataManager.shared.getManga(sourceId: sourceId, mangaId: mangaId)
+            let mangaTitle = manga?.title ?? "Unknown"
+
+            // Get or create canonical manga
+            let canonicalId = try await SupabaseManager.shared.getOrCreateCanonicalManga(
+                title: mangaTitle,
+                sourceId: sourceId,
+                mangaId: mangaId
+            )
+
+            // Get history to get progress and total pages
+            let history = await CoreDataManager.shared.getHistory(
+                sourceId: sourceId,
+                mangaId: mangaId,
+                chapterId: chapter.key
+            )
+
+            // Sync to Supabase
+            try await SupabaseManager.shared.upsertReadingHistory(
+                canonicalMangaId: canonicalId,
+                sourceId: sourceId,
+                mangaId: mangaId,
+                chapterId: chapter.key,
+                chapterNumber: String(format: "%.1f", chapter.chapterNumber ?? 0),
+                chapterTitle: chapter.title,
+                pageNumber: Int(history?.progress ?? 0),
+                totalPages: Int(history?.total ?? 0),
+                isCompleted: true
+            )
+        } catch {
+            LogManager.logger.error("Failed to sync completed chapter to Supabase: \(error.localizedDescription)")
+        }
+    }
 }

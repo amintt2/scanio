@@ -28,10 +28,12 @@ struct ProfileSettingsView: View {
         .navigationTitle("Profil")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingSignUp) {
-            SignUpView(viewModel: viewModel)
+            print("🟢 Sheet SignUpView ouverte")
+            return SignUpView(viewModel: viewModel)
         }
         .sheet(isPresented: $showingSignIn) {
-            SignInView(viewModel: viewModel)
+            print("🔵 Sheet SignInView ouverte")
+            return SignInView(viewModel: viewModel)
         }
         .task {
             await viewModel.loadProfile()
@@ -59,7 +61,9 @@ struct ProfileSettingsView: View {
                         .multilineTextAlignment(.center)
 
                     Button {
+                        print("🟢 Bouton 'Créer un compte' cliqué")
                         showingSignUp = true
+                        print("🟢 showingSignUp = \(showingSignUp)")
                     } label: {
                         Text("Créer un compte")
                             .frame(maxWidth: .infinity)
@@ -70,7 +74,9 @@ struct ProfileSettingsView: View {
                     }
 
                     Button {
+                        print("🔵 Bouton 'Se connecter' cliqué")
                         showingSignIn = true
+                        print("🔵 showingSignIn = \(showingSignIn)")
                     } label: {
                         Text("Se connecter")
                             .frame(maxWidth: .infinity)
@@ -165,7 +171,7 @@ struct ProfileSettingsView: View {
             }
             
             HStack {
-                Label("Mangas lus", systemImage: "books.vertical.fill")
+                Label("Histoires lues", systemImage: "books.vertical.fill")
                 Spacer()
                 Text("\(viewModel.stats?.totalMangaRead ?? 0)")
                     .foregroundColor(.secondary)
@@ -191,7 +197,14 @@ struct ProfileSettingsView: View {
                 Text("\(viewModel.stats?.totalReading ?? 0)")
                     .foregroundColor(.secondary)
             }
-            
+
+            HStack {
+                Label("Commentaires", systemImage: "bubble.left.and.bubble.right.fill")
+                Spacer()
+                Text("\(viewModel.stats?.totalComments ?? 0)")
+                    .foregroundColor(.secondary)
+            }
+
             NavigationLink("Historique de lecture") {
                 ReadingHistoryView()
             }
@@ -250,7 +263,11 @@ class ProfileViewModel: ObservableObject {
     }
     
     func loadProfile() async {
+        print("🔵 loadProfile called")
+        print("🔵 isAuthenticated: \(supabase.isAuthenticated)")
+
         guard supabase.isAuthenticated else {
+            print("🔴 Not authenticated, clearing profile")
             isAuthenticated = false
             profile = nil
             stats = nil
@@ -261,20 +278,43 @@ class ProfileViewModel: ObservableObject {
         isLoading = true
 
         do {
+            print("🟢 Fetching profile and stats...")
             async let profileTask = supabase.fetchProfile()
             async let statsTask = supabase.fetchUserStats()
 
             profile = try await profileTask
+            print("🟢 Profile loaded: \(profile?.userName ?? "nil")")
+
             stats = try await statsTask
+            print("🟢 Stats loaded: karma=\(stats?.karma ?? 0)")
         } catch {
+            print("🔴 Error loading profile: \(error)")
+            print("🔴 Error type: \(type(of: error))")
+
             // Only show error if it's not an authentication error
             if case SupabaseError.notAuthenticated = error {
                 // User is not authenticated, just clear the data
+                print("🔴 SupabaseError.notAuthenticated")
                 isAuthenticated = false
                 profile = nil
                 stats = nil
+            } else if case SupabaseError.profileNotFound = error {
+                print("🔴 SupabaseError.profileNotFound - Creating profile...")
+                // Profile doesn't exist, try to create it
+                do {
+                    try await supabase.createProfile()
+                    // Retry loading
+                    profile = try await supabase.fetchProfile()
+                    stats = try await supabase.fetchUserStats()
+                    print("🟢 Profile created and loaded successfully")
+                } catch {
+                    print("🔴 Failed to create profile: \(error)")
+                    errorMessage = "Failed to create profile: \(error.localizedDescription)"
+                    showError = true
+                }
             } else {
                 // Real error, show it to the user
+                print("🔴 Other error: \(error.localizedDescription)")
                 errorMessage = error.localizedDescription
                 showError = true
             }

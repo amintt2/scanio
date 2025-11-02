@@ -95,6 +95,9 @@ struct SignUpView: View {
                 Text("Un email de confirmation a été envoyé à \(email). Vérifiez votre boîte mail et cliquez sur le lien pour activer votre compte.")
             }
         }
+        .onAppear {
+            print("🟢 SignUpView appeared")
+        }
     }
 
     @State private var showSuccess = false

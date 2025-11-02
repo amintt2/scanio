@@ -135,6 +135,38 @@ class SupabaseManager {
 
     // MARK: - Profile API
 
+    func createProfile() async throws {
+        guard isAuthenticated, let userId = currentSession?.user.id else {
+            throw SupabaseError.notAuthenticated
+        }
+
+        let url = URL(string: "\(supabaseURL)/rest/v1/scanio_profiles")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
+        request.setValue("Bearer \(currentSession?.accessToken ?? "")", forHTTPHeaderField: "Authorization")
+        request.setValue("return=minimal", forHTTPHeaderField: "Prefer")
+
+        let body: [String: Any] = [
+            "id": userId,
+            "user_name": "User_\(userId.prefix(8))",
+            "karma": 0,
+            "is_public": true,
+            "total_chapters_read": 0,
+            "total_manga_read": 0
+        ]
+
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (_, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            throw SupabaseError.networkError
+        }
+    }
+
     func fetchProfile(userId: String? = nil) async throws -> UserProfile {
         guard isAuthenticated else { throw SupabaseError.notAuthenticated }
 
@@ -208,28 +240,49 @@ class SupabaseManager {
         let body = ["p_user_id": targetUserId]
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
+        print("📊 fetchUserStats - URL: \(url)")
+        print("📊 fetchUserStats - User ID: \(targetUserId)")
+        print("📊 fetchUserStats - Body: \(String(data: request.httpBody ?? Data(), encoding: .utf8) ?? "")")
+
         let (data, response) = try await URLSession.shared.data(for: request)
+
+        let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
+        print("📊 fetchUserStats - Status Code: \(statusCode)")
+        print("📊 fetchUserStats - Response: \(String(data: data, encoding: .utf8) ?? "")")
 
         guard let httpResponse = response as? HTTPURLResponse,
               (200...299).contains(httpResponse.statusCode) else {
+            print("❌ fetchUserStats - Network error: HTTP \(statusCode)")
             throw SupabaseError.networkError
         }
 
         let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        let stats = try decoder.decode([UserStats].self, from: data)
-        guard let stat = stats.first else {
-            throw SupabaseError.invalidResponse
+        // Note: UserStats already has explicit CodingKeys, so we don't use convertFromSnakeCase
+
+        do {
+            let stats = try decoder.decode([UserStats].self, from: data)
+            print("📊 fetchUserStats - Decoded \(stats.count) stats")
+            guard let stat = stats.first else {
+                print("❌ fetchUserStats - No stats returned (empty array)")
+                throw SupabaseError.invalidResponse
+            }
+            print("✅ fetchUserStats - Success! Chapters: \(stat.totalChaptersRead), Manga: \(stat.totalMangaRead)")
+            return stat
+        } catch {
+            print("❌ fetchUserStats - Decoding error: \(error)")
+            print("❌ fetchUserStats - Raw data: \(String(data: data, encoding: .utf8) ?? "")")
+            throw error
         }
-        return stat
     }
 
     // MARK: - Reading History API
 
+    // swiftlint:disable:next function_parameter_count
     func upsertReadingHistory(
         canonicalMangaId: String,
         sourceId: String,
         mangaId: String,
+        chapterId: String,
         chapterNumber: String,
         chapterTitle: String?,
         pageNumber: Int,
@@ -240,33 +293,45 @@ class SupabaseManager {
             throw SupabaseError.notAuthenticated
         }
 
-        let url = URL(string: "\(supabaseURL)/rest/v1/scanio_reading_history")!
+        // Use RPC function for proper UPSERT handling
+        let url = URL(string: "\(supabaseURL)/rest/v1/rpc/scanio_upsert_reading_history")!
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = "POST"
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
         urlRequest.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
         urlRequest.setValue("Bearer \(currentSession?.accessToken ?? "")", forHTTPHeaderField: "Authorization")
-        urlRequest.setValue("resolution=merge-duplicates", forHTTPHeaderField: "Prefer")
 
-        let request = UpsertReadingHistoryRequest(
-            userId: userId,
-            canonicalMangaId: canonicalMangaId,
-            sourceId: sourceId,
-            mangaId: mangaId,
-            chapterNumber: chapterNumber,
-            chapterTitle: chapterTitle,
-            pageNumber: pageNumber,
-            totalPages: totalPages,
-            isCompleted: isCompleted
-        )
-        urlRequest.httpBody = try JSONEncoder().encode(request)
+        let body: [String: Any] = [
+            "p_user_id": userId,
+            "p_canonical_manga_id": canonicalMangaId,
+            "p_source_id": sourceId,
+            "p_manga_id": mangaId,
+            "p_chapter_id": chapterId,
+            "p_chapter_number": chapterNumber,
+            "p_chapter_title": chapterTitle as Any,
+            "p_page_number": pageNumber,
+            "p_total_pages": totalPages,
+            "p_is_completed": isCompleted
+        ]
+        urlRequest.httpBody = try JSONSerialization.data(withJSONObject: body)
 
-        let (_, response) = try await URLSession.shared.data(for: urlRequest)
+        print("📚 upsertReadingHistory - URL: \(url)")
+        print("📚 upsertReadingHistory - Chapter: \(chapterNumber), Page: \(pageNumber)/\(totalPages), Completed: \(isCompleted)")
+        print("📚 upsertReadingHistory - Body: \(String(data: urlRequest.httpBody ?? Data(), encoding: .utf8) ?? "")")
+
+        let (data, response) = try await URLSession.shared.data(for: urlRequest)
+
+        let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
+        print("📚 upsertReadingHistory - Status Code: \(statusCode)")
+        print("📚 upsertReadingHistory - Response: \(String(data: data, encoding: .utf8) ?? "")")
 
         guard let httpResponse = response as? HTTPURLResponse,
               (200...299).contains(httpResponse.statusCode) else {
+            print("❌ upsertReadingHistory - Network error: HTTP \(statusCode)")
             throw SupabaseError.networkError
         }
+
+        print("✅ upsertReadingHistory - Success!")
     }
 
     func fetchReadingHistory(limit: Int = 20) async throws -> [ReadingHistoryWithManga] {

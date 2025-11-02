@@ -88,8 +88,11 @@ struct SignInView: View {
                 Text("Un nouvel email de confirmation sera envoyé à \(email)")
             }
         }
+        .onAppear {
+            print("🔵 SignInView appeared")
+        }
     }
-    
+
     private var isFormValid: Bool {
         !email.isEmpty && !password.isEmpty && email.contains("@")
     }

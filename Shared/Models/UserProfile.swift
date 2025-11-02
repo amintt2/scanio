@@ -42,9 +42,10 @@ struct UserStats: Codable {
     let totalCompleted: Int
     let totalReading: Int
     let totalPlanToRead: Int
+    let totalComments: Int  // Task 2.1: Added comments count
     let karma: Int
     let isPublic: Bool
-    
+
     enum CodingKeys: String, CodingKey {
         case totalChaptersRead = "total_chapters_read"
         case totalMangaRead = "total_manga_read"
@@ -52,6 +53,7 @@ struct UserStats: Codable {
         case totalCompleted = "total_completed"
         case totalReading = "total_reading"
         case totalPlanToRead = "total_plan_to_read"
+        case totalComments = "total_comments"  // Task 2.1
         case karma
         case isPublic = "is_public"
     }
@@ -254,6 +256,7 @@ struct UpsertReadingHistoryRequest: Codable {
     let canonicalMangaId: String
     let sourceId: String
     let mangaId: String
+    let chapterId: String
     let chapterNumber: String
     let chapterTitle: String?
     let pageNumber: Int
@@ -265,6 +268,7 @@ struct UpsertReadingHistoryRequest: Codable {
         case canonicalMangaId = "canonical_manga_id"
         case sourceId = "source_id"
         case mangaId = "manga_id"
+        case chapterId = "chapter_id"
         case chapterNumber = "chapter_number"
         case chapterTitle = "chapter_title"
         case pageNumber = "page_number"
