@@ -21,7 +21,7 @@ struct UserProfileSheet: View {
                             .padding(40)
                     } else if let profile = viewModel.profile {
                         // Header with avatar and basic info
-                        profileHeader(profile: profile)
+                        profileHeader(profile)
                         
                         Divider()
                             .padding(.vertical, 16)

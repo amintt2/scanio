@@ -58,25 +58,28 @@ extension SupabaseManager {
         return ranking
     }
     
-    func fetchPersonalRankings(limit: Int = 50) async throws -> [PersonalRankingWithManga] {
-        guard isAuthenticated, let userId = currentSession?.user.id else {
+    // PHASE 5, Task 5.4: Fetch rankings for any user (for public profiles)
+    func fetchPersonalRankings(userId: String? = nil, limit: Int = 50) async throws -> [PersonalRankingWithManga] {
+        guard isAuthenticated else {
             throw SupabaseError.notAuthenticated
         }
-        
-        let url = URL(string: "\(supabaseURL)/rest/v1/scanio_personal_rankings_with_manga?user_id=eq.\(userId)&order=rank_position.asc&limit=\(limit)")!
+
+        let targetUserId = userId ?? currentSession?.user.id ?? ""
+
+        let url = URL(string: "\(supabaseURL)/rest/v1/scanio_personal_rankings_with_manga?user_id=eq.\(targetUserId)&order=rank_position.asc&limit=\(limit)")!
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
         request.setValue("Bearer \(currentSession?.accessToken ?? "")", forHTTPHeaderField: "Authorization")
-        
+
         let (data, response) = try await URLSession.shared.data(for: request)
-        
+
         guard let httpResponse = response as? HTTPURLResponse,
               (200...299).contains(httpResponse.statusCode) else {
             throw SupabaseError.networkError
         }
-        
+
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         return try decoder.decode([PersonalRankingWithManga].self, from: data)

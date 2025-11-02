@@ -44,6 +44,19 @@ extension CoreDataManager {
         return (try? context.fetch(request)) ?? []
     }
 
+    /// Get the count of all library manga objects.
+    /// PHASE 6, Task 6.1: Count mangas in reading list (CoreData library)
+    func getLibraryMangaCount(category: String? = nil, context: NSManagedObjectContext? = nil) -> Int {
+        let context = context ?? self.context
+        let request = LibraryMangaObject.fetchRequest()
+        if let category = category {
+            request.predicate = NSPredicate(format: "manga != nil AND any categories.title = %@", category)
+        } else {
+            request.predicate = NSPredicate(format: "manga != nil")
+        }
+        return (try? context.count(for: request)) ?? 0
+    }
+
     /// Check if a library object exists.
     func hasLibraryManga(
         sourceId: String,

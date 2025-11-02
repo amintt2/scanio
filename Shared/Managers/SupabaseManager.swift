@@ -334,12 +334,15 @@ class SupabaseManager {
         print("✅ upsertReadingHistory - Success!")
     }
 
-    func fetchReadingHistory(limit: Int = 20) async throws -> [ReadingHistoryWithManga] {
-        guard isAuthenticated, let userId = currentSession?.user.id else {
+    // PHASE 5, Task 5.4: Fetch reading history for any user (for public profiles)
+    func fetchReadingHistory(userId: String? = nil, limit: Int = 20) async throws -> [ReadingHistoryWithManga] {
+        guard isAuthenticated else {
             throw SupabaseError.notAuthenticated
         }
 
-        let url = URL(string: "\(supabaseURL)/rest/v1/scanio_reading_history_with_manga?user_id=eq.\(userId)&order=last_read_at.desc&limit=\(limit)")!
+        let targetUserId = userId ?? currentSession?.user.id ?? ""
+
+        let url = URL(string: "\(supabaseURL)/rest/v1/scanio_reading_history_with_manga?user_id=eq.\(targetUserId)&order=last_read_at.desc&limit=\(limit)")!
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")

@@ -193,7 +193,15 @@ struct ProfileSettingsView: View {
                 Text("\(viewModel.stats?.totalFavorites ?? 0)")
                     .foregroundColor(.secondary)
             }
-            
+
+            // PHASE 6, Task 6.1: Reading list count from CoreData
+            HStack {
+                Label("Liste de lecture", systemImage: "books.vertical")
+                Spacer()
+                Text("\(viewModel.libraryCount)")
+                    .foregroundColor(.secondary)
+            }
+
             HStack {
                 Label("Terminés", systemImage: "checkmark.circle.fill")
                 Spacer()
@@ -299,6 +307,7 @@ class ProfileViewModel: ObservableObject {
     @Published var profile: UserProfile?
     @Published var stats: UserStats?
     @Published var visibilitySettings: ProfileVisibilitySettings?  // PHASE 5, Task 5.3
+    @Published var libraryCount: Int = 0  // PHASE 6, Task 6.1: Reading list count
     @Published var isAuthenticated = false
     @Published var showError = false
     @Published var errorMessage: String?
@@ -339,6 +348,10 @@ class ProfileViewModel: ObservableObject {
 
             visibilitySettings = try await visibilityTask
             print("🟢 Visibility settings loaded")
+
+            // PHASE 6, Task 6.1: Load library count from CoreData
+            libraryCount = CoreDataManager.shared.getLibraryMangaCount()
+            print("📚 Library count loaded: \(libraryCount)")
         } catch {
             print("🔴 Error loading profile: \(error)")
             print("🔴 Error type: \(type(of: error))")

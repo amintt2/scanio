@@ -458,6 +458,7 @@ struct YouTubeCommentRow: View {
     @State private var userVote: Int? = nil
     @State private var score: Int
     @State private var showRepliesSheet = false
+    @State private var showUserProfile = false  // PHASE 5, Task 5.4
 
     init(comment: Comment, canonicalMangaId: String, chapterNumber: String, onDelete: @escaping () -> Void) {
         self.comment = comment
@@ -471,28 +472,38 @@ struct YouTubeCommentRow: View {
         VStack(alignment: .leading, spacing: 10) {
             // Header: Avatar + User Info + Menu
             HStack(alignment: .top, spacing: 10) {
-                // Avatar (smaller)
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [Color.blue.opacity(0.6), Color.blue.opacity(0.4)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
+                // Avatar (smaller) - PHASE 5, Task 5.4: Clickable
+                Button {
+                    showUserProfile = true
+                } label: {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.blue.opacity(0.6), Color.blue.opacity(0.4)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
                         )
-                    )
-                    .frame(width: 32, height: 32)
-                    .overlay(
-                        Text(comment.userName?.prefix(1).uppercased() ?? "?")
-                            .font(.caption.weight(.semibold))
-                            .foregroundColor(.white)
-                    )
+                        .frame(width: 32, height: 32)
+                        .overlay(
+                            Text(comment.userName?.prefix(1).uppercased() ?? "?")
+                                .font(.caption.weight(.semibold))
+                                .foregroundColor(.white)
+                        )
+                }
+                .buttonStyle(.plain)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    // Username + Time
+                    // Username + Time - PHASE 5, Task 5.4: Clickable username
                     HStack(spacing: 6) {
-                        Text(comment.userName ?? "Anonyme")
-                            .font(.caption.weight(.semibold))
-                            .foregroundColor(.primary)
+                        Button {
+                            showUserProfile = true
+                        } label: {
+                            Text(comment.userName ?? "Anonyme")
+                                .font(.caption.weight(.semibold))
+                                .foregroundColor(.primary)
+                        }
+                        .buttonStyle(.plain)
 
                         Text("• \(timeAgoString(from: comment.createdAt))")
                             .font(.caption2)
@@ -566,6 +577,10 @@ struct YouTubeCommentRow: View {
                 canonicalMangaId: canonicalMangaId,
                 chapterNumber: chapterNumber
             )
+        }
+        // PHASE 5, Task 5.4: User profile sheet
+        .sheet(isPresented: $showUserProfile) {
+            UserProfileSheet(userId: comment.userId)
         }
     }
 

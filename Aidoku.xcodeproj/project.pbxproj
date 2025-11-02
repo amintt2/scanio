@@ -19,6 +19,10 @@
 		1EBF58E02EB6CD070045EE05 /* SupabaseManager+Rankings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58DE2EB6CD070045EE05 /* SupabaseManager+Rankings.swift */; };
 		B4E1CE93AF4E44C3BE88938E /* SupabaseManager+ProfileVisibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43829DA5962D43A9A690AD6F /* SupabaseManager+ProfileVisibility.swift */; };
 		146A91397EB54387A631FB8D /* SupabaseManager+ProfileVisibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43829DA5962D43A9A690AD6F /* SupabaseManager+ProfileVisibility.swift */; };
+		FE604AF1596A4F159C76B976 /* SyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABC2E8FA74F477AB4A63E0E /* SyncManager.swift */; };
+		0ABC2E8FA74F477AB4A63E0F /* SyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABC2E8FA74F477AB4A63E0E /* SyncManager.swift */; };
+		FE170C7468094B0EA438AF5C /* UserProfileSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B2A1CB259B94028BD78A7A1 /* UserProfileSheet.swift */; };
+		C01FECA7696C43048E49DC1A /* PublicProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 676F26C560AE4A648A4A9AED /* PublicProfileView.swift */; };
 		1EBF58E22EB6CD420045EE05 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E12EB6CD420045EE05 /* UserProfile.swift */; };
 		1EBF58E32EB6CD420045EE05 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E12EB6CD420045EE05 /* UserProfile.swift */; };
 		1EBF58EA2EB6CDEC0045EE05 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E92EB6CDEC0045EE05 /* SignUpView.swift */; };
@@ -565,6 +569,9 @@
 		1EBF58DC2EB6BA460045EE05 /* CommentsFeatureStubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsFeatureStubs.swift; sourceTree = "<group>"; };
 		1EBF58DE2EB6CD070045EE05 /* SupabaseManager+Rankings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SupabaseManager+Rankings.swift"; sourceTree = "<group>"; };
 		43829DA5962D43A9A690AD6F /* SupabaseManager+ProfileVisibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SupabaseManager+ProfileVisibility.swift"; sourceTree = "<group>"; };
+		0ABC2E8FA74F477AB4A63E0E /* SyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncManager.swift; sourceTree = "<group>"; };
+		7B2A1CB259B94028BD78A7A1 /* UserProfileSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileSheet.swift; sourceTree = "<group>"; };
+		676F26C560AE4A648A4A9AED /* PublicProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicProfileView.swift; sourceTree = "<group>"; };
 		1EBF58E12EB6CD420045EE05 /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
 		1EBF58E42EB6CDEC0045EE05 /* EditProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileView.swift; sourceTree = "<group>"; };
 		1EBF58E52EB6CDEC0045EE05 /* PersonalRankingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalRankingsView.swift; sourceTree = "<group>"; };
@@ -1735,6 +1742,7 @@
 				FB3DDF7C2E134F8100A64897 /* Reader */,
 				FBAED4072E3A6BBF00B81E74 /* History */,
 				FB7984152E0C9F4D000761A9 /* Settings */,
+				7B2A1CB259B94028 /* Profile */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1874,6 +1882,15 @@
 				FB5E5D002E32BFC300843E27 /* TapZonesSelectView.swift */,
 			);
 			path = Settings;
+			sourceTree = "<group>";
+		};
+		7B2A1CB259B94028 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				7B2A1CB259B94028BD78A7A1 /* UserProfileSheet.swift */,
+				676F26C560AE4A648A4A9AED /* PublicProfileView.swift */,
+			);
+			path = Profile;
 			sourceTree = "<group>";
 		};
 		FB7984162E0CA4FA000761A9 /* Upscaling */ = {
@@ -2061,6 +2078,7 @@
 				1EBF58F62EB6D1F80045EE05 /* SupabaseManager.swift */,
 				1EBF58DE2EB6CD070045EE05 /* SupabaseManager+Rankings.swift */,
 				43829DA5962D43A9A690AD6F /* SupabaseManager+ProfileVisibility.swift */,
+				0ABC2E8FA74F477AB4A63E0E /* SyncManager.swift */,
 				FB0CAA6728A9B5AC0024561A /* Manga */,
 				FB0CAA4A28A2AD2E0024561A /* CoreData */,
 			);
@@ -2541,6 +2559,9 @@
 				FB2BE5E329527A6E00FAD8A7 /* ReaderInfoPageView.swift in Sources */,
 				1EBF58DF2EB6CD070045EE05 /* SupabaseManager+Rankings.swift in Sources */,
 				B4E1CE93AF4E44C3BE88938E /* SupabaseManager+ProfileVisibility.swift in Sources */,
+				FE604AF1596A4F159C76B976 /* SyncManager.swift in Sources */,
+				FE170C7468094B0EA438AF5C /* UserProfileSheet.swift in Sources */,
+				C01FECA7696C43048E49DC1A /* PublicProfileView.swift in Sources */,
 				723D3AFD2E0DC5C4003ED4CF /* DownloadManagerView.swift in Sources */,
 				723D3AFE2E0DC5C4003ED4CF /* MangaDownloadDetailView.swift in Sources */,
 				FB67EE6327F3D2E300C468EA /* WasmAidoku.swift in Sources */,
@@ -2853,6 +2874,7 @@
 				FB1B4867277CE76B0056D02C /* Chapter.swift in Sources */,
 				1EBF58E02EB6CD070045EE05 /* SupabaseManager+Rankings.swift in Sources */,
 				146A91397EB54387A631FB8D /* SupabaseManager+ProfileVisibility.swift in Sources */,
+				0ABC2E8FA74F477AB4A63E0F /* SyncManager.swift in Sources */,
 				FB14B12A2DF4D20F0067E4D4 /* AidokuRunner.swift in Sources */,
 				FB63D5012E38124E004FF4DC /* EditedKeys.swift in Sources */,
 				FBA748A12E81C0D200D9BE86 /* BangumiTracker.swift in Sources */,

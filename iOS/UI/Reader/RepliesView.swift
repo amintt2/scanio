@@ -249,6 +249,7 @@ struct ReplyRow: View {
 
     @State private var userVote: Int? = nil
     @State private var score: Int
+    @State private var showUserProfile = false  // PHASE 5, Task 5.4
 
     init(reply: Comment, onDelete: @escaping () -> Void) {
         self.reply = reply
@@ -264,25 +265,35 @@ struct ReplyRow: View {
                 .padding(.leading, 20)
 
             VStack(alignment: .leading, spacing: 8) {
-                // Header
+                // Header - PHASE 5, Task 5.4: Clickable avatar and username
                 HStack(spacing: 8) {
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [Color.orange.opacity(0.6), Color.orange.opacity(0.4)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
+                    Button {
+                        showUserProfile = true
+                    } label: {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [Color.orange.opacity(0.6), Color.orange.opacity(0.4)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
                             )
-                        )
-                        .frame(width: 28, height: 28)
-                        .overlay(
-                            Text(reply.userName?.prefix(1).uppercased() ?? "?")
-                                .font(.caption2.weight(.semibold))
-                                .foregroundColor(.white)
-                        )
+                            .frame(width: 28, height: 28)
+                            .overlay(
+                                Text(reply.userName?.prefix(1).uppercased() ?? "?")
+                                    .font(.caption2.weight(.semibold))
+                                    .foregroundColor(.white)
+                            )
+                    }
+                    .buttonStyle(.plain)
 
-                    Text(reply.userName ?? "Anonyme")
-                        .font(.caption.weight(.semibold))
+                    Button {
+                        showUserProfile = true
+                    } label: {
+                        Text(reply.userName ?? "Anonyme")
+                            .font(.caption.weight(.semibold))
+                    }
+                    .buttonStyle(.plain)
 
                     Text("• \(timeAgoString(from: reply.createdAt))")
                         .font(.caption2)
@@ -331,6 +342,10 @@ struct ReplyRow: View {
         .padding(.vertical, 12)
         .onAppear {
             loadUserVote()
+        }
+        // PHASE 5, Task 5.4: User profile sheet
+        .sheet(isPresented: $showUserProfile) {
+            UserProfileSheet(userId: reply.userId)
         }
     }
 
