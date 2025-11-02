@@ -21,6 +21,7 @@ extension SupabaseManager {
         \(supabaseURL)/rest/v1/scanio_chapter_comments_with_users?\
         canonical_manga_id=eq.\(canonicalMangaId)&\
         chapter_number=eq.\(chapterNumber)&\
+        parent_comment_id=is.null&\
         order=score.desc,created_at.desc&\
         limit=\(limit)&\
         offset=\(offset)
@@ -43,6 +44,45 @@ extension SupabaseManager {
         let (data, response) = try await URLSession.shared.data(for: request)
 
         print("🔵 Comments response: \(String(data: data, encoding: .utf8) ?? "")")
+
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            throw SupabaseError.networkError
+        }
+
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return try decoder.decode([Comment].self, from: data)
+    }
+
+    // MARK: - Fetch Replies
+
+    func fetchReplies(
+        canonicalMangaId: String,
+        chapterNumber: String,
+        parentCommentId: String
+    ) async throws -> [Comment] {
+        let urlString = """
+        \(supabaseURL)/rest/v1/scanio_chapter_comments_with_users?\
+        canonical_manga_id=eq.\(canonicalMangaId)&\
+        chapter_number=eq.\(chapterNumber)&\
+        parent_comment_id=eq.\(parentCommentId)&\
+        order=created_at.asc
+        """
+
+        guard let url = URL(string: urlString) else {
+            throw SupabaseError.invalidResponse
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
+        if let token = currentSession?.accessToken {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+
+        let (data, response) = try await URLSession.shared.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse,
               (200...299).contains(httpResponse.statusCode) else {

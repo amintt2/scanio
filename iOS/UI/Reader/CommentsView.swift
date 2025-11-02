@@ -147,8 +147,8 @@ struct CommentsView: View {
                     .fill(
                         LinearGradient(
                             colors: [
-                                Color.accentColor.opacity(0.2),
-                                Color.accentColor.opacity(0.1)
+                                Color.blue.opacity(0.2),
+                                Color.blue.opacity(0.1)
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
@@ -160,7 +160,7 @@ struct CommentsView: View {
                     .font(.system(size: 40))
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [.accentColor, .accentColor.opacity(0.7)],
+                            colors: [.blue, .blue.opacity(0.7)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
@@ -184,21 +184,29 @@ struct CommentsView: View {
 
     private var commentsList: some View {
         ScrollView {
-            LazyVStack(spacing: 12) {
-                ForEach(comments) { comment in
-                    ModernCommentRow(
-                        comment: comment,
-                        onReply: { replyingTo = comment },
-                        onDelete: { deleteComment(comment) }
-                    )
+            LazyVStack(spacing: 0) {
+                ForEach(comments.filter { $0.parentCommentId == nil }) { comment in
+                    VStack(spacing: 0) {
+                        YouTubeCommentRow(
+                            comment: comment,
+                            canonicalMangaId: canonicalMangaId ?? "",
+                            chapterNumber: chapter.chapterNumber.map { String(format: "%.1f", $0) } ?? "0",
+                            onDelete: { deleteComment(comment) }
+                        )
+
+                        // Subtle divider
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.15))
+                            .frame(height: 0.5)
+                            .padding(.leading, 52)
+                    }
                     .transition(.asymmetric(
-                        insertion: .scale.combined(with: .opacity),
+                        insertion: .opacity.combined(with: .move(edge: .top)),
                         removal: .opacity
                     ))
                 }
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 12)
         }
     }
 
@@ -208,7 +216,7 @@ struct CommentsView: View {
         HStack(spacing: 12) {
             Image(systemName: "arrowshape.turn.up.left.fill")
                 .font(.caption)
-                .foregroundStyle(.accentColor)
+                .foregroundColor(.blue)
 
             Text("Répondre à ")
                 .font(.caption.weight(.medium))
@@ -216,7 +224,7 @@ struct CommentsView: View {
             +
             Text(comment.userName ?? "Anonyme")
                 .font(.caption.weight(.semibold))
-                .foregroundColor(.accentColor)
+                .foregroundColor(.blue)
 
             Spacer()
 
@@ -285,7 +293,12 @@ struct CommentsView: View {
                 )
 
                 // Send button
-                Button(action: postComment) {
+                Button(action: {
+                    print("🟡 Send button tapped!")
+                    print("🟡 Text: '\(newCommentText)'")
+                    print("🟡 Is disabled: \(newCommentText.isEmpty || isLoading)")
+                    postComment()
+                }) {
                     ZStack {
                         Circle()
                             .fill(
@@ -310,7 +323,9 @@ struct CommentsView: View {
             .padding(.vertical, 12)
             .background(
                 ZStack {
-                    .ultraThinMaterial
+                    Color(uiColor: .systemBackground)
+                        .opacity(0.8)
+                        .background(.ultraThinMaterial)
 
                     LinearGradient(
                         colors: [
@@ -326,27 +341,39 @@ struct CommentsView: View {
     }
 
     private func loadComments() {
+        print("🟢 loadComments called")
+        print("🟢 Manga title: \(manga.title)")
+        print("🟢 Manga sourceKey: \(manga.sourceKey)")
+        print("🟢 Manga key: \(manga.key)")
+
         isLoading = true
         errorMessage = nil
 
         Task {
             do {
+                print("🟢 Getting or creating canonical manga...")
                 // Get or create canonical manga
                 let canonicalId = try await SupabaseManager.shared.getOrCreateCanonicalManga(
                     title: manga.title,
                     sourceId: manga.sourceKey,
                     mangaId: manga.key
                 )
+                print("🟢 Got canonical ID: \(canonicalId)")
                 canonicalMangaId = canonicalId
+                print("🟢 Set canonicalMangaId to: \(canonicalMangaId ?? "nil")")
 
                 // Fetch comments using canonical manga ID and chapter number
                 let chapterNumber = chapter.chapterNumber.map { String(format: "%.1f", $0) } ?? "0"
+                print("🟢 Fetching comments for chapter: \(chapterNumber)")
                 comments = try await SupabaseManager.shared.fetchComments(
                     canonicalMangaId: canonicalId,
                     chapterNumber: chapterNumber
                 )
+                print("🟢 Fetched \(comments.count) comments")
                 isLoading = false
             } catch {
+                print("🔴 Error loading comments: \(error)")
+                print("🔴 Error localized: \(error.localizedDescription)")
                 errorMessage = error.localizedDescription
                 isLoading = false
             }
@@ -354,8 +381,17 @@ struct CommentsView: View {
     }
 
     private func postComment() {
-        guard !newCommentText.isEmpty else { return }
+        print("🟢 postComment called")
+        print("🟢 newCommentText: '\(newCommentText)'")
+        print("🟢 canonicalMangaId: \(canonicalMangaId ?? "nil")")
+
+        guard !newCommentText.isEmpty else {
+            print("🔴 Text is empty, returning")
+            return
+        }
+
         guard let canonicalId = canonicalMangaId else {
+            print("🔴 No canonical manga ID")
             errorMessage = "Impossible de créer un commentaire pour le moment"
             return
         }
@@ -364,18 +400,35 @@ struct CommentsView: View {
         newCommentText = ""
         errorMessage = nil
 
+        print("🟢 Starting Task to create comment")
+        print("🟢 Content: '\(content)'")
+        print("🟢 Canonical ID: \(canonicalId)")
+        print("🟢 Reply to: \(replyingTo?.id ?? "nil")")
+
         Task {
             do {
                 let chapterNumber = chapter.chapterNumber.map { String(format: "%.1f", $0) } ?? "0"
+                print("🟢 Chapter number: \(chapterNumber)")
+                print("🟢 Calling SupabaseManager.createComment...")
+
                 let newComment = try await SupabaseManager.shared.createComment(
                     canonicalMangaId: canonicalId,
                     chapterNumber: chapterNumber,
                     content: content,
                     parentCommentId: replyingTo?.id
                 )
-                comments.insert(newComment, at: 0)
+
+                print("🟢 Comment created successfully: \(newComment.id)")
+
+                // Only add to list if it's a top-level comment (no parent)
+                if newComment.parentCommentId == nil {
+                    comments.insert(newComment, at: 0)
+                }
+
                 replyingTo = nil
             } catch {
+                print("🔴 Error creating comment: \(error)")
+                print("🔴 Error localized: \(error.localizedDescription)")
                 errorMessage = error.localizedDescription
                 newCommentText = content // Restore text on error
             }
@@ -394,163 +447,133 @@ struct CommentsView: View {
     }
 }
 
-// MARK: - Modern Comment Row
+// MARK: - YouTube-Style Comment Row
 
-struct ModernCommentRow: View {
+struct YouTubeCommentRow: View {
     let comment: Comment
-    let onReply: () -> Void
+    let canonicalMangaId: String
+    let chapterNumber: String
     let onDelete: () -> Void
 
-    @State private var userVote: Int? // -1 = downvote, 1 = upvote, nil = no vote
+    @State private var userVote: Int? = nil
     @State private var score: Int
+    @State private var showRepliesSheet = false
 
-    init(comment: Comment, onReply: @escaping () -> Void, onDelete: @escaping () -> Void) {
+    init(comment: Comment, canonicalMangaId: String, chapterNumber: String, onDelete: @escaping () -> Void) {
         self.comment = comment
-        self.onReply = onReply
+        self.canonicalMangaId = canonicalMangaId
+        self.chapterNumber = chapterNumber
         self.onDelete = onDelete
         self._score = State(initialValue: comment.score)
     }
 
     var body: some View {
-        GlassCard(padding: 16, cornerRadius: 16, shadowRadius: 5) {
-            VStack(alignment: .leading, spacing: 12) {
-                // Header: Avatar + User Info
-                HStack(spacing: 12) {
-                    SmallGlassAvatar(
-                        imageURL: comment.userAvatar.flatMap { URL(string: $0) },
-                        initials: comment.userName?.prefix(1).uppercased().description ?? "?",
-                        size: 44
+        VStack(alignment: .leading, spacing: 10) {
+            // Header: Avatar + User Info + Menu
+            HStack(alignment: .top, spacing: 10) {
+                // Avatar (smaller)
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.blue.opacity(0.6), Color.blue.opacity(0.4)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 32, height: 32)
+                    .overlay(
+                        Text(comment.userName?.prefix(1).uppercased() ?? "?")
+                            .font(.caption.weight(.semibold))
+                            .foregroundColor(.white)
                     )
 
-                    VStack(alignment: .leading, spacing: 2) {
-                        HStack(spacing: 6) {
-                            Text(comment.userName ?? "Anonyme")
-                                .font(.subheadline.weight(.semibold))
-                                .foregroundColor(.primary)
+                VStack(alignment: .leading, spacing: 4) {
+                    // Username + Time
+                    HStack(spacing: 6) {
+                        Text(comment.userName ?? "Anonyme")
+                            .font(.caption.weight(.semibold))
+                            .foregroundColor(.primary)
 
-                            if let karma = comment.userKarma, karma > 0 {
-                                HStack(spacing: 3) {
-                                    Image(systemName: "star.fill")
-                                        .font(.system(size: 10))
-                                    Text("\(karma)")
-                                        .font(.caption2.weight(.medium))
-                                }
-                                .foregroundStyle(
-                                    LinearGradient(
-                                        colors: [.orange, .orange.opacity(0.7)],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(
-                                    Capsule()
-                                        .fill(Color.orange.opacity(0.1))
-                                )
-                            }
-                        }
-
-                        Text(timeAgoString(from: comment.createdAt))
-                            .font(.caption)
+                        Text("• \(timeAgoString(from: comment.createdAt))")
+                            .font(.caption2)
                             .foregroundColor(.secondary)
                     }
 
-                    Spacer()
+                    // Rich content with expansion
+                    RichTextView(text: comment.content, maxLines: 4)
 
-                    // Delete button (only for own comments)
-                    if comment.userId == SupabaseManager.shared.currentUser?.id {
-                        Button(action: onDelete) {
-                            Image(systemName: "trash.fill")
-                                .font(.caption)
-                                .foregroundStyle(
-                                    LinearGradient(
-                                        colors: [.red, .red.opacity(0.7)],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
-                                .padding(8)
-                                .background(
-                                    Circle()
-                                        .fill(Color.red.opacity(0.1))
-                                )
+                    // Actions bar
+                    HStack(spacing: 16) {
+                        // Vote buttons (compact)
+                        HStack(spacing: 8) {
+                            Button(action: { vote(1) }) {
+                                Image(systemName: userVote == 1 ? "hand.thumbsup.fill" : "hand.thumbsup")
+                                    .font(.caption)
+                                    .foregroundColor(userVote == 1 ? .orange : .secondary)
+                            }
+
+                            Text(formatScore(score))
+                                .font(.caption2.weight(.medium))
+                                .foregroundColor(.secondary)
+                                .frame(minWidth: 20)
+
+                            Button(action: { vote(-1) }) {
+                                Image(systemName: userVote == -1 ? "hand.thumbsdown.fill" : "hand.thumbsdown")
+                                    .font(.caption)
+                                    .foregroundColor(userVote == -1 ? .blue : .secondary)
+                            }
                         }
-                    }
-                }
 
-                // Comment content
-                Text(comment.content)
-                    .font(.body)
-                    .foregroundColor(.primary)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                GlassDivider()
-                    .padding(.vertical, 4)
-
-                // Actions
-                HStack(spacing: 16) {
-                    // Upvote/Downvote
-                    HStack(spacing: 12) {
-                        Button(action: { vote(1) }) {
+                        // Reply/View Replies button
+                        Button(action: { showRepliesSheet = true }) {
                             HStack(spacing: 4) {
-                                Image(systemName: userVote == 1 ? "arrow.up.circle.fill" : "arrow.up.circle")
-                                    .font(.body)
+                                Image(systemName: "bubble.left")
+                                    .font(.caption)
+                                if comment.repliesCount > 0 {
+                                    Text("\(comment.repliesCount) réponse\(comment.repliesCount > 1 ? "s" : "") >")
+                                        .font(.caption.weight(.medium))
+                                } else {
+                                    Text("Répondre")
+                                        .font(.caption.weight(.medium))
+                                }
                             }
-                            .foregroundStyle(
-                                userVote == 1 ?
-                                LinearGradient(colors: [.orange, .orange.opacity(0.7)], startPoint: .topLeading, endPoint: .bottomTrailing) :
-                                LinearGradient(colors: [.secondary, .secondary.opacity(0.7)], startPoint: .topLeading, endPoint: .bottomTrailing)
-                            )
+                            .foregroundColor(.secondary)
                         }
-                        .buttonStyle(ScaleButtonStyle())
 
-                        Text("\(score)")
-                            .font(.callout.weight(.semibold))
-                            .foregroundColor(
-                                userVote == 1 ? .orange :
-                                userVote == -1 ? .blue :
-                                .secondary
-                            )
-                            .frame(minWidth: 24)
-                            .animation(.spring(response: 0.3), value: score)
+                        Spacer()
 
-                        Button(action: { vote(-1) }) {
-                            HStack(spacing: 4) {
-                                Image(systemName: userVote == -1 ? "arrow.down.circle.fill" : "arrow.down.circle")
-                                    .font(.body)
+                        // Delete button (only for own comments)
+                        if comment.userId == SupabaseManager.shared.currentUser?.id {
+                            Button(action: onDelete) {
+                                Image(systemName: "trash")
+                                    .font(.caption)
+                                    .foregroundColor(.red)
                             }
-                            .foregroundStyle(
-                                userVote == -1 ?
-                                LinearGradient(colors: [.blue, .blue.opacity(0.7)], startPoint: .topLeading, endPoint: .bottomTrailing) :
-                                LinearGradient(colors: [.secondary, .secondary.opacity(0.7)], startPoint: .topLeading, endPoint: .bottomTrailing)
-                            )
                         }
-                        .buttonStyle(ScaleButtonStyle())
                     }
-
-                    // Reply button
-                    Button(action: onReply) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "bubble.left.fill")
-                                .font(.body)
-                            if comment.repliesCount > 0 {
-                                Text("\(comment.repliesCount)")
-                                    .font(.callout.weight(.medium))
-                            }
-                        }
-                        .foregroundColor(.secondary)
-                    }
-                    .buttonStyle(ScaleButtonStyle())
-
-                    Spacer()
+                    .padding(.top, 4)
                 }
             }
         }
+        .padding(.vertical, 12)
         .task {
             // Load user's vote status
             userVote = try? await SupabaseManager.shared.getUserVote(commentId: comment.id)
         }
+        .sheet(isPresented: $showRepliesSheet) {
+            RepliesView(
+                parentComment: comment,
+                canonicalMangaId: canonicalMangaId,
+                chapterNumber: chapterNumber
+            )
+        }
+    }
+
+    private func formatScore(_ score: Int) -> String {
+        if score >= 1000 {
+            return String(format: "%.1fk", Double(score) / 1000.0)
+        }
+        return "\(score)"
     }
 
     private func vote(_ voteType: Int) {

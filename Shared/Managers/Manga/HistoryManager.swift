@@ -39,6 +39,17 @@ extension HistoryManager {
                 progress: .init(completed: false, page: progress)
             )
         }
+
+        // Sync to Supabase if authenticated
+        if SupabaseManager.shared.isAuthenticated {
+            await syncProgressToSupabase(
+                chapter: chapter,
+                progress: progress,
+                totalPages: totalPages ?? 0,
+                completed: completed
+            )
+        }
+
         NotificationCenter.default.post(name: .historySet, object: (chapter, progress))
     }
 
@@ -88,6 +99,18 @@ extension HistoryManager {
                 progress: .init(completed: true, page: 0)
             )
         }
+
+        // Sync to Supabase if authenticated
+        if SupabaseManager.shared.isAuthenticated {
+            for chapter in chapters {
+                await syncCompletedToSupabase(
+                    sourceId: sourceId,
+                    mangaId: mangaId,
+                    chapter: chapter
+                )
+            }
+        }
+
         NotificationCenter.default.post(
             name: .historyAdded,
             object: chapters.map { $0.toOld(sourceId: sourceId, mangaId: mangaId) }

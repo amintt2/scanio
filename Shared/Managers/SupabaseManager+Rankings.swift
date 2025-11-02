@@ -150,34 +150,58 @@ extension SupabaseManager {
     // MARK: - Helper: Get or Create Canonical Manga
     
     func getOrCreateCanonicalManga(title: String, sourceId: String, mangaId: String) async throws -> String {
-        guard isAuthenticated else { throw SupabaseError.notAuthenticated }
-        
+        print("🔵 getOrCreateCanonicalManga called")
+        print("🔵 Title: \(title)")
+        print("🔵 Source ID: \(sourceId)")
+        print("🔵 Manga ID: \(mangaId)")
+        print("🔵 Is authenticated: \(isAuthenticated)")
+
+        guard isAuthenticated else {
+            print("🔴 Not authenticated!")
+            throw SupabaseError.notAuthenticated
+        }
+
         let url = URL(string: "\(supabaseURL)/rest/v1/rpc/scanio_get_or_create_canonical_manga")!
+        print("🔵 URL: \(url)")
+
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
         request.setValue("Bearer \(currentSession?.accessToken ?? "")", forHTTPHeaderField: "Authorization")
-        
+
         let body: [String: String] = [
             "p_title": title,
             "p_source_id": sourceId,
             "p_manga_id": mangaId
         ]
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
-        
+
+        print("🔵 Request body: \(String(data: request.httpBody ?? Data(), encoding: .utf8) ?? "")")
+
         let (data, response) = try await URLSession.shared.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse,
-              (200...299).contains(httpResponse.statusCode) else {
+
+        print("🔵 Response data: \(String(data: data, encoding: .utf8) ?? "")")
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            print("🔴 Invalid HTTP response")
             throw SupabaseError.networkError
         }
-        
+
+        print("🔵 HTTP Status code: \(httpResponse.statusCode)")
+
+        guard (200...299).contains(httpResponse.statusCode) else {
+            print("🔴 HTTP error: \(httpResponse.statusCode)")
+            throw SupabaseError.networkError
+        }
+
         // The RPC returns a UUID string
         guard let canonicalId = String(data: data, encoding: .utf8)?.trimmingCharacters(in: CharacterSet(charactersIn: "\"")) else {
+            print("🔴 Failed to parse canonical ID from response")
             throw SupabaseError.invalidResponse
         }
-        
+
+        print("🔵 Canonical ID: \(canonicalId)")
         return canonicalId
     }
 }
