@@ -9,8 +9,21 @@ import SwiftUI
 
 struct ProfileSettingsView: View {
     @StateObject private var viewModel = ProfileViewModel()
-    @State private var showingSignUp = false
-    @State private var showingSignIn = false
+
+    // Use enum to ensure only one sheet is shown at a time
+    enum AuthSheet: Identifiable {
+        case signUp
+        case signIn
+
+        var id: Int {
+            switch self {
+            case .signUp: return 0
+            case .signIn: return 1
+            }
+        }
+    }
+
+    @State private var activeAuthSheet: AuthSheet?
     
     var body: some View {
         List {
@@ -19,6 +32,7 @@ struct ProfileSettingsView: View {
                 profileSection
                 statsSection
                 privacySection
+                visibilitySection  // PHASE 5, Task 5.3
                 accountSection
             } else {
                 // Not authenticated view
@@ -27,13 +41,13 @@ struct ProfileSettingsView: View {
         }
         .navigationTitle("Profil")
         .navigationBarTitleDisplayMode(.inline)
-        .sheet(isPresented: $showingSignUp) {
-            print("🟢 Sheet SignUpView ouverte")
-            return SignUpView(viewModel: viewModel)
-        }
-        .sheet(isPresented: $showingSignIn) {
-            print("🔵 Sheet SignInView ouverte")
-            return SignInView(viewModel: viewModel)
+        .sheet(item: $activeAuthSheet) { sheet in
+            switch sheet {
+            case .signUp:
+                SignUpView(viewModel: viewModel)
+            case .signIn:
+                SignInView(viewModel: viewModel)
+            }
         }
         .task {
             await viewModel.loadProfile()
@@ -61,9 +75,7 @@ struct ProfileSettingsView: View {
                         .multilineTextAlignment(.center)
 
                     Button {
-                        print("🟢 Bouton 'Créer un compte' cliqué")
-                        showingSignUp = true
-                        print("🟢 showingSignUp = \(showingSignUp)")
+                        activeAuthSheet = .signUp
                     } label: {
                         Text("Créer un compte")
                             .frame(maxWidth: .infinity)
@@ -74,9 +86,7 @@ struct ProfileSettingsView: View {
                     }
 
                     Button {
-                        print("🔵 Bouton 'Se connecter' cliqué")
-                        showingSignIn = true
-                        print("🔵 showingSignIn = \(showingSignIn)")
+                        activeAuthSheet = .signIn
                     } label: {
                         Text("Se connecter")
                             .frame(maxWidth: .infinity)
@@ -216,7 +226,7 @@ struct ProfileSettingsView: View {
     }
     
     // MARK: - Privacy Section
-    
+
     private var privacySection: some View {
         Section {
             Toggle("Profil public", isOn: Binding(
@@ -233,7 +243,44 @@ struct ProfileSettingsView: View {
             Text("Si votre profil est public, les autres utilisateurs pourront voir votre classement personnel et vos statistiques.")
         }
     }
-    
+
+    // MARK: - Visibility Section (PHASE 5, Task 5.3)
+
+    private var visibilitySection: some View {
+        Section {
+            Toggle("Afficher l'historique", isOn: Binding(
+                get: { viewModel.visibilitySettings?.showHistory ?? true },
+                set: { newValue in
+                    Task {
+                        await viewModel.updateVisibility(showHistory: newValue)
+                    }
+                }
+            ))
+
+            Toggle("Afficher le classement", isOn: Binding(
+                get: { viewModel.visibilitySettings?.showRankings ?? true },
+                set: { newValue in
+                    Task {
+                        await viewModel.updateVisibility(showRankings: newValue)
+                    }
+                }
+            ))
+
+            Toggle("Afficher les statistiques", isOn: Binding(
+                get: { viewModel.visibilitySettings?.showStats ?? true },
+                set: { newValue in
+                    Task {
+                        await viewModel.updateVisibility(showStats: newValue)
+                    }
+                }
+            ))
+        } header: {
+            Text("Visibilité du profil")
+        } footer: {
+            Text("Choisissez ce que les autres utilisateurs peuvent voir sur votre profil public")
+        }
+    }
+
     // MARK: - Account Section
     
     private var accountSection: some View {
@@ -251,13 +298,14 @@ struct ProfileSettingsView: View {
 class ProfileViewModel: ObservableObject {
     @Published var profile: UserProfile?
     @Published var stats: UserStats?
+    @Published var visibilitySettings: ProfileVisibilitySettings?  // PHASE 5, Task 5.3
     @Published var isAuthenticated = false
     @Published var showError = false
     @Published var errorMessage: String?
     @Published var isLoading = false
-    
+
     private let supabase = SupabaseManager.shared
-    
+
     init() {
         isAuthenticated = supabase.isAuthenticated
     }
@@ -278,15 +326,19 @@ class ProfileViewModel: ObservableObject {
         isLoading = true
 
         do {
-            print("🟢 Fetching profile and stats...")
+            print("🟢 Fetching profile, stats, and visibility settings...")
             async let profileTask = supabase.fetchProfile()
             async let statsTask = supabase.fetchUserStats()
+            async let visibilityTask = supabase.fetchProfileVisibilitySettings()
 
             profile = try await profileTask
             print("🟢 Profile loaded: \(profile?.userName ?? "nil")")
 
             stats = try await statsTask
             print("🟢 Stats loaded: karma=\(stats?.karma ?? 0)")
+
+            visibilitySettings = try await visibilityTask
+            print("🟢 Visibility settings loaded")
         } catch {
             print("🔴 Error loading profile: \(error)")
             print("🔴 Error type: \(type(of: error))")
@@ -331,7 +383,21 @@ class ProfileViewModel: ObservableObject {
             showError = true
         }
     }
-    
+
+    // PHASE 5, Task 5.3: Update visibility settings
+    func updateVisibility(showHistory: Bool? = nil, showRankings: Bool? = nil, showStats: Bool? = nil) async {
+        do {
+            visibilitySettings = try await supabase.updateProfileVisibilitySettings(
+                showHistory: showHistory,
+                showRankings: showRankings,
+                showStats: showStats
+            )
+        } catch {
+            errorMessage = error.localizedDescription
+            showError = true
+        }
+    }
+
     func signOut() {
         supabase.signOut()
         isAuthenticated = false

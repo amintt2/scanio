@@ -172,12 +172,12 @@ struct PersonalRankingWithManga: Codable, Identifiable {
     let userId: String
     let canonicalMangaId: String
     let mangaTitle: String
-    let rankPosition: Int
-    let personalRating: Int?
-    let notes: String?
+    var rankPosition: Int  // Task 4.2: Made mutable for drag & drop reordering
+    var personalRating: Int?  // Task 4.3: Made mutable for editing
+    var notes: String?  // Task 4.3: Made mutable for editing
     let isFavorite: Bool
     let readingStatus: ReadingStatus
-    
+
     enum CodingKeys: String, CodingKey {
         case id
         case userId = "user_id"
@@ -188,6 +188,23 @@ struct PersonalRankingWithManga: Codable, Identifiable {
         case notes
         case isFavorite = "is_favorite"
         case readingStatus = "reading_status"
+    }
+}
+
+// MARK: - Profile Visibility Settings (PHASE 5, Task 5.2)
+struct ProfileVisibilitySettings: Codable {
+    let userId: String
+    var showHistory: Bool
+    var showRankings: Bool
+    var showStats: Bool
+    let updatedAt: Date?
+
+    enum CodingKeys: String, CodingKey {
+        case userId = "user_id"
+        case showHistory = "show_history"
+        case showRankings = "show_rankings"
+        case showStats = "show_stats"
+        case updatedAt = "updated_at"
     }
 }
 

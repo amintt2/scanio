@@ -17,18 +17,22 @@
 		1EBF58DD2EB6BA460045EE05 /* CommentsFeatureStubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58DC2EB6BA460045EE05 /* CommentsFeatureStubs.swift */; };
 		1EBF58DF2EB6CD070045EE05 /* SupabaseManager+Rankings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58DE2EB6CD070045EE05 /* SupabaseManager+Rankings.swift */; };
 		1EBF58E02EB6CD070045EE05 /* SupabaseManager+Rankings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58DE2EB6CD070045EE05 /* SupabaseManager+Rankings.swift */; };
+		B4E1CE93AF4E44C3BE88938E /* SupabaseManager+ProfileVisibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43829DA5962D43A9A690AD6F /* SupabaseManager+ProfileVisibility.swift */; };
+		146A91397EB54387A631FB8D /* SupabaseManager+ProfileVisibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43829DA5962D43A9A690AD6F /* SupabaseManager+ProfileVisibility.swift */; };
 		1EBF58E22EB6CD420045EE05 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E12EB6CD420045EE05 /* UserProfile.swift */; };
 		1EBF58E32EB6CD420045EE05 /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E12EB6CD420045EE05 /* UserProfile.swift */; };
 		1EBF58EA2EB6CDEC0045EE05 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E92EB6CDEC0045EE05 /* SignUpView.swift */; };
 		1EBF58EB2EB6CDEC0045EE05 /* ProfileSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E62EB6CDEC0045EE05 /* ProfileSettingsView.swift */; };
 		1EBF58EC2EB6CDEC0045EE05 /* EditProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E42EB6CDEC0045EE05 /* EditProfileView.swift */; };
 		1EBF58ED2EB6CDEC0045EE05 /* PersonalRankingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E52EB6CDEC0045EE05 /* PersonalRankingsView.swift */; };
+		A2BC8CFA3080490A8395D6FA /* EditRankingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D4126F31A424F9799302EBC /* EditRankingView.swift */; };
 		1EBF58EE2EB6CDEC0045EE05 /* ReadingHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E72EB6CDEC0045EE05 /* ReadingHistoryView.swift */; };
 		1EBF58EF2EB6CDEC0045EE05 /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E82EB6CDEC0045EE05 /* SignInView.swift */; };
 		1EBF58F02EB6CDEC0045EE05 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E92EB6CDEC0045EE05 /* SignUpView.swift */; };
 		1EBF58F12EB6CDEC0045EE05 /* ProfileSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E62EB6CDEC0045EE05 /* ProfileSettingsView.swift */; };
 		1EBF58F22EB6CDEC0045EE05 /* EditProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E42EB6CDEC0045EE05 /* EditProfileView.swift */; };
 		1EBF58F32EB6CDEC0045EE05 /* PersonalRankingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E52EB6CDEC0045EE05 /* PersonalRankingsView.swift */; };
+		FB92BC637F7F43D78E64775D /* EditRankingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D4126F31A424F9799302EBC /* EditRankingView.swift */; };
 		1EBF58F42EB6CDEC0045EE05 /* ReadingHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E72EB6CDEC0045EE05 /* ReadingHistoryView.swift */; };
 		1EBF58F52EB6CDEC0045EE05 /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58E82EB6CDEC0045EE05 /* SignInView.swift */; };
 		1EBF58F72EB6D1F80045EE05 /* SupabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EBF58F62EB6D1F80045EE05 /* SupabaseManager.swift */; };
@@ -560,9 +564,11 @@
 		0C807DDC27D47C2D0042EE7B /* CircularProgressView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CircularProgressView.swift; sourceTree = "<group>"; };
 		1EBF58DC2EB6BA460045EE05 /* CommentsFeatureStubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsFeatureStubs.swift; sourceTree = "<group>"; };
 		1EBF58DE2EB6CD070045EE05 /* SupabaseManager+Rankings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SupabaseManager+Rankings.swift"; sourceTree = "<group>"; };
+		43829DA5962D43A9A690AD6F /* SupabaseManager+ProfileVisibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SupabaseManager+ProfileVisibility.swift"; sourceTree = "<group>"; };
 		1EBF58E12EB6CD420045EE05 /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
 		1EBF58E42EB6CDEC0045EE05 /* EditProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileView.swift; sourceTree = "<group>"; };
 		1EBF58E52EB6CDEC0045EE05 /* PersonalRankingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalRankingsView.swift; sourceTree = "<group>"; };
+		0D4126F31A424F9799302EBC /* EditRankingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditRankingView.swift; sourceTree = "<group>"; };
 		1EBF58E62EB6CDEC0045EE05 /* ProfileSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSettingsView.swift; sourceTree = "<group>"; };
 		1EBF58E72EB6CDEC0045EE05 /* ReadingHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingHistoryView.swift; sourceTree = "<group>"; };
 		1EBF58E82EB6CDEC0045EE05 /* SignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInView.swift; sourceTree = "<group>"; };
@@ -1849,6 +1855,7 @@
 			isa = PBXGroup;
 			children = (
 				1EBF58E42EB6CDEC0045EE05 /* EditProfileView.swift */,
+				0D4126F31A424F9799302EBC /* EditRankingView.swift */,
 				1EBF58E52EB6CDEC0045EE05 /* PersonalRankingsView.swift */,
 				1EBF58E62EB6CDEC0045EE05 /* ProfileSettingsView.swift */,
 				1EBF58E72EB6CDEC0045EE05 /* ReadingHistoryView.swift */,
@@ -2053,6 +2060,7 @@
 				1EED89572EB77C2D00DF56D7 /* SupabaseConfig.swift */,
 				1EBF58F62EB6D1F80045EE05 /* SupabaseManager.swift */,
 				1EBF58DE2EB6CD070045EE05 /* SupabaseManager+Rankings.swift */,
+				43829DA5962D43A9A690AD6F /* SupabaseManager+ProfileVisibility.swift */,
 				FB0CAA6728A9B5AC0024561A /* Manga */,
 				FB0CAA4A28A2AD2E0024561A /* CoreData */,
 			);
@@ -2532,6 +2540,7 @@
 				FB72502827CC06AA0037F1C9 /* SegmentTableViewCell.swift in Sources */,
 				FB2BE5E329527A6E00FAD8A7 /* ReaderInfoPageView.swift in Sources */,
 				1EBF58DF2EB6CD070045EE05 /* SupabaseManager+Rankings.swift in Sources */,
+				B4E1CE93AF4E44C3BE88938E /* SupabaseManager+ProfileVisibility.swift in Sources */,
 				723D3AFD2E0DC5C4003ED4CF /* DownloadManagerView.swift in Sources */,
 				723D3AFE2E0DC5C4003ED4CF /* MangaDownloadDetailView.swift in Sources */,
 				FB67EE6327F3D2E300C468EA /* WasmAidoku.swift in Sources */,
@@ -2636,6 +2645,7 @@
 				1EBF58F02EB6CDEC0045EE05 /* SignUpView.swift in Sources */,
 				1EBF58F12EB6CDEC0045EE05 /* ProfileSettingsView.swift in Sources */,
 				1EBF58F22EB6CDEC0045EE05 /* EditProfileView.swift in Sources */,
+				A2BC8CFA3080490A8395D6FA /* EditRankingView.swift in Sources */,
 				1EBF58F32EB6CDEC0045EE05 /* PersonalRankingsView.swift in Sources */,
 				1EBF58F42EB6CDEC0045EE05 /* ReadingHistoryView.swift in Sources */,
 				1EBF58F52EB6CDEC0045EE05 /* SignInView.swift in Sources */,
@@ -2799,6 +2809,7 @@
 				1EBF58EA2EB6CDEC0045EE05 /* SignUpView.swift in Sources */,
 				1EBF58EB2EB6CDEC0045EE05 /* ProfileSettingsView.swift in Sources */,
 				1EBF58EC2EB6CDEC0045EE05 /* EditProfileView.swift in Sources */,
+				FB92BC637F7F43D78E64775D /* EditRankingView.swift in Sources */,
 				1EBF58ED2EB6CDEC0045EE05 /* PersonalRankingsView.swift in Sources */,
 				1EBF58EE2EB6CDEC0045EE05 /* ReadingHistoryView.swift in Sources */,
 				1EED89692EB78D9000DF56D7 /* GlassTextField.swift in Sources */,
@@ -2841,6 +2852,7 @@
 				FB7B7ED5278CE692001E6EAF /* Source.swift in Sources */,
 				FB1B4867277CE76B0056D02C /* Chapter.swift in Sources */,
 				1EBF58E02EB6CD070045EE05 /* SupabaseManager+Rankings.swift in Sources */,
+				146A91397EB54387A631FB8D /* SupabaseManager+ProfileVisibility.swift in Sources */,
 				FB14B12A2DF4D20F0067E4D4 /* AidokuRunner.swift in Sources */,
 				FB63D5012E38124E004FF4DC /* EditedKeys.swift in Sources */,
 				FBA748A12E81C0D200D9BE86 /* BangumiTracker.swift in Sources */,

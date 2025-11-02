@@ -130,17 +130,72 @@ extension SupabaseManager {
         return try decoder.decode([PersonalRankingWithManga].self, from: data)
     }
     
+    func updateRankPosition(rankingId: String, newPosition: Int) async throws {
+        guard isAuthenticated else { throw SupabaseError.notAuthenticated }
+
+        let url = URL(string: "\(supabaseURL)/rest/v1/scanio_personal_rankings?id=eq.\(rankingId)")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "PATCH"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
+        request.setValue("Bearer \(currentSession?.accessToken ?? "")", forHTTPHeaderField: "Authorization")
+
+        let body: [String: Any] = ["rank_position": newPosition]
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (_, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            print("❌ updateRankPosition failed with status: \((response as? HTTPURLResponse)?.statusCode ?? -1)")
+            throw SupabaseError.networkError
+        }
+    }
+
+    func updateRankingDetails(rankingId: String, rating: Int?, notes: String?) async throws {
+        guard isAuthenticated else { throw SupabaseError.notAuthenticated }
+
+        let url = URL(string: "\(supabaseURL)/rest/v1/scanio_personal_rankings?id=eq.\(rankingId)")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "PATCH"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
+        request.setValue("Bearer \(currentSession?.accessToken ?? "")", forHTTPHeaderField: "Authorization")
+
+        var body: [String: Any] = [:]
+        if let rating = rating {
+            body["personal_rating"] = rating
+        } else {
+            body["personal_rating"] = NSNull()
+        }
+        if let notes = notes {
+            body["notes"] = notes
+        } else {
+            body["notes"] = NSNull()
+        }
+
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (_, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            print("❌ updateRankingDetails failed with status: \((response as? HTTPURLResponse)?.statusCode ?? -1)")
+            throw SupabaseError.networkError
+        }
+    }
+
     func deletePersonalRanking(rankingId: String) async throws {
         guard isAuthenticated else { throw SupabaseError.notAuthenticated }
-        
+
         let url = URL(string: "\(supabaseURL)/rest/v1/scanio_personal_rankings?id=eq.\(rankingId)")!
         var request = URLRequest(url: url)
         request.httpMethod = "DELETE"
         request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
         request.setValue("Bearer \(currentSession?.accessToken ?? "")", forHTTPHeaderField: "Authorization")
-        
+
         let (_, response) = try await URLSession.shared.data(for: request)
-        
+
         guard let httpResponse = response as? HTTPURLResponse,
               (200...299).contains(httpResponse.statusCode) else {
             throw SupabaseError.networkError

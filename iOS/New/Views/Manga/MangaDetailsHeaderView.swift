@@ -46,6 +46,8 @@ struct MangaDetailsHeaderView: View {
     @State private var longHeldBookmark = false
     @State private var longHeldSafari = false
     @State private var isTracking = false
+    @State private var isFavorite = false  // Task 3.3: Track favorite status
+    @State private var canonicalMangaId: String?  // Task 3.3: Store canonical manga ID
 
     static let coverWidth: CGFloat = 114
 
@@ -243,6 +245,12 @@ struct MangaDetailsHeaderView: View {
         .onAppear {
             updateReadButtonText()
         }
+        .task {
+            // Task 3.3: Load favorite status when view appears
+            if SupabaseManager.shared.isAuthenticated {
+                await loadCanonicalMangaId()
+            }
+        }
     }
 
     @ViewBuilder
@@ -307,6 +315,18 @@ struct MangaDetailsHeaderView: View {
                         }
                     }
             )
+
+            // Task 3.3: Favorite button
+            if SupabaseManager.shared.isAuthenticated {
+                Button {
+                    Task {
+                        await toggleFavorite()
+                    }
+                } label: {
+                    Image(systemName: isFavorite ? "heart.fill" : "heart")
+                }
+                .buttonStyle(MangaActionButtonStyle(selected: isFavorite))
+            }
 
             if TrackerManager.shared.hasAvailableTrackers(sourceKey: manga.sourceKey, mangaKey: manga.key) {
                 Button {
@@ -417,6 +437,79 @@ struct MangaDetailsHeaderView: View {
                     chapters: manga.chapters ?? []
                 )
             }
+        }
+    }
+
+    // Task 3.3: Toggle favorite status
+    func toggleFavorite() async {
+        print("❤️ toggleFavorite called - Current state: \(isFavorite)")
+
+        // Ensure we have canonical manga ID
+        if canonicalMangaId == nil {
+            print("❤️ No canonical manga ID, fetching...")
+            await loadCanonicalMangaId()
+        }
+
+        guard let canonicalId = canonicalMangaId else {
+            print("❤️ Failed to get canonical manga ID")
+            return
+        }
+
+        print("❤️ Using canonical ID: \(canonicalId)")
+
+        do {
+            if isFavorite {
+                // Remove from favorites by setting is_favorite to false
+                print("❤️ Removing from favorites...")
+                _ = try await SupabaseManager.shared.upsertPersonalRanking(
+                    canonicalMangaId: canonicalId,
+                    isFavorite: false
+                )
+                isFavorite = false
+                print("✅ Removed from favorites")
+            } else {
+                // Add to favorites - no rank position by default
+                print("❤️ Adding to favorites...")
+
+                _ = try await SupabaseManager.shared.upsertPersonalRanking(
+                    canonicalMangaId: canonicalId,
+                    rankPosition: 1,  // Default position, will be updated if user reorders
+                    isFavorite: true
+                )
+                isFavorite = true
+                print("✅ Added to favorites")
+            }
+        } catch {
+            print("❌ Error toggling favorite: \(error)")
+        }
+    }
+
+    // Task 3.3: Load canonical manga ID and favorite status
+    func loadCanonicalMangaId() async {
+        print("🔍 loadCanonicalMangaId called")
+        print("🔍 Manga: \(manga.title ?? "Unknown")")
+        print("🔍 Source: \(manga.sourceKey), ID: \(manga.key)")
+
+        do {
+            let canonicalId = try await SupabaseManager.shared.getOrCreateCanonicalManga(
+                title: manga.title ?? "Unknown",
+                sourceId: manga.sourceKey,
+                mangaId: manga.key
+            )
+            canonicalMangaId = canonicalId
+            print("✅ Got canonical ID: \(canonicalId)")
+
+            // Check if it's already a favorite
+            let rankings = try await SupabaseManager.shared.fetchPersonalRankings(limit: 1000)
+            if let ranking = rankings.first(where: { $0.canonicalMangaId == canonicalId }) {
+                isFavorite = ranking.isFavorite
+                print("✅ Favorite status: \(isFavorite)")
+            } else {
+                isFavorite = false
+                print("✅ Not in rankings, favorite = false")
+            }
+        } catch {
+            print("❌ Error loading canonical manga ID: \(error)")
         }
     }
 

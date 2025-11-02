@@ -1,10 +1,13 @@
 -- ============================================================================
--- PHASE 2 - Task 2.1: Add total_comments to user stats
+-- PHASE 3 - Task 3.4: Update favorites counter in user stats
 -- ============================================================================
--- This adds the "Nombre de commentaires" stat to the user profile
+-- This updates the scanio_get_user_stats function to count favorites correctly
+-- from scanio_personal_rankings table where is_favorite = true
 --
--- Execute this SQL in your Supabase SQL Editor AFTER running supabase_fix_user_stats_function.sql
+-- Execute this SQL in your Supabase SQL Editor
 -- ============================================================================
+
+DROP FUNCTION IF EXISTS scanio_get_user_stats(uuid);
 
 CREATE OR REPLACE FUNCTION scanio_get_user_stats(p_user_id UUID)
 RETURNS TABLE (
@@ -14,7 +17,7 @@ RETURNS TABLE (
     total_completed INTEGER,
     total_reading INTEGER,
     total_plan_to_read INTEGER,
-    total_comments INTEGER,  -- NEW: Added for Task 2.1
+    total_comments INTEGER,
     karma INTEGER,
     is_public BOOLEAN
 ) AS $$
@@ -23,7 +26,7 @@ BEGIN
     SELECT 
         -- Count distinct chapters from reading_history
         COALESCE((
-            SELECT COUNT(DISTINCT chapter_id)::INTEGER 
+            SELECT COUNT(DISTINCT chapter_number)::INTEGER 
             FROM public.scanio_reading_history 
             WHERE user_id = p_user_id
         ), 0) as total_chapters_read,
@@ -35,7 +38,7 @@ BEGIN
             WHERE user_id = p_user_id
         ), 0) as total_manga_read,
         
-        -- Count favorites from personal_rankings
+        -- Count favorites from personal_rankings (UPDATED for Task 3.4)
         COALESCE((
             SELECT COUNT(*)::INTEGER 
             FROM public.scanio_personal_rankings 
@@ -63,10 +66,10 @@ BEGIN
             WHERE user_id = p_user_id AND reading_status = 'plan_to_read'
         ), 0) as total_plan_to_read,
         
-        -- NEW: Count total comments posted by user (Task 2.1)
+        -- Count total comments posted by user
         COALESCE((
-            SELECT COUNT(*)::INTEGER
-            FROM public.scanio_chapter_comments
+            SELECT COUNT(*)::INTEGER 
+            FROM public.scanio_chapter_comments 
             WHERE user_id = p_user_id
         ), 0) as total_comments,
         
