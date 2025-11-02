@@ -2,7 +2,7 @@
 //  CommentsView.swift
 //  Scanio
 //
-//  SwiftUI view for displaying chapter comments
+//  SwiftUI view for displaying chapter comments with Liquid Glass design
 //
 
 import SwiftUI
@@ -22,119 +22,306 @@ struct CommentsView: View {
     @State private var canonicalMangaId: String?
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Header with liquid glass effect
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Commentaires")
-                        .font(.headline)
-                        .fontWeight(.semibold)
-
-                    Text("\(comments.count) commentaire\(comments.count > 1 ? "s" : "")")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-
-                Spacer()
-
-                Button(action: {
-                    dismiss()
-                }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.title2)
-                        .foregroundColor(.secondary)
-                        .symbolRenderingMode(.hierarchical)
-                }
-            }
-            .padding()
-            .background(
-                .ultraThinMaterial,
-                in: RoundedRectangle(cornerRadius: 0)
+        ZStack {
+            // Beautiful gradient background
+            LinearGradient(
+                colors: [
+                    Color(uiColor: .systemBackground),
+                    Color.accentColor.opacity(0.05)
+                ],
+                startPoint: .top,
+                endPoint: .bottom
             )
+            .ignoresSafeArea()
 
-            Divider()
+            VStack(spacing: 0) {
+                // Modern header with glass effect
+                headerView
 
-            // Comments list
-            if isLoading && comments.isEmpty {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if comments.isEmpty {
-                VStack(spacing: 12) {
-                    Image(systemName: "bubble.left.and.bubble.right")
-                        .font(.system(size: 48))
-                        .foregroundColor(.secondary)
-                    Text("Aucun commentaire")
-                        .font(.headline)
-                        .foregroundColor(.secondary)
-                    Text("Soyez le premier à commenter ce chapitre")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+                // Comments content
+                commentsContent
+
+                // Reply indicator
+                if let replyingTo {
+                    replyIndicator(for: replyingTo)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else {
-                ScrollView {
-                    LazyVStack(spacing: 0) {
-                        ForEach(comments) { comment in
-                            CommentRowView(
-                                comment: comment,
-                                onReply: { replyingTo = comment },
-                                onDelete: { deleteComment(comment) }
-                            )
-                            Divider()
-                                .padding(.leading, 60)
-                        }
-                    }
-                }
-            }
 
-            // Error message
-            if let errorMessage {
-                Text(errorMessage)
-                    .font(.caption)
-                    .foregroundColor(.red)
-                    .padding(.horizontal)
-                    .padding(.top, 8)
+                // Modern input field
+                inputField
             }
-
-            // Reply indicator
-            if let replyingTo {
-                HStack {
-                    Text("Répondre à \(replyingTo.userName ?? "Anonyme")")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Spacer()
-                    Button("Annuler") {
-                        self.replyingTo = nil
-                    }
-                    .font(.caption)
-                }
-                .padding(.horizontal)
-                .padding(.vertical, 8)
-                .background(Color(UIColor.secondarySystemBackground))
-            }
-
-            // Input field with liquid glass effect
-            HStack(spacing: 12) {
-                TextField("Ajouter un commentaire...", text: $newCommentText, axis: .vertical)
-                    .textFieldStyle(.roundedBorder)
-                    .lineLimit(1...4)
-
-                Button(action: postComment) {
-                    Image(systemName: "arrow.up.circle.fill")
-                        .font(.title2)
-                        .foregroundColor(newCommentText.isEmpty ? .secondary : .accentColor)
-                        .symbolRenderingMode(.hierarchical)
-                }
-                .disabled(newCommentText.isEmpty || isLoading)
-            }
-            .padding()
-            .background(
-                .ultraThinMaterial,
-                in: RoundedRectangle(cornerRadius: 0)
-            )
         }
         .onAppear {
             loadComments()
+        }
+    }
+
+    // MARK: - Header View
+
+    private var headerView: some View {
+        HStack(spacing: 16) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Commentaires")
+                    .font(.title2.weight(.bold))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [.primary, .primary.opacity(0.8)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+
+                HStack(spacing: 6) {
+                    Image(systemName: "bubble.left.and.bubble.right.fill")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    Text("\(comments.count) commentaire\(comments.count > 1 ? "s" : "")")
+                        .font(.caption.weight(.medium))
+                        .foregroundColor(.secondary)
+                }
+            }
+
+            Spacer()
+
+            Button(action: { dismiss() }) {
+                ZStack {
+                    Circle()
+                        .fill(.ultraThinMaterial)
+                        .frame(width: 36, height: 36)
+
+                    Image(systemName: "xmark")
+                        .font(.body.weight(.semibold))
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 16)
+        .background(
+            ZStack {
+                Color(uiColor: .systemBackground)
+                    .opacity(0.8)
+                    .background(.ultraThinMaterial)
+
+                LinearGradient(
+                    colors: [
+                        Color.white.opacity(0.1),
+                        Color.white.opacity(0.0)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            }
+        )
+    }
+
+    // MARK: - Comments Content
+
+    private var commentsContent: some View {
+        Group {
+            if isLoading && comments.isEmpty {
+                loadingView
+            } else if comments.isEmpty {
+                emptyStateView
+            } else {
+                commentsList
+            }
+        }
+    }
+
+    private var loadingView: some View {
+        VStack(spacing: 16) {
+            ProgressView()
+                .scaleEffect(1.2)
+            Text("Chargement...")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var emptyStateView: some View {
+        VStack(spacing: 20) {
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color.accentColor.opacity(0.2),
+                                Color.accentColor.opacity(0.1)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 100, height: 100)
+
+                Image(systemName: "bubble.left.and.bubble.right")
+                    .font(.system(size: 40))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [.accentColor, .accentColor.opacity(0.7)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+            }
+
+            VStack(spacing: 8) {
+                Text("Aucun commentaire")
+                    .font(.title3.weight(.semibold))
+                    .foregroundColor(.primary)
+
+                Text("Soyez le premier à commenter ce chapitre")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
+    }
+
+    private var commentsList: some View {
+        ScrollView {
+            LazyVStack(spacing: 12) {
+                ForEach(comments) { comment in
+                    ModernCommentRow(
+                        comment: comment,
+                        onReply: { replyingTo = comment },
+                        onDelete: { deleteComment(comment) }
+                    )
+                    .transition(.asymmetric(
+                        insertion: .scale.combined(with: .opacity),
+                        removal: .opacity
+                    ))
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+        }
+    }
+
+    // MARK: - Reply Indicator
+
+    private func replyIndicator(for comment: Comment) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "arrowshape.turn.up.left.fill")
+                .font(.caption)
+                .foregroundStyle(.accentColor)
+
+            Text("Répondre à ")
+                .font(.caption.weight(.medium))
+                .foregroundColor(.secondary)
+            +
+            Text(comment.userName ?? "Anonyme")
+                .font(.caption.weight(.semibold))
+                .foregroundColor(.accentColor)
+
+            Spacer()
+
+            Button(action: { replyingTo = nil }) {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.body)
+                    .foregroundColor(.secondary)
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 12)
+        .background(
+            GlassCard(padding: 0, cornerRadius: 0) {
+                Color.clear
+            }
+        )
+        .transition(.move(edge: .bottom).combined(with: .opacity))
+    }
+
+    // MARK: - Input Field
+
+    private var inputField: some View {
+        VStack(spacing: 0) {
+            // Error message
+            if let errorMessage {
+                HStack(spacing: 8) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(.caption)
+                    Text(errorMessage)
+                        .font(.caption.weight(.medium))
+                }
+                .foregroundColor(.red)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 8)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.red.opacity(0.1))
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+
+            HStack(spacing: 12) {
+                // Text input
+                HStack(spacing: 8) {
+                    TextField("Ajouter un commentaire...", text: $newCommentText, axis: .vertical)
+                        .lineLimit(1...4)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+                }
+                .background(
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(.ultraThinMaterial)
+
+                        RoundedRectangle(cornerRadius: 20)
+                            .strokeBorder(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(0.3),
+                                        Color.white.opacity(0.1)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 1
+                            )
+                    }
+                )
+
+                // Send button
+                Button(action: postComment) {
+                    ZStack {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: newCommentText.isEmpty ? [Color.gray.opacity(0.3), Color.gray.opacity(0.2)] : [Color.accentColor, Color.accentColor.opacity(0.8)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 44, height: 44)
+
+                        Image(systemName: "arrow.up")
+                            .font(.body.weight(.semibold))
+                            .foregroundColor(.white)
+                    }
+                    .shadow(color: newCommentText.isEmpty ? .clear : Color.accentColor.opacity(0.3), radius: 8, x: 0, y: 4)
+                }
+                .disabled(newCommentText.isEmpty || isLoading)
+                .buttonStyle(ScaleButtonStyle())
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 12)
+            .background(
+                ZStack {
+                    .ultraThinMaterial
+
+                    LinearGradient(
+                        colors: [
+                            Color.white.opacity(0.1),
+                            Color.white.opacity(0.0)
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                }
+            )
         }
     }
 
@@ -207,7 +394,9 @@ struct CommentsView: View {
     }
 }
 
-struct CommentRowView: View {
+// MARK: - Modern Comment Row
+
+struct ModernCommentRow: View {
     let comment: Comment
     let onReply: () -> Void
     let onDelete: () -> Void
@@ -223,79 +412,48 @@ struct CommentRowView: View {
     }
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            // Avatar
-            Circle()
-                .fill(Color.gray.opacity(0.3))
-                .frame(width: 40, height: 40)
-                .overlay(
-                    Text(comment.userName?.prefix(1).uppercased() ?? "?")
-                        .font(.headline)
-                        .foregroundColor(.white)
-                )
+        GlassCard(padding: 16, cornerRadius: 16, shadowRadius: 5) {
+            VStack(alignment: .leading, spacing: 12) {
+                // Header: Avatar + User Info
+                HStack(spacing: 12) {
+                    SmallGlassAvatar(
+                        imageURL: comment.userAvatar.flatMap { URL(string: $0) },
+                        initials: comment.userName?.prefix(1).uppercased().description ?? "?",
+                        size: 44
+                    )
 
-            VStack(alignment: .leading, spacing: 4) {
-                // Username, karma, and time
-                HStack {
-                    Text(comment.userName ?? "Anonyme")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
+                    VStack(alignment: .leading, spacing: 2) {
+                        HStack(spacing: 6) {
+                            Text(comment.userName ?? "Anonyme")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundColor(.primary)
 
-                    if let karma = comment.userKarma {
-                        Text("(\(karma) karma)")
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
-                    }
-
-                    Text("• \(timeAgoString(from: comment.createdAt))")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-
-                    Spacer()
-                }
-
-                // Comment content
-                Text(comment.content)
-                    .font(.body)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                // Actions
-                HStack(spacing: 20) {
-                    // Upvote/Downvote buttons
-                    HStack(spacing: 8) {
-                        Button(action: { vote(1) }) {
-                            Image(systemName: userVote == 1 ? "arrow.up.circle.fill" : "arrow.up.circle")
-                                .font(.subheadline)
-                                .foregroundColor(userVote == 1 ? .orange : .secondary)
-                        }
-
-                        Text("\(score)")
-                            .font(.caption)
-                            .fontWeight(.semibold)
-                            .foregroundColor(
-                                userVote == 1 ? .orange :
-                                userVote == -1 ? .blue :
-                                .secondary
-                            )
-                            .frame(minWidth: 20)
-
-                        Button(action: { vote(-1) }) {
-                            Image(systemName: userVote == -1 ? "arrow.down.circle.fill" : "arrow.down.circle")
-                                .font(.subheadline)
-                                .foregroundColor(userVote == -1 ? .blue : .secondary)
-                        }
-                    }
-
-                    Button(action: onReply) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "bubble.left")
-                                .font(.subheadline)
-                            if comment.repliesCount > 0 {
-                                Text("\(comment.repliesCount)")
-                                    .font(.caption)
+                            if let karma = comment.userKarma, karma > 0 {
+                                HStack(spacing: 3) {
+                                    Image(systemName: "star.fill")
+                                        .font(.system(size: 10))
+                                    Text("\(karma)")
+                                        .font(.caption2.weight(.medium))
+                                }
+                                .foregroundStyle(
+                                    LinearGradient(
+                                        colors: [.orange, .orange.opacity(0.7)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(
+                                    Capsule()
+                                        .fill(Color.orange.opacity(0.1))
+                                )
                             }
                         }
-                        .foregroundColor(.secondary)
+
+                        Text(timeAgoString(from: comment.createdAt))
+                            .font(.caption)
+                            .foregroundColor(.secondary)
                     }
 
                     Spacer()
@@ -303,16 +461,92 @@ struct CommentRowView: View {
                     // Delete button (only for own comments)
                     if comment.userId == SupabaseManager.shared.currentUser?.id {
                         Button(action: onDelete) {
-                            Image(systemName: "trash")
-                                .font(.subheadline)
-                                .foregroundColor(.red)
+                            Image(systemName: "trash.fill")
+                                .font(.caption)
+                                .foregroundStyle(
+                                    LinearGradient(
+                                        colors: [.red, .red.opacity(0.7)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .padding(8)
+                                .background(
+                                    Circle()
+                                        .fill(Color.red.opacity(0.1))
+                                )
                         }
                     }
                 }
-                .padding(.top, 4)
+
+                // Comment content
+                Text(comment.content)
+                    .font(.body)
+                    .foregroundColor(.primary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                GlassDivider()
+                    .padding(.vertical, 4)
+
+                // Actions
+                HStack(spacing: 16) {
+                    // Upvote/Downvote
+                    HStack(spacing: 12) {
+                        Button(action: { vote(1) }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: userVote == 1 ? "arrow.up.circle.fill" : "arrow.up.circle")
+                                    .font(.body)
+                            }
+                            .foregroundStyle(
+                                userVote == 1 ?
+                                LinearGradient(colors: [.orange, .orange.opacity(0.7)], startPoint: .topLeading, endPoint: .bottomTrailing) :
+                                LinearGradient(colors: [.secondary, .secondary.opacity(0.7)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                            )
+                        }
+                        .buttonStyle(ScaleButtonStyle())
+
+                        Text("\(score)")
+                            .font(.callout.weight(.semibold))
+                            .foregroundColor(
+                                userVote == 1 ? .orange :
+                                userVote == -1 ? .blue :
+                                .secondary
+                            )
+                            .frame(minWidth: 24)
+                            .animation(.spring(response: 0.3), value: score)
+
+                        Button(action: { vote(-1) }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: userVote == -1 ? "arrow.down.circle.fill" : "arrow.down.circle")
+                                    .font(.body)
+                            }
+                            .foregroundStyle(
+                                userVote == -1 ?
+                                LinearGradient(colors: [.blue, .blue.opacity(0.7)], startPoint: .topLeading, endPoint: .bottomTrailing) :
+                                LinearGradient(colors: [.secondary, .secondary.opacity(0.7)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                            )
+                        }
+                        .buttonStyle(ScaleButtonStyle())
+                    }
+
+                    // Reply button
+                    Button(action: onReply) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "bubble.left.fill")
+                                .font(.body)
+                            if comment.repliesCount > 0 {
+                                Text("\(comment.repliesCount)")
+                                    .font(.callout.weight(.medium))
+                            }
+                        }
+                        .foregroundColor(.secondary)
+                    }
+                    .buttonStyle(ScaleButtonStyle())
+
+                    Spacer()
+                }
             }
         }
-        .padding()
         .task {
             // Load user's vote status
             userVote = try? await SupabaseManager.shared.getUserVote(commentId: comment.id)
@@ -325,19 +559,23 @@ struct CommentRowView: View {
                 if userVote == voteType {
                     // Remove vote if clicking same button
                     try await SupabaseManager.shared.removeVote(commentId: comment.id)
-                    score -= voteType
-                    userVote = nil
+                    withAnimation(.spring(response: 0.3)) {
+                        score -= voteType
+                        userVote = nil
+                    }
                 } else {
                     // Add or change vote
                     let previousVote = userVote
                     try await SupabaseManager.shared.voteComment(commentId: comment.id, voteType: voteType)
 
                     // Update score
-                    if let previous = previousVote {
-                        score -= previous // Remove previous vote effect
+                    withAnimation(.spring(response: 0.3)) {
+                        if let previous = previousVote {
+                            score -= previous // Remove previous vote effect
+                        }
+                        score += voteType // Add new vote effect
+                        userVote = voteType
                     }
-                    score += voteType // Add new vote effect
-                    userVote = voteType
                 }
             } catch {
                 print("Error voting: \(error)")

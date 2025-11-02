@@ -75,11 +75,13 @@ struct CreateCommentRequest: Codable {
     let chapterNumber: String
     let content: String
     let parentCommentId: String?
+    let userId: String
 
     enum CodingKeys: String, CodingKey {
         case canonicalMangaId = "canonical_manga_id"
         case chapterNumber = "chapter_number"
         case content
         case parentCommentId = "parent_comment_id"
+        case userId = "user_id"
     }
 }

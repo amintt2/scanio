@@ -226,8 +226,19 @@ class SupabaseManager {
 
     // MARK: - Reading History API
 
-    func upsertReadingHistory(_ request: UpsertReadingHistoryRequest) async throws {
-        guard isAuthenticated else { throw SupabaseError.notAuthenticated }
+    func upsertReadingHistory(
+        canonicalMangaId: String,
+        sourceId: String,
+        mangaId: String,
+        chapterNumber: String,
+        chapterTitle: String?,
+        pageNumber: Int,
+        totalPages: Int,
+        isCompleted: Bool
+    ) async throws {
+        guard isAuthenticated, let userId = currentSession?.user.id else {
+            throw SupabaseError.notAuthenticated
+        }
 
         let url = URL(string: "\(supabaseURL)/rest/v1/scanio_reading_history")!
         var urlRequest = URLRequest(url: url)
@@ -237,6 +248,17 @@ class SupabaseManager {
         urlRequest.setValue("Bearer \(currentSession?.accessToken ?? "")", forHTTPHeaderField: "Authorization")
         urlRequest.setValue("resolution=merge-duplicates", forHTTPHeaderField: "Prefer")
 
+        let request = UpsertReadingHistoryRequest(
+            userId: userId,
+            canonicalMangaId: canonicalMangaId,
+            sourceId: sourceId,
+            mangaId: mangaId,
+            chapterNumber: chapterNumber,
+            chapterTitle: chapterTitle,
+            pageNumber: pageNumber,
+            totalPages: totalPages,
+            isCompleted: isCompleted
+        )
         urlRequest.httpBody = try JSONEncoder().encode(request)
 
         let (_, response) = try await URLSession.shared.data(for: urlRequest)

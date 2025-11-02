@@ -62,7 +62,9 @@ extension SupabaseManager {
         content: String,
         parentCommentId: String? = nil
     ) async throws -> Comment {
-        guard isAuthenticated else { throw SupabaseError.notAuthenticated }
+        guard isAuthenticated, let userId = currentSession?.user.id else {
+            throw SupabaseError.notAuthenticated
+        }
 
         let url = URL(string: "\(supabaseURL)/rest/v1/scanio_chapter_comments")!
         var request = URLRequest(url: url)
@@ -76,7 +78,8 @@ extension SupabaseManager {
             canonicalMangaId: canonicalMangaId,
             chapterNumber: chapterNumber,
             content: content,
-            parentCommentId: parentCommentId
+            parentCommentId: parentCommentId,
+            userId: userId
         )
         request.httpBody = try JSONEncoder().encode(body)
 
@@ -127,7 +130,9 @@ extension SupabaseManager {
     // MARK: - Vote on Comment
 
     func voteComment(commentId: String, voteType: Int) async throws {
-        guard isAuthenticated else { throw SupabaseError.notAuthenticated }
+        guard isAuthenticated, let userId = currentSession?.user.id else {
+            throw SupabaseError.notAuthenticated
+        }
         guard voteType == 1 || voteType == -1 else {
             throw SupabaseError.invalidResponse
         }
@@ -142,11 +147,16 @@ extension SupabaseManager {
 
         let body: [String: Any] = [
             "comment_id": commentId,
+            "user_id": userId,
             "vote_type": voteType
         ]
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
-        let (_, response) = try await URLSession.shared.data(for: request)
+        print("🔵 Voting on comment: \(String(data: request.httpBody ?? Data(), encoding: .utf8) ?? "")")
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        print("🔵 Vote response: \(String(data: data, encoding: .utf8) ?? "")")
 
         guard let httpResponse = response as? HTTPURLResponse,
               (200...299).contains(httpResponse.statusCode) else {

@@ -19,7 +19,9 @@ extension SupabaseManager {
         isFavorite: Bool? = nil,
         readingStatus: ReadingStatus? = nil
     ) async throws -> PersonalRanking {
-        guard isAuthenticated else { throw SupabaseError.notAuthenticated }
+        guard isAuthenticated, let userId = currentSession?.user.id else {
+            throw SupabaseError.notAuthenticated
+        }
 
         let url = URL(string: "\(supabaseURL)/rest/v1/scanio_personal_rankings")!
         var request = URLRequest(url: url)
@@ -30,6 +32,7 @@ extension SupabaseManager {
         request.setValue("resolution=merge-duplicates,return=representation", forHTTPHeaderField: "Prefer")
 
         let body = UpsertPersonalRankingRequest(
+            userId: userId,
             canonicalMangaId: canonicalMangaId,
             rankPosition: rankPosition,
             personalRating: personalRating,

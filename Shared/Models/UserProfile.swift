@@ -250,6 +250,7 @@ struct UpdateProfileRequest: Codable {
 
 // MARK: - Create/Update Reading History Request
 struct UpsertReadingHistoryRequest: Codable {
+    let userId: String
     let canonicalMangaId: String
     let sourceId: String
     let mangaId: String
@@ -258,8 +259,9 @@ struct UpsertReadingHistoryRequest: Codable {
     let pageNumber: Int
     let totalPages: Int
     let isCompleted: Bool
-    
+
     enum CodingKeys: String, CodingKey {
+        case userId = "user_id"
         case canonicalMangaId = "canonical_manga_id"
         case sourceId = "source_id"
         case mangaId = "manga_id"
@@ -273,14 +275,16 @@ struct UpsertReadingHistoryRequest: Codable {
 
 // MARK: - Create/Update Personal Ranking Request
 struct UpsertPersonalRankingRequest: Codable {
+    let userId: String
     let canonicalMangaId: String
     let rankPosition: Int?
     let personalRating: Int?
     let notes: String?
     let isFavorite: Bool?
     let readingStatus: ReadingStatus?
-    
+
     enum CodingKeys: String, CodingKey {
+        case userId = "user_id"
         case canonicalMangaId = "canonical_manga_id"
         case rankPosition = "rank_position"
         case personalRating = "personal_rating"
