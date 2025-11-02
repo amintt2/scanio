@@ -87,9 +87,18 @@ struct SignUpView: View {
             } message: {
                 Text(errorMessage)
             }
+            .alert("Compte créé!", isPresented: $showSuccess) {
+                Button("OK") {
+                    dismiss()
+                }
+            } message: {
+                Text("Un email de confirmation a été envoyé à \(email). Vérifiez votre boîte mail et cliquez sur le lien pour activer votre compte.")
+            }
         }
     }
-    
+
+    @State private var showSuccess = false
+
     private var isFormValid: Bool {
         !email.isEmpty &&
         !password.isEmpty &&
@@ -98,21 +107,21 @@ struct SignUpView: View {
         password.count >= 8 &&
         email.contains("@")
     }
-    
+
     private func signUp() async {
         isLoading = true
-        
+
         do {
             _ = try await SupabaseManager.shared.signUp(
                 email: email,
                 password: password,
                 userName: userName
             )
-            
+
             // Success - show confirmation message
             await MainActor.run {
-                dismiss()
-                // TODO: Show success alert
+                isLoading = false
+                showSuccess = true
             }
         } catch {
             await MainActor.run {

@@ -6,9 +6,11 @@
 //
 
 import SwiftUI
+import AidokuRunner
 
 struct CommentsView: View {
-    let chapterId: String
+    let manga: AidokuRunner.Manga
+    let chapter: AidokuRunner.Chapter
 
     @Environment(\.dismiss) var dismiss
 
@@ -17,6 +19,7 @@ struct CommentsView: View {
     @State private var newCommentText = ""
     @State private var errorMessage: String?
     @State private var replyingTo: Comment?
+    @State private var canonicalMangaId: String?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -141,7 +144,20 @@ struct CommentsView: View {
 
         Task {
             do {
-                comments = try await SupabaseManager.shared.fetchComments(for: chapterId)
+                // Get or create canonical manga
+                let canonicalId = try await SupabaseManager.shared.getOrCreateCanonicalManga(
+                    title: manga.title,
+                    sourceId: manga.sourceKey,
+                    mangaId: manga.key
+                )
+                canonicalMangaId = canonicalId
+
+                // Fetch comments using canonical manga ID and chapter number
+                let chapterNumber = chapter.chapterNumber.map { String(format: "%.1f", $0) } ?? "0"
+                comments = try await SupabaseManager.shared.fetchComments(
+                    canonicalMangaId: canonicalId,
+                    chapterNumber: chapterNumber
+                )
                 isLoading = false
             } catch {
                 errorMessage = error.localizedDescription
@@ -152,6 +168,10 @@ struct CommentsView: View {
 
     private func postComment() {
         guard !newCommentText.isEmpty else { return }
+        guard let canonicalId = canonicalMangaId else {
+            errorMessage = "Impossible de créer un commentaire pour le moment"
+            return
+        }
 
         let content = newCommentText
         newCommentText = ""
@@ -159,8 +179,10 @@ struct CommentsView: View {
 
         Task {
             do {
+                let chapterNumber = chapter.chapterNumber.map { String(format: "%.1f", $0) } ?? "0"
                 let newComment = try await SupabaseManager.shared.createComment(
-                    chapterId: chapterId,
+                    canonicalMangaId: canonicalId,
+                    chapterNumber: chapterNumber,
                     content: content,
                     parentCommentId: replyingTo?.id
                 )
@@ -190,14 +212,14 @@ struct CommentRowView: View {
     let onReply: () -> Void
     let onDelete: () -> Void
 
-    @State private var isLiked = false
-    @State private var likesCount: Int
+    @State private var userVote: Int? // -1 = downvote, 1 = upvote, nil = no vote
+    @State private var score: Int
 
     init(comment: Comment, onReply: @escaping () -> Void, onDelete: @escaping () -> Void) {
         self.comment = comment
         self.onReply = onReply
         self.onDelete = onDelete
-        self._likesCount = State(initialValue: comment.likesCount)
+        self._score = State(initialValue: comment.score)
     }
 
     var body: some View {
@@ -213,11 +235,17 @@ struct CommentRowView: View {
                 )
 
             VStack(alignment: .leading, spacing: 4) {
-                // Username and time
+                // Username, karma, and time
                 HStack {
                     Text(comment.userName ?? "Anonyme")
                         .font(.subheadline)
                         .fontWeight(.semibold)
+
+                    if let karma = comment.userKarma {
+                        Text("(\(karma) karma)")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                    }
 
                     Text("• \(timeAgoString(from: comment.createdAt))")
                         .font(.caption)
@@ -233,16 +261,29 @@ struct CommentRowView: View {
 
                 // Actions
                 HStack(spacing: 20) {
-                    Button(action: toggleLike) {
-                        HStack(spacing: 4) {
-                            Image(systemName: isLiked ? "heart.fill" : "heart")
+                    // Upvote/Downvote buttons
+                    HStack(spacing: 8) {
+                        Button(action: { vote(1) }) {
+                            Image(systemName: userVote == 1 ? "arrow.up.circle.fill" : "arrow.up.circle")
                                 .font(.subheadline)
-                            if likesCount > 0 {
-                                Text("\(likesCount)")
-                                    .font(.caption)
-                            }
+                                .foregroundColor(userVote == 1 ? .orange : .secondary)
                         }
-                        .foregroundColor(isLiked ? .red : .secondary)
+
+                        Text("\(score)")
+                            .font(.caption)
+                            .fontWeight(.semibold)
+                            .foregroundColor(
+                                userVote == 1 ? .orange :
+                                userVote == -1 ? .blue :
+                                .secondary
+                            )
+                            .frame(minWidth: 20)
+
+                        Button(action: { vote(-1) }) {
+                            Image(systemName: userVote == -1 ? "arrow.down.circle.fill" : "arrow.down.circle")
+                                .font(.subheadline)
+                                .foregroundColor(userVote == -1 ? .blue : .secondary)
+                        }
                     }
 
                     Button(action: onReply) {
@@ -272,21 +313,34 @@ struct CommentRowView: View {
             }
         }
         .padding()
+        .task {
+            // Load user's vote status
+            userVote = try? await SupabaseManager.shared.getUserVote(commentId: comment.id)
+        }
     }
 
-    private func toggleLike() {
+    private func vote(_ voteType: Int) {
         Task {
             do {
-                if isLiked {
-                    try await SupabaseManager.shared.unlikeComment(commentId: comment.id)
-                    likesCount -= 1
+                if userVote == voteType {
+                    // Remove vote if clicking same button
+                    try await SupabaseManager.shared.removeVote(commentId: comment.id)
+                    score -= voteType
+                    userVote = nil
                 } else {
-                    try await SupabaseManager.shared.likeComment(commentId: comment.id)
-                    likesCount += 1
+                    // Add or change vote
+                    let previousVote = userVote
+                    try await SupabaseManager.shared.voteComment(commentId: comment.id, voteType: voteType)
+
+                    // Update score
+                    if let previous = previousVote {
+                        score -= previous // Remove previous vote effect
+                    }
+                    score += voteType // Add new vote effect
+                    userVote = voteType
                 }
-                isLiked.toggle()
             } catch {
-                // Handle error silently or show toast
+                print("Error voting: \(error)")
             }
         }
     }

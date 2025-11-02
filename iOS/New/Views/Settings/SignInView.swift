@@ -102,11 +102,15 @@ struct SignInView: View {
                 email: email,
                 password: password
             )
-            
+
             // Success - reload profile
-            await viewModel.loadProfile()
-            
             await MainActor.run {
+                viewModel.refreshAuthState()
+            }
+            await viewModel.loadProfile()
+
+            await MainActor.run {
+                isLoading = false
                 dismiss()
             }
         } catch {

@@ -66,16 +66,24 @@ class SupabaseManager {
         let body = SignUpRequest(email: email, password: password, userName: userName)
         request.httpBody = try JSONEncoder().encode(body)
 
+        print("🔵 SignUp URL: \(url)")
+        print("🔵 SignUp Body: \(String(data: request.httpBody ?? Data(), encoding: .utf8) ?? "")")
+
         let (data, response) = try await URLSession.shared.data(for: request)
+
+        print("🔵 Response Status: \((response as? HTTPURLResponse)?.statusCode ?? 0)")
+        print("🔵 Response: \(String(data: data, encoding: .utf8) ?? "")")
 
         guard let httpResponse = response as? HTTPURLResponse,
               (200...299).contains(httpResponse.statusCode) else {
+            print("❌ SignUp failed: HTTP \((response as? HTTPURLResponse)?.statusCode ?? 0)")
             throw SupabaseError.authenticationFailed
         }
 
-        let session = try JSONDecoder().decode(AuthSession.self, from: data)
-        saveSession(session)
-        return session.user
+        // SignUp returns only the user (no session until email is confirmed)
+        let user = try JSONDecoder().decode(SupabaseUser.self, from: data)
+        print("✅ SignUp successful! User: \(user.id), Email: \(user.email ?? "none")")
+        return user
     }
 
     func signIn(email: String, password: String) async throws -> SupabaseUser {
@@ -123,113 +131,7 @@ class SupabaseManager {
     }
 
     // MARK: - Comments API
-
-    func fetchComments(for chapterId: String, limit: Int = 50, offset: Int = 0) async throws -> [Comment] {
-        guard isAuthenticated else { throw SupabaseError.notAuthenticated }
-
-        let url = URL(string: "\(supabaseURL)/rest/v1/comments?chapter_id=eq.\(chapterId)&order=created_at.desc&limit=\(limit)&offset=\(offset)")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
-        request.setValue("Bearer \(currentSession?.accessToken ?? "")", forHTTPHeaderField: "Authorization")
-
-        let (data, response) = try await URLSession.shared.data(for: request)
-
-        guard let httpResponse = response as? HTTPURLResponse,
-              (200...299).contains(httpResponse.statusCode) else {
-            throw SupabaseError.networkError
-        }
-
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        return try decoder.decode([Comment].self, from: data)
-    }
-
-    func createComment(chapterId: String, content: String, parentCommentId: String? = nil) async throws -> Comment {
-        guard isAuthenticated else { throw SupabaseError.notAuthenticated }
-
-        let url = URL(string: "\(supabaseURL)/rest/v1/comments")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
-        request.setValue("Bearer \(currentSession?.accessToken ?? "")", forHTTPHeaderField: "Authorization")
-        request.setValue("return=representation", forHTTPHeaderField: "Prefer")
-
-        let body = CreateCommentRequest(chapterId: chapterId, content: content, parentCommentId: parentCommentId)
-        request.httpBody = try JSONEncoder().encode(body)
-
-        let (data, response) = try await URLSession.shared.data(for: request)
-
-        guard let httpResponse = response as? HTTPURLResponse,
-              (200...299).contains(httpResponse.statusCode) else {
-            throw SupabaseError.networkError
-        }
-
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        let comments = try decoder.decode([Comment].self, from: data)
-        guard let comment = comments.first else {
-            throw SupabaseError.invalidResponse
-        }
-        return comment
-    }
-
-    func deleteComment(commentId: String) async throws {
-        guard isAuthenticated else { throw SupabaseError.notAuthenticated }
-
-        let url = URL(string: "\(supabaseURL)/rest/v1/comments?id=eq.\(commentId)")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "DELETE"
-        request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
-        request.setValue("Bearer \(currentSession?.accessToken ?? "")", forHTTPHeaderField: "Authorization")
-
-        let (_, response) = try await URLSession.shared.data(for: request)
-
-        guard let httpResponse = response as? HTTPURLResponse,
-              (200...299).contains(httpResponse.statusCode) else {
-            throw SupabaseError.networkError
-        }
-    }
-
-    func likeComment(commentId: String) async throws {
-        guard isAuthenticated else { throw SupabaseError.notAuthenticated }
-
-        let url = URL(string: "\(supabaseURL)/rest/v1/comment_likes")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
-        request.setValue("Bearer \(currentSession?.accessToken ?? "")", forHTTPHeaderField: "Authorization")
-
-        let body = ["comment_id": commentId]
-        request.httpBody = try JSONSerialization.data(withJSONObject: body)
-
-        let (_, response) = try await URLSession.shared.data(for: request)
-
-        guard let httpResponse = response as? HTTPURLResponse,
-              (200...299).contains(httpResponse.statusCode) else {
-            throw SupabaseError.networkError
-        }
-    }
-
-    func unlikeComment(commentId: String) async throws {
-        guard isAuthenticated else { throw SupabaseError.notAuthenticated }
-
-        let url = URL(string: "\(supabaseURL)/rest/v1/comment_likes?comment_id=eq.\(commentId)")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "DELETE"
-        request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
-        request.setValue("Bearer \(currentSession?.accessToken ?? "")", forHTTPHeaderField: "Authorization")
-
-        let (_, response) = try await URLSession.shared.data(for: request)
-
-        guard let httpResponse = response as? HTTPURLResponse,
-              (200...299).contains(httpResponse.statusCode) else {
-            throw SupabaseError.networkError
-        }
-    }
+    // Moved to SupabaseManager+Comments.swift
 
     // MARK: - Profile API
 

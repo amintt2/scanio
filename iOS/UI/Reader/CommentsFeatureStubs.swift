@@ -38,25 +38,6 @@ struct AuthView: View {
     }
 }
 
-// MARK: - Placeholder CommentsView
-struct CommentsView: View {
-    let chapterId: String
-
-    var body: some View {
-        VStack(spacing: 12) {
-            Text("Comments (Stub)")
-                .font(.headline)
-            Text("Chapter ID: \(chapterId)")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-            Text("This is a placeholder comments view.")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-        }
-        .padding()
-    }
-}
-
 // MARK: - Previews (optional)
 #if DEBUG
 #Preview("Comments Button") {
@@ -66,9 +47,5 @@ struct CommentsView: View {
 
 #Preview("AuthView") {
     AuthView(onAuthenticated: {})
-}
-
-#Preview("CommentsView") {
-    CommentsView(chapterId: "example-chapter")
 }
 #endif

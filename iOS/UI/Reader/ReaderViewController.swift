@@ -477,7 +477,7 @@ class ReaderViewController: BaseObservingViewController {
     }
 
     private func showCommentsView() {
-        let commentsView = CommentsView(chapterId: chapter.id)
+        let commentsView = CommentsView(manga: manga, chapter: chapter)
         let vc = UIHostingController(rootView: commentsView)
 
         // Present as a sheet with custom detent (50% of screen)

@@ -252,23 +252,34 @@ class ProfileViewModel: ObservableObject {
     func loadProfile() async {
         guard supabase.isAuthenticated else {
             isAuthenticated = false
+            profile = nil
+            stats = nil
             return
         }
-        
+
         isAuthenticated = true
         isLoading = true
-        
+
         do {
             async let profileTask = supabase.fetchProfile()
             async let statsTask = supabase.fetchUserStats()
-            
+
             profile = try await profileTask
             stats = try await statsTask
         } catch {
-            errorMessage = error.localizedDescription
-            showError = true
+            // Only show error if it's not an authentication error
+            if case SupabaseError.notAuthenticated = error {
+                // User is not authenticated, just clear the data
+                isAuthenticated = false
+                profile = nil
+                stats = nil
+            } else {
+                // Real error, show it to the user
+                errorMessage = error.localizedDescription
+                showError = true
+            }
         }
-        
+
         isLoading = false
     }
     
@@ -286,6 +297,10 @@ class ProfileViewModel: ObservableObject {
         isAuthenticated = false
         profile = nil
         stats = nil
+    }
+
+    func refreshAuthState() {
+        isAuthenticated = supabase.isAuthenticated
     }
 }
 

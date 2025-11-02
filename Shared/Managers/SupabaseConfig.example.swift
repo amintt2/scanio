@@ -8,8 +8,8 @@
 
 import Foundation
 
-struct SupabaseConfig {
-    static let url = "https://your-project.supabase.co"
-    static let anonKey = "your-anon-key-here"
+enum SupabaseConfig {
+    static let url: String = "https://your-project.supabase.co"
+    static let anonKey: String = "your-anon-key-here"
 }
 
