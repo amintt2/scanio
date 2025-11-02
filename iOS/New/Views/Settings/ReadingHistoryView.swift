@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ReadingHistoryView: View {
     @StateObject private var viewModel = ReadingHistoryViewModel()
-    
+
     var body: some View {
         List {
             if viewModel.isLoading {
@@ -20,11 +20,11 @@ struct ReadingHistoryView: View {
                     Image(systemName: "book.closed")
                         .font(.system(size: 60))
                         .foregroundColor(.gray)
-                    
+
                     Text("Aucun historique de lecture")
                         .font(.headline)
                         .foregroundColor(.secondary)
-                    
+
                     Text("Commencez à lire des mangas pour voir votre historique ici")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
@@ -51,17 +51,17 @@ struct ReadingHistoryView: View {
 
 struct ReadingHistoryRow: View {
     let item: ReadingHistoryWithManga
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(item.mangaTitle)
                 .font(.headline)
-            
+
             HStack {
                 Text("Chapitre \(item.chapterNumber)")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
-                
+
                 if let chapterTitle = item.chapterTitle {
                     Text("• \(chapterTitle)")
                         .font(.subheadline)
@@ -69,7 +69,7 @@ struct ReadingHistoryRow: View {
                         .lineLimit(1)
                 }
             }
-            
+
             HStack {
                 if item.isCompleted {
                     Label("Terminé", systemImage: "checkmark.circle.fill")
@@ -80,9 +80,9 @@ struct ReadingHistoryRow: View {
                         .font(.caption)
                         .foregroundColor(.blue)
                 }
-                
+
                 Spacer()
-                
+
                 Text(item.lastReadAt, style: .relative)
                     .font(.caption)
                     .foregroundColor(.secondary)
@@ -97,16 +97,16 @@ class ReadingHistoryViewModel: ObservableObject {
     @Published var history: [ReadingHistoryWithManga] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
-    
+
     func loadHistory() async {
         isLoading = true
-        
+
         do {
             history = try await SupabaseManager.shared.fetchReadingHistory(limit: 50)
         } catch {
             errorMessage = error.localizedDescription
         }
-        
+
         isLoading = false
     }
 }

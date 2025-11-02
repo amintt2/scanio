@@ -8,9 +8,9 @@
 import Foundation
 
 extension SupabaseManager {
-    
+
     // MARK: - Personal Rankings API
-    
+
     func upsertPersonalRanking(
         canonicalMangaId: String,
         rankPosition: Int? = nil,
@@ -20,7 +20,7 @@ extension SupabaseManager {
         readingStatus: ReadingStatus? = nil
     ) async throws -> PersonalRanking {
         guard isAuthenticated else { throw SupabaseError.notAuthenticated }
-        
+
         let url = URL(string: "\(supabaseURL)/rest/v1/scanio_personal_rankings")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -28,7 +28,7 @@ extension SupabaseManager {
         request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
         request.setValue("Bearer \(currentSession?.accessToken ?? "")", forHTTPHeaderField: "Authorization")
         request.setValue("resolution=merge-duplicates,return=representation", forHTTPHeaderField: "Prefer")
-        
+
         let body = UpsertPersonalRankingRequest(
             canonicalMangaId: canonicalMangaId,
             rankPosition: rankPosition,

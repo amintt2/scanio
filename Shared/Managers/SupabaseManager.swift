@@ -16,11 +16,9 @@ class SupabaseManager {
     internal var currentSession: AuthSession?
 
     private init() {
-        // Load from environment or configuration
-        // Pour l'instant, on utilise des valeurs par défaut
-        // TODO: Charger depuis .env.local ou Info.plist
-        self.supabaseURL = ProcessInfo.processInfo.environment["SUPABASE_URL"] ?? ""
-        self.supabaseAnonKey = ProcessInfo.processInfo.environment["SUPABASE_ANON_KEY"] ?? ""
+        // Load from SupabaseConfig.swift (not committed to git)
+        self.supabaseURL = SupabaseConfig.url
+        self.supabaseAnonKey = SupabaseConfig.anonKey
 
         // Load saved session
         loadSession()
@@ -326,39 +324,20 @@ class SupabaseManager {
 
     // MARK: - Reading History API
 
-    func upsertReadingHistory(
-        canonicalMangaId: String,
-        sourceId: String,
-        mangaId: String,
-        chapterNumber: String,
-        chapterTitle: String?,
-        pageNumber: Int,
-        totalPages: Int,
-        isCompleted: Bool
-    ) async throws {
+    func upsertReadingHistory(_ request: UpsertReadingHistoryRequest) async throws {
         guard isAuthenticated else { throw SupabaseError.notAuthenticated }
 
         let url = URL(string: "\(supabaseURL)/rest/v1/scanio_reading_history")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
-        request.setValue("Bearer \(currentSession?.accessToken ?? "")", forHTTPHeaderField: "Authorization")
-        request.setValue("resolution=merge-duplicates", forHTTPHeaderField: "Prefer")
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "POST"
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        urlRequest.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
+        urlRequest.setValue("Bearer \(currentSession?.accessToken ?? "")", forHTTPHeaderField: "Authorization")
+        urlRequest.setValue("resolution=merge-duplicates", forHTTPHeaderField: "Prefer")
 
-        let body = UpsertReadingHistoryRequest(
-            canonicalMangaId: canonicalMangaId,
-            sourceId: sourceId,
-            mangaId: mangaId,
-            chapterNumber: chapterNumber,
-            chapterTitle: chapterTitle,
-            pageNumber: pageNumber,
-            totalPages: totalPages,
-            isCompleted: isCompleted
-        )
-        request.httpBody = try JSONEncoder().encode(body)
+        urlRequest.httpBody = try JSONEncoder().encode(request)
 
-        let (_, response) = try await URLSession.shared.data(for: request)
+        let (_, response) = try await URLSession.shared.data(for: urlRequest)
 
         guard let httpResponse = response as? HTTPURLResponse,
               (200...299).contains(httpResponse.statusCode) else {

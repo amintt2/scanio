@@ -25,3 +25,6 @@ buildServer.json
 .env.local
 .env.local.example
 .env.*.local
+
+# Supabase credentials (DO NOT COMMIT)
+Shared/Managers/SupabaseConfig.swift
