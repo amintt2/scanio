@@ -198,6 +198,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         application.applicationSupportsShakeToEdit = true
 
+        // Sync data from cloud if user is authenticated
+        Task {
+            if SupabaseManager.shared.isAuthenticated {
+                print("🔄 User is authenticated, starting background sync...")
+                do {
+                    try await SyncManager.shared.syncAll()
+                    print("✅ Background sync completed successfully")
+                } catch {
+                    print("⚠️ Background sync failed: \(error)")
+                }
+            }
+        }
+
         return true
     }
 

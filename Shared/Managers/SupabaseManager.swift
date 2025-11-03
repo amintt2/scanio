@@ -361,6 +361,33 @@ class SupabaseManager {
         return try decoder.decode([ReadingHistoryWithManga].self, from: data)
     }
 
+    /// Fetch raw reading history (for sync purposes)
+    func getReadingHistory(userId: String? = nil, limit: Int = 1000) async throws -> [ReadingHistory] {
+        guard isAuthenticated else {
+            throw SupabaseError.notAuthenticated
+        }
+
+        let targetUserId = userId ?? currentSession?.user.id ?? ""
+
+        let url = URL(string: "\(supabaseURL)/rest/v1/scanio_reading_history?user_id=eq.\(targetUserId)&order=last_read_at.desc&limit=\(limit)")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
+        request.setValue("Bearer \(currentSession?.accessToken ?? "")", forHTTPHeaderField: "Authorization")
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            throw SupabaseError.networkError
+        }
+
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return try decoder.decode([ReadingHistory].self, from: data)
+    }
+
     func fetchCurrentlyReading() async throws -> [MangaProgressWithManga] {
         guard isAuthenticated, let userId = currentSession?.user.id else {
             throw SupabaseError.notAuthenticated

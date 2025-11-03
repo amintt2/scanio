@@ -99,7 +99,7 @@ struct SignInView: View {
     
     private func signIn() async {
         isLoading = true
-        
+
         do {
             _ = try await SupabaseManager.shared.signIn(
                 email: email,
@@ -111,6 +111,16 @@ struct SignInView: View {
                 viewModel.refreshAuthState()
             }
             await viewModel.loadProfile()
+
+            // Sync all data from cloud
+            print("🔄 Starting full sync after sign in...")
+            do {
+                try await SyncManager.shared.syncAll()
+                print("✅ Full sync completed successfully")
+            } catch {
+                print("⚠️ Sync failed but continuing: \(error)")
+                // Don't fail the sign in if sync fails
+            }
 
             await MainActor.run {
                 isLoading = false

@@ -232,10 +232,14 @@ extension SourceManager {
         if SupabaseManager.shared.isAuthenticated {
             Task {
                 do {
+                    // Only save URL if it's a remote URL (not a local file)
+                    let sourceUrl = url.scheme != "file" ? url.absoluteString : nil
+
                     try await SupabaseManager.shared.addUserSource(
                         sourceId: result.id,
                         sourceName: result.name,
-                        sourceLang: result.languages.first
+                        sourceLang: result.languages.first,
+                        sourceUrl: sourceUrl
                     )
                 } catch {
                     LogManager.logger.error("Failed to sync source to Supabase: \(error.localizedDescription)")
@@ -307,10 +311,12 @@ extension SourceManager {
         if SupabaseManager.shared.isAuthenticated {
             Task {
                 do {
+                    // Custom sources (Komga, Kavita) don't have download URLs
                     try await SupabaseManager.shared.addUserSource(
                         sourceId: source.id,
                         sourceName: source.name,
-                        sourceLang: source.languages.first
+                        sourceLang: source.languages.first,
+                        sourceUrl: nil
                     )
                 } catch {
                     LogManager.logger.error("Failed to sync custom source to Supabase: \(error.localizedDescription)")

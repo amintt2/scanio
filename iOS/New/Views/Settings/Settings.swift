@@ -127,6 +127,13 @@ enum Settings {
                     icon: .system(name: "arrow.down.circle.fill", color: "blue", inset: 6)
                 ))
             )
+        ]))),
+        .init(value: .group(.init(items: [
+            .init(
+                key: "Help.restartTutorial",
+                title: "Revoir le tutoriel",
+                value: .button(.init())
+            )
         ])))
     ]
 }

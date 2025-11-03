@@ -10,6 +10,11 @@ import SwiftUI
 class TabBarController: UITabBarController {
     private lazy var libraryProgressView = CircularProgressView(frame: CGRect(x: 0, y: 0, width: 20, height: 20))
 
+    // Onboarding
+    private var onboardingHostingController: UIHostingController<OnboardingWelcomeView>?
+    private var overlayHostingController: UIHostingController<InteractiveOnboardingOverlay>?
+    private var originalTabBarDelegate: UITabBarControllerDelegate?
+
     private lazy var libraryRefreshAccessory: UIView = {
         let view = UIView()
 
@@ -151,6 +156,37 @@ class TabBarController: UITabBarController {
 
         let updateCount = UserDefaults.standard.integer(forKey: "Browse.updateCount")
         browseViewController.tabBarItem.badgeValue = updateCount > 0 ? String(updateCount) : nil
+
+        // Setup onboarding notification observer
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleRestartOnboarding),
+            name: NSNotification.Name("RestartOnboarding"),
+            object: nil
+        )
+
+        // Set tab bar controller reference for onboarding
+        OnboardingManager.shared.tabBarController = self
+
+        // Store original delegate
+        originalTabBarDelegate = delegate
+        delegate = self
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        // Check if this is first launch and show onboarding
+        if !OnboardingManager.shared.hasCompletedTutorial && !OnboardingManager.shared.isActive {
+            // Delay to ensure view is fully loaded
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                self?.showOnboardingWelcome()
+            }
+        }
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 }
 
@@ -226,4 +262,209 @@ extension TabBarController {
     }
 
     override var canBecomeFirstResponder: Bool { true }
+}
+
+// MARK: - Onboarding
+extension TabBarController {
+    @objc private func handleRestartOnboarding() {
+        print("🎓 [TabBarController] Handling restart onboarding notification")
+        // Dismiss settings if open
+        dismiss(animated: true) { [weak self] in
+            self?.showOnboardingWelcome()
+        }
+    }
+
+    private func showOnboardingWelcome() {
+        print("🎓 [TabBarController] Showing onboarding welcome")
+        let welcomeView = OnboardingWelcomeView(
+            onStart: { [weak self] in
+                print("🎓 [TabBarController] User started tutorial")
+                self?.onboardingHostingController?.dismiss(animated: true) {
+                    OnboardingManager.shared.startTutorial()
+                    self?.showOnboardingOverlay()
+                }
+            },
+            onSkip: { [weak self] in
+                print("🎓 [TabBarController] User skipped tutorial")
+                self?.onboardingHostingController?.dismiss(animated: true)
+                OnboardingManager.shared.skipTutorial()
+            }
+        )
+
+        onboardingHostingController = UIHostingController(rootView: welcomeView)
+        onboardingHostingController?.modalPresentationStyle = .fullScreen
+
+        if let controller = onboardingHostingController {
+            present(controller, animated: true)
+        }
+    }
+
+    private func showOnboardingOverlay() {
+        guard OnboardingManager.shared.isActive else {
+            print("🎓 [TabBarController] Onboarding not active, skipping overlay")
+            return
+        }
+
+        let currentStep = OnboardingManager.shared.currentStep
+        guard currentStep < OnboardingManager.shared.steps.count else {
+            print("🎓 [TabBarController] All steps completed")
+            OnboardingManager.shared.completeTutorial()
+            return
+        }
+
+        let step = OnboardingManager.shared.steps[currentStep]
+        print("🎓 [TabBarController] Showing overlay for step \(currentStep): \(step.title)")
+
+        // Navigate to the correct tab for this step
+        navigateToTab(for: step.targetView)
+
+        // Update target frame after navigation
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            OnboardingManager.shared.updateTargetFrame()
+
+            let overlayView = InteractiveOnboardingOverlay(
+                step: step,
+                onSkip: { [weak self] in
+                    print("🎓 [TabBarController] User skipped from overlay")
+                    self?.hideOnboardingOverlay()
+                    OnboardingManager.shared.skipTutorial()
+                }
+            )
+
+            self?.overlayHostingController = UIHostingController(rootView: overlayView)
+            self?.overlayHostingController?.view.backgroundColor = .clear
+            self?.overlayHostingController?.modalPresentationStyle = .overFullScreen
+
+            if let controller = self?.overlayHostingController {
+                self?.present(controller, animated: true)
+            }
+        }
+    }
+
+    private func navigateToTab(for target: OnboardingTarget) {
+        let targetIndex: Int
+        switch target {
+        case .libraryTab:
+            targetIndex = 0
+        case .browseTab:
+            targetIndex = 1
+        case .historyTab:
+            targetIndex = 2
+        case .settingsTab:
+            if #available(iOS 26.0, *) {
+                targetIndex = 3
+            } else {
+                targetIndex = 4
+            }
+        default:
+            return
+        }
+
+        print("🎓 [TabBarController] Navigating to tab index: \(targetIndex)")
+        selectedIndex = targetIndex
+    }
+
+    private func getTargetFrame(for target: OnboardingTarget) -> CGRect? {
+        switch target {
+        case .browseTab:
+            // Browse is at index 1
+            return getTabBarItemFrame(at: 1)
+        case .libraryTab:
+            // Library is at index 0
+            return getTabBarItemFrame(at: 0)
+        case .historyTab:
+            // History is at index 2
+            return getTabBarItemFrame(at: 2)
+        case .settingsTab:
+            // Settings is at index 3 (iOS 26) or 4 (older)
+            if #available(iOS 26.0, *) {
+                return getTabBarItemFrame(at: 3)
+            } else {
+                return getTabBarItemFrame(at: 4)
+            }
+        default:
+            return nil
+        }
+    }
+
+    private func getTabBarItemFrame(at index: Int) -> CGRect? {
+        guard let tabBarItems = tabBar.items, index < tabBarItems.count else {
+            return nil
+        }
+
+        // Calculate approximate frame for tab bar item
+        let tabBarWidth = tabBar.bounds.width
+        let itemWidth = tabBarWidth / CGFloat(tabBarItems.count)
+        let itemX = itemWidth * CGFloat(index)
+        let itemY = tabBar.frame.origin.y
+
+        return CGRect(
+            x: itemX + (itemWidth / 4),
+            y: itemY + 8,
+            width: itemWidth / 2,
+            height: tabBar.bounds.height - 16
+        )
+    }
+
+    private func updateOnboardingOverlay() {
+        hideOnboardingOverlay()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            self?.showOnboardingOverlay()
+        }
+    }
+
+    private func hideOnboardingOverlay() {
+        overlayHostingController?.dismiss(animated: true)
+        overlayHostingController = nil
+    }
+}
+
+// MARK: - UITabBarControllerDelegate
+extension TabBarController: UITabBarControllerDelegate {
+    override func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
+        // Check if onboarding is active
+        guard OnboardingManager.shared.isActive else { return }
+
+        let currentStep = OnboardingManager.shared.currentStep
+        guard currentStep < OnboardingManager.shared.steps.count else { return }
+
+        let step = OnboardingManager.shared.steps[currentStep]
+        let selectedIndex = tabBar.items?.firstIndex(of: item) ?? -1
+
+        print("🎓 [TabBarController] Tab selected: \(selectedIndex)")
+
+        // Check if the selected tab matches the target
+        let expectedIndex: Int
+        switch step.targetView {
+        case .libraryTab:
+            expectedIndex = 0
+        case .browseTab:
+            expectedIndex = 1
+        case .historyTab:
+            expectedIndex = 2
+        case .settingsTab:
+            if #available(iOS 26.0, *) {
+                expectedIndex = 3
+            } else {
+                expectedIndex = 4
+            }
+        default:
+            return
+        }
+
+        if selectedIndex == expectedIndex {
+            print("🎓 [TabBarController] Correct tab tapped! Moving to next step")
+
+            // Check if this is the last step
+            if currentStep == OnboardingManager.shared.steps.count - 1 {
+                print("🎓 [TabBarController] Last step completed!")
+                hideOnboardingOverlay()
+                OnboardingManager.shared.completeTutorial()
+            } else {
+                // Move to next step
+                OnboardingManager.shared.nextStep()
+                updateOnboardingOverlay()
+            }
+        }
+    }
 }

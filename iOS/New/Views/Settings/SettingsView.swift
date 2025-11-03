@@ -266,6 +266,11 @@ extension SettingsView {
                     (UIApplication.shared.delegate as? AppDelegate)?.hideLoadingIndicator()
                 }
             }
+        case "Help.restartTutorial":
+            print("🎓 [Settings] Restarting tutorial")
+            OnboardingManager.shared.resetTutorial()
+            // Post notification to TabBarController
+            NotificationCenter.default.post(name: NSNotification.Name("RestartOnboarding"), object: nil)
         default:
             break
         }

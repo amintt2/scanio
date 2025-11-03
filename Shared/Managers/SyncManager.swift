@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreData
+import AidokuRunner
 
 /// Manages bidirectional synchronization between CoreData (local) and Supabase (cloud)
 class SyncManager {
@@ -20,24 +21,159 @@ class SyncManager {
     
     // MARK: - Full Sync
     
-    /// Synchronize all data (library, categories, trackers)
-    /// Reading history is already synced in HistoryManager
+    /// Synchronize all data (sources, library, history, categories, trackers)
     func syncAll() async throws {
         guard supabase.isAuthenticated else {
             print("⚠️ SyncManager: User not authenticated, skipping sync")
             return
         }
-        
+
         print("🔄 SyncManager: Starting full sync...")
-        
+
         do {
+            // Sync in order: sources first, then library, then history
+            try await syncSources()
             try await syncLibrary()
+            try await syncHistory()
             try await syncCategories()
             try await syncTrackers()
             print("✅ SyncManager: Full sync completed successfully")
         } catch {
             print("❌ SyncManager: Full sync failed: \(error)")
             throw error
+        }
+    }
+
+    // MARK: - Sources Sync
+
+    /// Sync user sources from Supabase to local
+    func syncSources() async throws {
+        print("🔌 SyncManager: Syncing sources...")
+
+        // Fetch sources from Supabase
+        let supabaseSources = try await supabase.fetchUserSources()
+        print("🔌 Fetched \(supabaseSources.count) sources from Supabase")
+
+        // Get currently installed sources
+        let installedSources = SourceManager.shared.sources
+        let installedSourceIds = Set(installedSources.map { $0.id })
+
+        // Install missing sources
+        var installedCount = 0
+        var failedCount = 0
+
+        for userSource in supabaseSources {
+            if !installedSourceIds.contains(userSource.sourceId) {
+                print("📥 Need to install source: \(userSource.sourceId)")
+
+                // Try to install if we have the URL
+                if let sourceUrlString = userSource.sourceUrl,
+                   let sourceUrl = URL(string: sourceUrlString) {
+                    do {
+                        print("⬇️ Downloading source from: \(sourceUrlString)")
+                        let installedSource = try await SourceManager.shared.importSource(from: sourceUrl)
+
+                        if installedSource != nil {
+                            print("✅ Successfully installed source: \(userSource.sourceId)")
+                            installedCount += 1
+                        } else {
+                            print("⚠️ Failed to install source \(userSource.sourceId)")
+                            failedCount += 1
+                        }
+                    } catch {
+                        print("❌ Error installing source \(userSource.sourceId): \(error)")
+                        failedCount += 1
+                    }
+                } else {
+                    print("⚠️ No download URL for source \(userSource.sourceId) - user must add manually")
+                    failedCount += 1
+                }
+            } else {
+                print("✅ Source already installed: \(userSource.sourceId)")
+            }
+        }
+
+        print("✅ Sources sync completed - Installed: \(installedCount), Failed: \(failedCount)")
+    }
+
+    // MARK: - History Sync
+
+    /// Sync reading history from Supabase to local CoreData
+    func syncHistory() async throws {
+        print("📖 SyncManager: Syncing reading history...")
+
+        // Fetch history from Supabase
+        let supabaseHistory = try await supabase.getReadingHistory(limit: 1000)
+        print("📖 Fetched \(supabaseHistory.count) history items from Supabase")
+
+        // Download history to CoreData
+        for historyItem in supabaseHistory {
+            await downloadHistoryItem(historyItem)
+        }
+
+        print("✅ History sync completed")
+    }
+
+    /// Download a single history item to CoreData
+    private func downloadHistoryItem(_ item: ReadingHistory) async {
+        await coreData.container.performBackgroundTask { context in
+            // Check if we have this manga in CoreData
+            let manga = self.coreData.getManga(
+                sourceId: item.sourceId,
+                mangaId: item.mangaId,
+                context: context
+            )
+
+            if manga == nil {
+                print("⚠️ Cannot restore history for \(item.mangaId) - manga not in CoreData")
+                return
+            }
+
+            // Find chapter by chapter number (since we don't have chapterId in Supabase)
+            let chapters = self.coreData.getChapters(
+                sourceId: item.sourceId,
+                mangaId: item.mangaId,
+                context: context
+            )
+
+            // Try to find chapter by number
+            guard let chapterNumber = Float(item.chapterNumber),
+                  let chapter = chapters.first(where: { $0.chapter?.floatValue == chapterNumber }) else {
+                print("⚠️ Cannot restore history for chapter \(item.chapterNumber) - chapter not in CoreData")
+                return
+            }
+
+            // Get or create history object
+            let historyObject = self.coreData.getHistory(
+                sourceId: item.sourceId,
+                mangaId: item.mangaId,
+                chapterId: chapter.id,
+                context: context
+            ) ?? {
+                let newHistory = HistoryObject(context: context)
+                newHistory.sourceId = item.sourceId
+                newHistory.mangaId = item.mangaId
+                newHistory.chapterId = chapter.id
+                newHistory.chapter = chapter
+                return newHistory
+            }()
+
+            // Update with Supabase data (use most recent)
+            if historyObject.dateRead == nil || item.lastReadAt > historyObject.dateRead! {
+                historyObject.dateRead = item.lastReadAt
+            }
+
+            // Update progress
+            historyObject.progress = Int16(item.pageNumber)
+            historyObject.total = Int16(item.totalPages)
+            historyObject.completed = item.isCompleted
+
+            do {
+                try context.save()
+                print("✅ Restored history for chapter \(item.chapterNumber)")
+            } catch {
+                print("❌ Failed to save history: \(error)")
+            }
         }
     }
     
@@ -74,17 +210,83 @@ class SyncManager {
         // 4. Download items from Supabase that don't exist in CoreData
         for item in supabaseLibrary {
             let existsInCoreData = coreDataLibrary.contains { $0.canonicalMangaId == item.canonicalMangaId }
-            
+
             if !existsInCoreData {
                 print("📥 Downloading from Supabase: \(item.mangaId)")
-                // Note: We can't fully restore manga to CoreData without source data
-                // This would require fetching manga details from the source
-                // For now, we just log it
-                print("⚠️ Cannot restore manga from Supabase without source data")
+                await downloadLibraryItem(item)
             }
         }
-        
+
         print("✅ Library sync completed")
+    }
+
+    /// Download a single library item from Supabase to CoreData
+    private func downloadLibraryItem(_ item: SupabaseLibraryItem) async {
+        // Check if source is installed
+        guard let source = SourceManager.shared.source(for: item.sourceId) else {
+            print("⚠️ Cannot restore \(item.mangaId) - source \(item.sourceId) not installed")
+            return
+        }
+
+        // Check if manga already exists in library
+        let alreadyInLibrary = await coreData.container.performBackgroundTask { context in
+            self.coreData.hasLibraryManga(sourceId: item.sourceId, mangaId: item.mangaId, context: context)
+        }
+
+        if alreadyInLibrary {
+            print("✅ Manga \(item.mangaId) already in library")
+            return
+        }
+
+        // Fetch manga details from source
+        print("🔍 Fetching manga details for \(item.mangaId) from source...")
+        do {
+            // Create a basic manga object
+            let basicManga = AidokuRunner.Manga(sourceKey: item.sourceId, key: item.mangaId, title: "")
+
+            // Fetch full details with chapters
+            let manga = try await source.getMangaUpdate(manga: basicManga, needsDetails: true, needsChapters: true)
+
+            // Add to library using CoreData
+            await coreData.container.performBackgroundTask { context in
+                // Add to library (creates manga and library objects)
+                self.coreData.addToLibrary(
+                    sourceId: item.sourceId,
+                    manga: manga,
+                    chapters: manga.chapters ?? [],
+                    context: context
+                )
+
+                // Update timestamps from Supabase
+                if let libraryManga = self.coreData.getLibraryManga(
+                    sourceId: item.sourceId,
+                    mangaId: item.mangaId,
+                    context: context
+                ) {
+                    if let dateAdded = item.dateAdded?.iso8601Date {
+                        libraryManga.dateAdded = dateAdded
+                    }
+                    if let lastOpened = item.lastOpened?.iso8601Date {
+                        libraryManga.lastOpened = lastOpened
+                    }
+                    if let lastRead = item.lastRead?.iso8601Date {
+                        libraryManga.lastRead = lastRead
+                    }
+                    if let lastUpdated = item.lastUpdated?.iso8601Date {
+                        libraryManga.lastUpdated = lastUpdated
+                    }
+                }
+
+                do {
+                    try context.save()
+                    print("✅ Restored manga \(item.mangaId) to library")
+                } catch {
+                    print("❌ Failed to save manga: \(error)")
+                }
+            }
+        } catch {
+            print("❌ Failed to fetch manga details: \(error)")
+        }
     }
     
     /// Upload a single library item to Supabase
