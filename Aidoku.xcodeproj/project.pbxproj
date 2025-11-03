@@ -59,9 +59,7 @@
 		1EED89772EB79A3900DF56D7 /* RepliesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EED89752EB79A3900DF56D7 /* RepliesView.swift */; };
 		1EED89792EB7A3DF00DF56D7 /* SupabaseManager+Sources.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EED89782EB7A3DF00DF56D7 /* SupabaseManager+Sources.swift */; };
 		1EED897A2EB7A3DF00DF56D7 /* SupabaseManager+Sources.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EED89782EB7A3DF00DF56D7 /* SupabaseManager+Sources.swift */; };
-		1EED897D2EB8040D00DF56D7 /* OnboardingOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EED897B2EB8040D00DF56D7 /* OnboardingOverlayView.swift */; };
 		1EED897E2EB8040D00DF56D7 /* OnboardingWelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EED897C2EB8040D00DF56D7 /* OnboardingWelcomeView.swift */; };
-		1EED897F2EB8040D00DF56D7 /* OnboardingOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EED897B2EB8040D00DF56D7 /* OnboardingOverlayView.swift */; };
 		1EED89802EB8040D00DF56D7 /* OnboardingWelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EED897C2EB8040D00DF56D7 /* OnboardingWelcomeView.swift */; };
 		1EED89822EB8042700DF56D7 /* OnboardingTutorial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EED89812EB8042700DF56D7 /* OnboardingTutorial.swift */; };
 		1EED89832EB8042700DF56D7 /* OnboardingTutorial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EED89812EB8042700DF56D7 /* OnboardingTutorial.swift */; };
@@ -598,7 +596,6 @@
 		1EED896D2EB7907800DF56D7 /* RichTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RichTextView.swift; sourceTree = "<group>"; };
 		1EED89752EB79A3900DF56D7 /* RepliesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepliesView.swift; sourceTree = "<group>"; };
 		1EED89782EB7A3DF00DF56D7 /* SupabaseManager+Sources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SupabaseManager+Sources.swift"; sourceTree = "<group>"; };
-		1EED897B2EB8040D00DF56D7 /* OnboardingOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = OnboardingOverlayView.swift; path = Onboarding/OnboardingOverlayView.swift; sourceTree = "<group>"; };
 		1EED897C2EB8040D00DF56D7 /* OnboardingWelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = OnboardingWelcomeView.swift; path = Onboarding/OnboardingWelcomeView.swift; sourceTree = "<group>"; };
 		1EED89812EB8042700DF56D7 /* OnboardingTutorial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingTutorial.swift; sourceTree = "<group>"; };
 		37F3E66C2850F62100A944E0 /* Collection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collection.swift; sourceTree = "<group>"; };
@@ -1757,7 +1754,6 @@
 			isa = PBXGroup;
 			children = (
 				1E2B895A2EB8F87000B51379 /* InteractiveOnboardingOverlay.swift */,
-				1EED897B2EB8040D00DF56D7 /* OnboardingOverlayView.swift */,
 				1EED897C2EB8040D00DF56D7 /* OnboardingWelcomeView.swift */,
 				FB662E982DA813E300007514 /* Common */,
 				FB662E8F2DA813E300007514 /* Browse */,
@@ -2707,7 +2703,6 @@
 				FB716DE5283B024100F1BB5D /* DownloadTableViewCell.swift in Sources */,
 				FB9691562E89971F00BC0587 /* Color.swift in Sources */,
 				FB05182B2E09B05E00CEE275 /* GIFImage.swift in Sources */,
-				1EED897D2EB8040D00DF56D7 /* OnboardingOverlayView.swift in Sources */,
 				1EED897E2EB8040D00DF56D7 /* OnboardingWelcomeView.swift in Sources */,
 				FBD6A419285B8EBC007116C9 /* TrackState.swift in Sources */,
 				FB7B7EDD278CEAA2001E6EAF /* URLSession.swift in Sources */,
@@ -2765,7 +2760,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1EED897F2EB8040D00DF56D7 /* OnboardingOverlayView.swift in Sources */,
 				1EED89802EB8040D00DF56D7 /* OnboardingWelcomeView.swift in Sources */,
 				FB58C6B42999B5BC00A6F49F /* CoreDataManager+Source.swift in Sources */,
 				1EED895A2EB77C2D00DF56D7 /* SupabaseConfig.swift in Sources */,
@@ -3125,6 +3119,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
+				CLANG_USE_OPTIMIZATION_PROFILE = YES;
 				CODE_SIGN_ENTITLEMENTS = iOS/iOS.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -3168,6 +3163,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
+				CLANG_USE_OPTIMIZATION_PROFILE = YES;
 				CODE_SIGN_ENTITLEMENTS = iOS/iOS.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;

@@ -13,7 +13,6 @@ class TabBarController: UITabBarController {
     // Onboarding
     private var onboardingHostingController: UIHostingController<OnboardingWelcomeView>?
     private var overlayHostingController: UIHostingController<InteractiveOnboardingOverlay>?
-    private var originalTabBarDelegate: UITabBarControllerDelegate?
 
     private lazy var libraryRefreshAccessory: UIView = {
         let view = UIView()
@@ -167,10 +166,6 @@ class TabBarController: UITabBarController {
 
         // Set tab bar controller reference for onboarding
         OnboardingManager.shared.tabBarController = self
-
-        // Store original delegate
-        originalTabBarDelegate = delegate
-        delegate = self
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -316,16 +311,24 @@ extension TabBarController {
         print("🎓 [TabBarController] Showing overlay for step \(currentStep): \(step.title)")
 
         // Navigate to the correct tab for this step
-        navigateToTab(for: step.targetView)
+        selectedIndex = step.targetTab
 
-        // Update target frame after navigation
+        // Show overlay after navigation
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-            OnboardingManager.shared.updateTargetFrame()
-
             let overlayView = InteractiveOnboardingOverlay(
                 step: step,
+                onNext: { [weak self] in
+                    print("🎓 [TabBarController] User tapped Next")
+                    self?.hideOnboardingOverlay()
+                    OnboardingManager.shared.nextStep()
+
+                    // Show next step or complete
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        self?.showOnboardingOverlay()
+                    }
+                },
                 onSkip: { [weak self] in
-                    print("🎓 [TabBarController] User skipped from overlay")
+                    print("🎓 [TabBarController] User skipped tutorial")
                     self?.hideOnboardingOverlay()
                     OnboardingManager.shared.skipTutorial()
                 }
@@ -341,130 +344,8 @@ extension TabBarController {
         }
     }
 
-    private func navigateToTab(for target: OnboardingTarget) {
-        let targetIndex: Int
-        switch target {
-        case .libraryTab:
-            targetIndex = 0
-        case .browseTab:
-            targetIndex = 1
-        case .historyTab:
-            targetIndex = 2
-        case .settingsTab:
-            if #available(iOS 26.0, *) {
-                targetIndex = 3
-            } else {
-                targetIndex = 4
-            }
-        default:
-            return
-        }
-
-        print("🎓 [TabBarController] Navigating to tab index: \(targetIndex)")
-        selectedIndex = targetIndex
-    }
-
-    private func getTargetFrame(for target: OnboardingTarget) -> CGRect? {
-        switch target {
-        case .browseTab:
-            // Browse is at index 1
-            return getTabBarItemFrame(at: 1)
-        case .libraryTab:
-            // Library is at index 0
-            return getTabBarItemFrame(at: 0)
-        case .historyTab:
-            // History is at index 2
-            return getTabBarItemFrame(at: 2)
-        case .settingsTab:
-            // Settings is at index 3 (iOS 26) or 4 (older)
-            if #available(iOS 26.0, *) {
-                return getTabBarItemFrame(at: 3)
-            } else {
-                return getTabBarItemFrame(at: 4)
-            }
-        default:
-            return nil
-        }
-    }
-
-    private func getTabBarItemFrame(at index: Int) -> CGRect? {
-        guard let tabBarItems = tabBar.items, index < tabBarItems.count else {
-            return nil
-        }
-
-        // Calculate approximate frame for tab bar item
-        let tabBarWidth = tabBar.bounds.width
-        let itemWidth = tabBarWidth / CGFloat(tabBarItems.count)
-        let itemX = itemWidth * CGFloat(index)
-        let itemY = tabBar.frame.origin.y
-
-        return CGRect(
-            x: itemX + (itemWidth / 4),
-            y: itemY + 8,
-            width: itemWidth / 2,
-            height: tabBar.bounds.height - 16
-        )
-    }
-
-    private func updateOnboardingOverlay() {
-        hideOnboardingOverlay()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-            self?.showOnboardingOverlay()
-        }
-    }
-
     private func hideOnboardingOverlay() {
         overlayHostingController?.dismiss(animated: true)
         overlayHostingController = nil
-    }
-}
-
-// MARK: - UITabBarControllerDelegate
-extension TabBarController: UITabBarControllerDelegate {
-    override func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
-        // Check if onboarding is active
-        guard OnboardingManager.shared.isActive else { return }
-
-        let currentStep = OnboardingManager.shared.currentStep
-        guard currentStep < OnboardingManager.shared.steps.count else { return }
-
-        let step = OnboardingManager.shared.steps[currentStep]
-        let selectedIndex = tabBar.items?.firstIndex(of: item) ?? -1
-
-        print("🎓 [TabBarController] Tab selected: \(selectedIndex)")
-
-        // Check if the selected tab matches the target
-        let expectedIndex: Int
-        switch step.targetView {
-        case .libraryTab:
-            expectedIndex = 0
-        case .browseTab:
-            expectedIndex = 1
-        case .historyTab:
-            expectedIndex = 2
-        case .settingsTab:
-            if #available(iOS 26.0, *) {
-                expectedIndex = 3
-            } else {
-                expectedIndex = 4
-            }
-        default:
-            return
-        }
-
-        if selectedIndex == expectedIndex {
-            print("🎓 [TabBarController] Correct tab tapped! Moving to next step")
-
-            // Check if this is the last step
-            if currentStep == OnboardingManager.shared.steps.count - 1 {
-                print("🎓 [TabBarController] Last step completed!")
-                hideOnboardingOverlay()
-                OnboardingManager.shared.completeTutorial()
-            } else {
-                // Move to next step
-                OnboardingManager.shared.nextStep()
-                updateOnboardingOverlay()
-            }
-        }
     }
 }

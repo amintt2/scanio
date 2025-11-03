@@ -13,25 +13,8 @@ struct OnboardingStep: Identifiable {
     let id: Int
     let title: String
     let description: String
-    let targetView: OnboardingTarget
-    let tooltipPosition: TooltipPosition
-}
-
-enum OnboardingTarget {
-    case browseTab
-    case addSourceButton
-    case libraryTab
-    case historyTab
-    case settingsTab
-    case profileSection
-}
-
-enum TooltipPosition {
-    case top
-    case bottom
-    case leading
-    case trailing
-    case center
+    let targetTab: Int // Tab index to navigate to
+    let icon: String
 }
 
 // MARK: - Onboarding Manager
@@ -41,10 +24,8 @@ class OnboardingManager: ObservableObject {
     @Published var isActive: Bool = false
     @Published var currentStep: Int = 0
     @Published var hasCompletedTutorial: Bool = false
-    @Published var targetFrame: CGRect = .zero
 
     weak var tabBarController: UITabBarController?
-    var onStepChanged: (() -> Void)?
 
     private init() {
         loadState()
@@ -64,15 +45,16 @@ class OnboardingManager: ObservableObject {
         currentStep = 0
         hasCompletedTutorial = false
         saveState()
-        updateTargetFrame()
     }
 
     func nextStep() {
         print("🎓 [Onboarding] Moving to next step from \(currentStep)")
-        currentStep += 1
-        saveState()
-        updateTargetFrame()
-        onStepChanged?()
+        if currentStep < steps.count - 1 {
+            currentStep += 1
+            saveState()
+        } else {
+            completeTutorial()
+        }
     }
 
     func previousStep() {
@@ -80,8 +62,6 @@ class OnboardingManager: ObservableObject {
         print("🎓 [Onboarding] Moving to previous step from \(currentStep)")
         currentStep -= 1
         saveState()
-        updateTargetFrame()
-        onStepChanged?()
     }
 
     func skipTutorial() {
@@ -108,62 +88,7 @@ class OnboardingManager: ObservableObject {
         saveState()
     }
 
-    func updateTargetFrame() {
-        guard let tabBarController = tabBarController else {
-            print("🎓 [Onboarding] No tab bar controller set")
-            return
-        }
 
-        guard currentStep < steps.count else { return }
-        let step = steps[currentStep]
-
-        if let frame = getTabBarButtonFrame(for: step.targetView, in: tabBarController) {
-            DispatchQueue.main.async {
-                self.targetFrame = frame
-                print("🎓 [Onboarding] Updated target frame: \(frame)")
-            }
-        }
-    }
-
-    private func getTabBarButtonFrame(for target: OnboardingTarget, in tabBarController: UITabBarController) -> CGRect? {
-        let tabBar = tabBarController.tabBar
-
-        // Get the index for the target
-        let targetIndex: Int
-        switch target {
-        case .libraryTab:
-            targetIndex = 0
-        case .browseTab:
-            targetIndex = 1
-        case .historyTab:
-            targetIndex = 2
-        case .settingsTab:
-            if #available(iOS 26.0, *) {
-                targetIndex = 3
-            } else {
-                targetIndex = 4
-            }
-        default:
-            return nil
-        }
-
-        // Find the actual button view in the tab bar
-        // Tab bar buttons are UIControl subviews
-        let tabBarButtons = tabBar.subviews
-            .filter { $0 is UIControl }
-            .sorted { $0.frame.minX < $1.frame.minX }
-
-        guard targetIndex < tabBarButtons.count else {
-            print("🎓 [Onboarding] Target index \(targetIndex) out of bounds")
-            return nil
-        }
-
-        let button = tabBarButtons[targetIndex]
-        let frameInWindow = button.convert(button.bounds, to: nil)
-
-        print("🎓 [Onboarding] Found button at index \(targetIndex): \(frameInWindow)")
-        return frameInWindow
-    }
 
     private func saveState() {
         UserDefaults.standard.set(hasCompletedTutorial, forKey: "Onboarding.hasCompletedTutorial")
@@ -174,46 +99,61 @@ class OnboardingManager: ObservableObject {
     // Tutorial steps definition
     let steps: [OnboardingStep] = [
         OnboardingStep(
-            id: 1,
+            id: 0,
             title: "Ajouter des sources",
             description: """
-Les sources vous permettent d'accéder à du contenu.
+C'est ici que vous pouvez ajouter des sources de contenu.
 
-⚠️ Important : Pour respecter les règles de l'App Store, assurez-vous d'utiliser uniquement des sources légales et autorisées.
+Les sources sont des extensions compatibles Aidoku qui vous permettent d'accéder à différents catalogues de mangas.
 
-Vous pouvez trouver des sources dans l'onglet Browse en appuyant sur le bouton '+'.
+⚠️ Important : Utilisez uniquement des sources légales et autorisées pour respecter les règles de l'App Store.
+
+Appuyez sur le bouton '+' en haut à droite pour ajouter une source.
 """,
-            targetView: .browseTab,
-            tooltipPosition: .top
+            targetTab: 1, // Browse tab
+            icon: "plus.circle.fill"
+        ),
+        OnboardingStep(
+            id: 1,
+            title: "Votre Bibliothèque",
+            description: """
+📚 Ici se trouvent tous vos mangas sauvegardés.
+
+Vous pouvez organiser votre bibliothèque par catégories, trier vos mangas, et suivre votre progression de lecture.
+
+Astuce : Ajoutez des mangas à votre bibliothèque pour les retrouver facilement !
+""",
+            targetTab: 0, // Library tab
+            icon: "books.vertical.fill"
         ),
         OnboardingStep(
             id: 2,
-            title: "Bibliothèque et Historique",
+            title: "Historique de lecture",
             description: """
-📚 Bibliothèque : Vos histoires sauvegardées et organisées par catégories.
+🕐 Retrouvez rapidement vos lectures récentes.
 
-🕐 Historique : Retrouvez rapidement vos lectures récentes.
+L'historique garde une trace de tous les chapitres que vous avez lus, avec la date et votre progression.
 
-Astuce : Ajoutez des histoires à votre bibliothèque pour les retrouver facilement !
+Vous pouvez reprendre votre lecture là où vous l'avez laissée !
 """,
-            targetView: .libraryTab,
-            tooltipPosition: .top
+            targetTab: 2, // History tab
+            icon: "clock.fill"
         ),
         OnboardingStep(
             id: 3,
             title: "Paramètres et Compte",
             description: """
-⚙️ Personnalisez votre expérience de lecture dans les Paramètres.
+⚙️ Personnalisez votre expérience de lecture.
 
-☁️ Créez un compte (optionnel) pour :
-• Synchroniser vos données entre appareils
-• Sauvegarder votre historique dans le cloud
-• Accéder à des fonctionnalités sociales
+Vous pouvez modifier :
+• Le thème et l'apparence
+• Les paramètres de lecture
+• Les notifications
 
-Vous pouvez créer un compte maintenant ou plus tard !
+☁️ Créez un compte (optionnel) pour synchroniser vos données entre appareils et sauvegarder votre historique dans le cloud.
 """,
-            targetView: .settingsTab,
-            tooltipPosition: .top
+            targetTab: 4, // Settings tab (index 4 on iOS < 26)
+            icon: "gear"
         )
     ]
 }
