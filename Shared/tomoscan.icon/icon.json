@@ -1,0 +1,130 @@
+{
+  "fill-specializations" : [
+    {
+      "value" : {
+        "linear-gradient" : [
+          "display-p3:0.74932,0.74932,0.74932,1.00000",
+          "extended-srgb:0.00000,0.53333,1.00000,1.00000"
+        ]
+      }
+    },
+    {
+      "appearance" : "dark",
+      "value" : {
+        "linear-gradient" : [
+          "extended-gray:0.25000,1.00000",
+          "display-p3:0.16946,0.21456,0.50000,1.00000"
+        ]
+      }
+    }
+  ],
+  "groups" : [
+    {
+      "blend-mode" : "plus-darker",
+      "blur-material" : null,
+      "layers" : [
+        {
+          "blend-mode" : "normal",
+          "fill" : {
+            "solid" : "extended-gray:0.00000,1.00000"
+          },
+          "glass" : false,
+          "image-name" : "Image Google AI Studio Photoroom.png",
+          "name" : "Image Google AI Studio Photoroom",
+          "opacity" : 1,
+          "position" : {
+            "scale" : 0.96,
+            "translation-in-points" : [
+              21,
+              -15
+            ]
+          }
+        }
+      ],
+      "lighting" : "individual",
+      "opacity" : 1,
+      "shadow" : {
+        "kind" : "layer-color",
+        "opacity" : 0.86
+      },
+      "specular" : false,
+      "translucency" : {
+        "enabled" : false,
+        "value" : 1
+      }
+    },
+    {
+      "blend-mode" : "normal",
+      "blur-material" : 0.57,
+      "layers" : [
+        {
+          "blend-mode" : "normal",
+          "glass" : true,
+          "hidden" : false,
+          "image-name" : "app.fill.png",
+          "name" : "app.fill",
+          "opacity" : 0.32,
+          "position" : {
+            "scale" : 1.36,
+            "translation-in-points" : [
+              0,
+              0
+            ]
+          }
+        }
+      ],
+      "position" : {
+        "scale" : 0.92,
+        "translation-in-points" : [
+          0,
+          0
+        ]
+      },
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 1
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0
+      }
+    },
+    {
+      "blend-mode" : "normal",
+      "blur-material" : 0.55,
+      "hidden" : false,
+      "layers" : [
+        {
+          "glass" : true,
+          "hidden" : false,
+          "image-name" : "app.fill.png",
+          "name" : "app.fill",
+          "opacity" : 0.36,
+          "position" : {
+            "scale" : 1.55,
+            "translation-in-points" : [
+              0,
+              0
+            ]
+          }
+        }
+      ],
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.72
+      },
+      "specular" : true,
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.77
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}
