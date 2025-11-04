@@ -1,6 +1,6 @@
 /*
   Localizable.strings
-  Aidoku
+  TomoScan
 
   Created by Skitty on 4/23/22.
 
@@ -26,7 +26,7 @@
 "COPY" = "Copy";
 "WARNING" = "Warning";
 "ENABLE_PERMISSION" = "Enable Permission";
-"PHOTOS_ACCESS_DENIED_TEXT" = "Access was previously denied. Please allow Aidoku access to your Photos to save images to your Camera Roll. You can enable access in privacy settings.";
+"PHOTOS_ACCESS_DENIED_TEXT" = "Access was previously denied. Please allow TomoScan access to your Photos to save images to your Camera Roll. You can enable access in privacy settings.";
 "CONTENT" = "Content";
 "%@_EXPERIMENTAL" = "%@ (Experimental)";
 
@@ -90,7 +90,7 @@
 // Browse
 "BROWSE" = "Browse";
 "BROWSE_NO_SOURCES" = "No sources";
-"BROWSE_NO_SOURCES_TEXT" = "Configure your source list or open a\nsource in Aidoku to get started";
+"BROWSE_NO_SOURCES_TEXT" = "Configure your source list or open a\nsource in TomoScan to get started";
 "BROWSE_NO_SOURCES_TEXT_NEW" = "Add a source with the plus button.";
 "ADDING_SOURCES_GUIDE_BUTTON" = "Adding Sources Guide";
 "UPDATES" = "Updates";
@@ -154,7 +154,7 @@
 // Local Source
 "LOCAL_FILES" = "Local Files";
 "LOCAL_FILES_TAGLINE" = "Read from local files";
-"LOCAL_FILES_INFO" = "The local files source allows you to upload and manage your own reading library directly within Aidoku.";
+"LOCAL_FILES_INFO" = "The local files source allows you to upload and manage your own reading library directly within TomoScan.";
 "LOCAL_FILES_SETUP" = "Local Files Setup";
 "IMPORT" = "Import";
 "IMPORT_FILE" = "Import File";

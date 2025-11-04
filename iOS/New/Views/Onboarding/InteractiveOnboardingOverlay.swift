@@ -134,7 +134,7 @@ struct InteractiveOnboardingOverlay_Previews: PreviewProvider {
             step: OnboardingStep(
                 id: 0,
                 title: "Ajouter des sources",
-                description: "C'est ici que vous pouvez ajouter des sources de contenu compatibles Aidoku.",
+                description: "C'est ici que vous pouvez ajouter des sources de contenu compatibles TomoScan.",
                 targetTab: 1,
                 icon: "plus.circle.fill"
             ),

@@ -24,7 +24,7 @@ struct OnboardingWelcomeView: View {
             
             // Welcome text
             VStack(spacing: 16) {
-                Text("Bienvenue sur Scanio!")
+                Text("Bienvenue sur TomoScan!")
                     .font(.largeTitle)
                     .fontWeight(.bold)
                 

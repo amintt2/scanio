@@ -104,7 +104,7 @@ class OnboardingManager: ObservableObject {
             description: """
 C'est ici que vous pouvez ajouter des sources de contenu.
 
-Les sources sont des extensions compatibles Aidoku qui vous permettent d'accéder à différents catalogues de mangas.
+Les sources sont des extensions compatibles TomoScan qui vous permettent d'accéder à différents catalogues de mangas.
 
 ⚠️ Important : Utilisez uniquement des sources légales et autorisées pour respecter les règles de l'App Store.
 

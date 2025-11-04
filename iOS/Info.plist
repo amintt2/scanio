@@ -6,22 +6,22 @@
 	<array>
 		<dict>
 			<key>CFBundleTypeName</key>
-			<string>Aidoku Source</string>
+			<string>TomoScan Source</string>
 			<key>LSHandlerRank</key>
 			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
-				<string>app.aidoku.Aidoku.aix</string>
+				<string>fr.mciut.fr.tomoscan.aix</string>
 			</array>
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
-			<string>Aidoku Backup</string>
+			<string>TomoScan Backup</string>
 			<key>LSHandlerRank</key>
 			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
-				<string>app.aidoku.Aidoku.aib</string>
+				<string>fr.mciut.fr.tomoscan.aib</string>
 			</array>
 		</dict>
 		<dict>
@@ -62,7 +62,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>aidoku</string>
+				<string>tomoscan</string>
 			</array>
 		</dict>
 	</array>
@@ -104,11 +104,11 @@
 				<string>public.zip-archive</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Aidoku Source</string>
+			<string>TomoScan Source</string>
 			<key>UTTypeIconFiles</key>
 			<array/>
 			<key>UTTypeIdentifier</key>
-			<string>app.aidoku.Aidoku.aix</string>
+			<string>fr.mciut.fr.tomoscan.aix</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
@@ -124,11 +124,11 @@
 				<string>com.apple.property-list</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Aidoku Backup</string>
+			<string>TomoScan Backup</string>
 			<key>UTTypeIconFiles</key>
 			<array/>
 			<key>UTTypeIdentifier</key>
-			<string>app.aidoku.Aidoku.aib</string>
+			<string>fr.mciut.fr.tomoscan.aib</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
