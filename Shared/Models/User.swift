@@ -81,6 +81,7 @@ struct AuthSession: Codable {
     let expiresIn: Int
     let tokenType: String
     let user: SupabaseUser
+    let expiresAt: Date  // 🔴 Sauvegardé au lieu d'être calculé
 
     enum CodingKeys: String, CodingKey {
         case accessToken = "access_token"
@@ -88,10 +89,24 @@ struct AuthSession: Codable {
         case expiresIn = "expires_in"
         case tokenType = "token_type"
         case user
+        case expiresAt = "expires_at"
     }
 
-    var expiresAt: Date {
-        Date(timeIntervalSinceNow: TimeInterval(expiresIn))
+    // Initializer pour créer une session depuis la réponse Supabase
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        accessToken = try container.decode(String.self, forKey: .accessToken)
+        refreshToken = try container.decode(String.self, forKey: .refreshToken)
+        expiresIn = try container.decode(Int.self, forKey: .expiresIn)
+        tokenType = try container.decode(String.self, forKey: .tokenType)
+        user = try container.decode(SupabaseUser.self, forKey: .user)
+
+        // Calculer expiresAt si pas fourni par l'API
+        if let expiresAtTimestamp = try? container.decode(Double.self, forKey: .expiresAt) {
+            expiresAt = Date(timeIntervalSince1970: expiresAtTimestamp)
+        } else {
+            expiresAt = Date(timeIntervalSinceNow: TimeInterval(expiresIn))
+        }
     }
 }
 

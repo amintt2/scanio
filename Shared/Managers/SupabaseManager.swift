@@ -112,6 +112,98 @@ class SupabaseManager {
         clearSession()
     }
 
+    // 🔴 PROBLÈME 1 RÉSOLU: Refresh automatique de session
+    func refreshSession() async throws {
+        guard let session = currentSession else {
+            print("🔴 Cannot refresh: no current session")
+            throw SupabaseError.authenticationFailed
+        }
+
+        print("🔄 Refreshing session...")
+
+        let url = URL(string: "\(supabaseURL)/auth/v1/token?grant_type=refresh_token")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
+
+        let body = ["refresh_token": session.refreshToken]
+        request.httpBody = try JSONEncoder().encode(body)
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            print("🔴 Session refresh failed: HTTP \((response as? HTTPURLResponse)?.statusCode ?? 0)")
+            // Si le refresh échoue, déconnecter l'utilisateur
+            clearSession()
+            throw SupabaseError.authenticationFailed
+        }
+
+        let newSession = try JSONDecoder().decode(AuthSession.self, from: data)
+        saveSession(newSession)
+        print("✅ Session refreshed successfully! Expires at: \(newSession.expiresAt)")
+    }
+
+    // 🟡 PROBLÈME 3 RÉSOLU: Vérification de la connectivité réseau
+    private func checkNetworkConnection() throws {
+        let connectionType = Reachability.getConnectionType()
+        if connectionType == .none {
+            print("🔴 No network connection available")
+            throw SupabaseError.networkError
+        }
+    }
+
+    // 🟢 PROBLÈME 5 RÉSOLU: Retry automatique pour les requêtes
+    private func performRequestWithRetry<T>(
+        maxRetries: Int = 3,
+        retryDelay: TimeInterval = 1.0,
+        operation: () async throws -> T
+    ) async throws -> T {
+        var lastError: Error?
+
+        for attempt in 1...maxRetries {
+            do {
+                return try await operation()
+            } catch {
+                lastError = error
+
+                // Ne pas retry si c'est une erreur d'authentification
+                if let supabaseError = error as? SupabaseError,
+                   supabaseError == .authenticationFailed || supabaseError == .notAuthenticated {
+                    throw error
+                }
+
+                if attempt < maxRetries {
+                    // Log seulement en debug, pas visible pour l'utilisateur
+                    #if DEBUG
+                    print("⚠️ Retry \(attempt)/\(maxRetries)")
+                    #endif
+                    try? await Task.sleep(nanoseconds: UInt64(retryDelay * 1_000_000_000))
+                }
+            }
+        }
+
+        throw lastError ?? SupabaseError.networkError
+    }
+
+    // Vérifier et rafraîchir la session si nécessaire
+    func ensureValidSession() async throws {
+        // Vérifier la connexion réseau d'abord
+        try checkNetworkConnection()
+
+        guard let session = currentSession else {
+            throw SupabaseError.authenticationFailed
+        }
+
+        // Rafraîchir si la session expire dans moins de 5 minutes
+        let fiveMinutesFromNow = Date().addingTimeInterval(5 * 60)
+        if session.expiresAt < fiveMinutesFromNow {
+            print("🔄 Session expires soon, refreshing...")
+            try await refreshSession()
+        }
+    }
+
     func resendConfirmationEmail(email: String) async throws {
         let url = URL(string: "\(supabaseURL)/auth/v1/resend")!
         var request = URLRequest(url: url)
@@ -136,6 +228,8 @@ class SupabaseManager {
     // MARK: - Profile API
 
     func createProfile() async throws {
+        try await ensureValidSession()  // 🔄 Vérifier et rafraîchir la session
+
         guard isAuthenticated, let userId = currentSession?.user.id else {
             throw SupabaseError.notAuthenticated
         }
@@ -168,6 +262,8 @@ class SupabaseManager {
     }
 
     func fetchProfile(userId: String? = nil) async throws -> UserProfile {
+        try await ensureValidSession()  // 🔄 Vérifier et rafraîchir la session
+
         guard isAuthenticated else { throw SupabaseError.notAuthenticated }
 
         let targetUserId = userId ?? currentSession?.user.id ?? ""
@@ -195,6 +291,8 @@ class SupabaseManager {
     }
 
     func updateProfile(userName: String? = nil, avatarUrl: String? = nil, bio: String? = nil, isPublic: Bool? = nil) async throws -> UserProfile {
+        try await ensureValidSession()  // 🔄 Vérifier et rafraîchir la session
+
         guard isAuthenticated, let userId = currentSession?.user.id else {
             throw SupabaseError.notAuthenticated
         }
@@ -227,51 +325,56 @@ class SupabaseManager {
     }
 
     func fetchUserStats(userId: String? = nil) async throws -> UserStats {
+        try await ensureValidSession()  // 🔄 Vérifier et rafraîchir la session
+
         guard isAuthenticated else { throw SupabaseError.notAuthenticated }
 
-        let targetUserId = userId ?? currentSession?.user.id ?? ""
-        let url = URL(string: "\(supabaseURL)/rest/v1/rpc/scanio_get_user_stats")!
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
-        request.setValue("Bearer \(currentSession?.accessToken ?? "")", forHTTPHeaderField: "Authorization")
+        // 🟢 Utiliser retry automatique
+        return try await performRequestWithRetry {
+            let targetUserId = userId ?? self.currentSession?.user.id ?? ""
+            let url = URL(string: "\(self.supabaseURL)/rest/v1/rpc/scanio_get_user_stats")!
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.setValue(self.supabaseAnonKey, forHTTPHeaderField: "apikey")
+            request.setValue("Bearer \(self.currentSession?.accessToken ?? "")", forHTTPHeaderField: "Authorization")
 
-        let body = ["p_user_id": targetUserId]
-        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+            let body = ["p_user_id": targetUserId]
+            request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
-        print("📊 fetchUserStats - URL: \(url)")
-        print("📊 fetchUserStats - User ID: \(targetUserId)")
-        print("📊 fetchUserStats - Body: \(String(data: request.httpBody ?? Data(), encoding: .utf8) ?? "")")
+            print("📊 fetchUserStats - URL: \(url)")
+            print("📊 fetchUserStats - User ID: \(targetUserId)")
+            print("📊 fetchUserStats - Body: \(String(data: request.httpBody ?? Data(), encoding: .utf8) ?? "")")
 
-        let (data, response) = try await URLSession.shared.data(for: request)
+            let (data, response) = try await URLSession.shared.data(for: request)
 
-        let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
-        print("📊 fetchUserStats - Status Code: \(statusCode)")
-        print("📊 fetchUserStats - Response: \(String(data: data, encoding: .utf8) ?? "")")
+            let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
+            print("📊 fetchUserStats - Status Code: \(statusCode)")
+            print("📊 fetchUserStats - Response: \(String(data: data, encoding: .utf8) ?? "")")
 
-        guard let httpResponse = response as? HTTPURLResponse,
-              (200...299).contains(httpResponse.statusCode) else {
-            print("❌ fetchUserStats - Network error: HTTP \(statusCode)")
-            throw SupabaseError.networkError
-        }
-
-        let decoder = JSONDecoder()
-        // Note: UserStats already has explicit CodingKeys, so we don't use convertFromSnakeCase
-
-        do {
-            let stats = try decoder.decode([UserStats].self, from: data)
-            print("📊 fetchUserStats - Decoded \(stats.count) stats")
-            guard let stat = stats.first else {
-                print("❌ fetchUserStats - No stats returned (empty array)")
-                throw SupabaseError.invalidResponse
+            guard let httpResponse = response as? HTTPURLResponse,
+                  (200...299).contains(httpResponse.statusCode) else {
+                print("❌ fetchUserStats - Network error: HTTP \(statusCode)")
+                throw SupabaseError.networkError
             }
-            print("✅ fetchUserStats - Success! Chapters: \(stat.totalChaptersRead), Manga: \(stat.totalMangaRead)")
-            return stat
-        } catch {
-            print("❌ fetchUserStats - Decoding error: \(error)")
-            print("❌ fetchUserStats - Raw data: \(String(data: data, encoding: .utf8) ?? "")")
-            throw error
+
+            let decoder = JSONDecoder()
+            // Note: UserStats already has explicit CodingKeys, so we don't use convertFromSnakeCase
+
+            do {
+                let stats = try decoder.decode([UserStats].self, from: data)
+                print("📊 fetchUserStats - Decoded \(stats.count) stats")
+                guard let stat = stats.first else {
+                    print("❌ fetchUserStats - No stats returned (empty array)")
+                    throw SupabaseError.invalidResponse
+                }
+                print("✅ fetchUserStats - Success! Chapters: \(stat.totalChaptersRead), Manga: \(stat.totalMangaRead)")
+                return stat
+            } catch {
+                print("❌ fetchUserStats - Decoding error: \(error)")
+                print("❌ fetchUserStats - Raw data: \(String(data: data, encoding: .utf8) ?? "")")
+                throw error
+            }
         }
     }
 

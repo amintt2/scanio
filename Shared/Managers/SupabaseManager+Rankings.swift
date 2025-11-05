@@ -19,6 +19,8 @@ extension SupabaseManager {
         isFavorite: Bool? = nil,
         readingStatus: ReadingStatus? = nil
     ) async throws -> PersonalRanking {
+        try await ensureValidSession()  // 🔄 Vérifier et rafraîchir la session
+
         guard isAuthenticated, let userId = currentSession?.user.id else {
             throw SupabaseError.notAuthenticated
         }
@@ -60,6 +62,8 @@ extension SupabaseManager {
     
     // PHASE 5, Task 5.4: Fetch rankings for any user (for public profiles)
     func fetchPersonalRankings(userId: String? = nil, limit: Int = 50) async throws -> [PersonalRankingWithManga] {
+        try await ensureValidSession()  // 🔄 Vérifier et rafraîchir la session
+
         guard isAuthenticated else {
             throw SupabaseError.notAuthenticated
         }
@@ -86,6 +90,8 @@ extension SupabaseManager {
     }
     
     func fetchFavorites() async throws -> [PersonalRankingWithManga] {
+        try await ensureValidSession()  // 🔄 Vérifier et rafraîchir la session
+
         guard isAuthenticated, let userId = currentSession?.user.id else {
             throw SupabaseError.notAuthenticated
         }
@@ -134,6 +140,8 @@ extension SupabaseManager {
     }
     
     func updateRankPosition(rankingId: String, newPosition: Int) async throws {
+        try await ensureValidSession()  // 🔄 Vérifier et rafraîchir la session
+
         guard isAuthenticated else { throw SupabaseError.notAuthenticated }
 
         let url = URL(string: "\(supabaseURL)/rest/v1/scanio_personal_rankings?id=eq.\(rankingId)")!
@@ -189,6 +197,8 @@ extension SupabaseManager {
     }
 
     func deletePersonalRanking(rankingId: String) async throws {
+        try await ensureValidSession()  // 🔄 Vérifier et rafraîchir la session
+
         guard isAuthenticated else { throw SupabaseError.notAuthenticated }
 
         let url = URL(string: "\(supabaseURL)/rest/v1/scanio_personal_rankings?id=eq.\(rankingId)")!

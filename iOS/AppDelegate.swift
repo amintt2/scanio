@@ -198,8 +198,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         application.applicationSupportsShakeToEdit = true
 
-        // Sync data from cloud if user is authenticated
-        Task {
+        // 🟡 PROBLÈME 2 RÉSOLU: Sync en arrière-plan sans bloquer l'UI
+        // Utiliser Task.detached avec un délai pour ne pas bloquer le démarrage
+        Task.detached(priority: .background) {
+            // Attendre 2 secondes pour laisser l'UI se charger
+            try? await Task.sleep(nanoseconds: 2_000_000_000)
+
             if SupabaseManager.shared.isAuthenticated {
                 print("🔄 User is authenticated, starting background sync...")
                 do {

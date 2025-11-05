@@ -63,8 +63,8 @@
 		1EED89802EB8040D00DF56D7 /* OnboardingWelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EED897C2EB8040D00DF56D7 /* OnboardingWelcomeView.swift */; };
 		1EED89822EB8042700DF56D7 /* OnboardingTutorial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EED89812EB8042700DF56D7 /* OnboardingTutorial.swift */; };
 		1EED89832EB8042700DF56D7 /* OnboardingTutorial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EED89812EB8042700DF56D7 /* OnboardingTutorial.swift */; };
-		1EEE9DB62EBA977800B1BE73 /* tomoscan.icon in Resources */ = {isa = PBXBuildFile; fileRef = 1EEE9DB52EBA977800B1BE73 /* tomoscan.icon */; };
-		1EEE9DB72EBA977800B1BE73 /* tomoscan.icon in Resources */ = {isa = PBXBuildFile; fileRef = 1EEE9DB52EBA977800B1BE73 /* tomoscan.icon */; };
+		1EEE9DBC2EBBB82400B1BE73 /* tomoscan 3.icon in Resources */ = {isa = PBXBuildFile; fileRef = 1EEE9DBB2EBBB82400B1BE73 /* tomoscan 3.icon */; };
+		1EEE9DBD2EBBB82400B1BE73 /* tomoscan 3.icon in Resources */ = {isa = PBXBuildFile; fileRef = 1EEE9DBB2EBBB82400B1BE73 /* tomoscan 3.icon */; };
 		37F3E66D2850F62100A944E0 /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37F3E66C2850F62100A944E0 /* Collection.swift */; };
 		48177B8E2B75C40400AD41B4 /* MangaUpdatesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48177B8D2B75C40400AD41B4 /* MangaUpdatesView.swift */; };
 		48177B902B75C63700AD41B4 /* CoreDataManager+MangaUpdates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48177B8F2B75C63700AD41B4 /* CoreDataManager+MangaUpdates.swift */; };
@@ -600,7 +600,7 @@
 		1EED89782EB7A3DF00DF56D7 /* SupabaseManager+Sources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SupabaseManager+Sources.swift"; sourceTree = "<group>"; };
 		1EED897C2EB8040D00DF56D7 /* OnboardingWelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = OnboardingWelcomeView.swift; path = Onboarding/OnboardingWelcomeView.swift; sourceTree = "<group>"; };
 		1EED89812EB8042700DF56D7 /* OnboardingTutorial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingTutorial.swift; sourceTree = "<group>"; };
-		1EEE9DB52EBA977800B1BE73 /* tomoscan.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = tomoscan.icon; sourceTree = "<group>"; };
+		1EEE9DBB2EBBB82400B1BE73 /* tomoscan 3.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = "tomoscan 3.icon"; sourceTree = "<group>"; };
 		37F3E66C2850F62100A944E0 /* Collection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collection.swift; sourceTree = "<group>"; };
 		43829DA5962D43A9A690AD6F /* SupabaseManager+ProfileVisibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SupabaseManager+ProfileVisibility.swift"; sourceTree = "<group>"; };
 		48177B8D2B75C40400AD41B4 /* MangaUpdatesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaUpdatesView.swift; sourceTree = "<group>"; };
@@ -1272,7 +1272,7 @@
 		FB1B4825277CE18D0056D02C = {
 			isa = PBXGroup;
 			children = (
-				1EEE9DB52EBA977800B1BE73 /* tomoscan.icon */,
+				1EEE9DBB2EBBB82400B1BE73 /* tomoscan 3.icon */,
 				FB1B482A277CE18D0056D02C /* Shared */,
 				FB1B4858277CE55B0056D02C /* iOS */,
 				FB1B483C277CE1920056D02C /* macOS */,
@@ -2339,8 +2339,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1EEE9DB72EBA977800B1BE73 /* tomoscan.icon in Resources */,
 				FB1B4846277CE1920056D02C /* Assets.xcassets in Resources */,
+				1EEE9DBD2EBBB82400B1BE73 /* tomoscan 3.icon in Resources */,
 				FB4ADCA72815A75700F6D7FB /* InfoPlist.strings in Resources */,
 				FB4ADCA22814DD4600F6D7FB /* Localizable.strings in Resources */,
 			);
@@ -2350,8 +2350,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1EEE9DB62EBA977800B1BE73 /* tomoscan.icon in Resources */,
 				FB1B4847277CE1920056D02C /* Assets.xcassets in Resources */,
+				1EEE9DBC2EBBB82400B1BE73 /* tomoscan 3.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3131,7 +3131,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 91D7BEF72DD7E46800898539 /* Aidoku-IOS.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = tomoscan;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "tomoscan 3";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
@@ -3177,7 +3177,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 91D7BEF72DD7E46800898539 /* Aidoku-IOS.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = tomoscan;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "tomoscan 3";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
@@ -3223,7 +3223,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 91D7BEF92DD7E48400898539 /* Aidoku-MACOS.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = tomoscan;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "tomoscan 3";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
@@ -3260,7 +3260,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 91D7BEF92DD7E48400898539 /* Aidoku-MACOS.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = tomoscan;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "tomoscan 3";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CLANG_ENABLE_MODULES = YES;
