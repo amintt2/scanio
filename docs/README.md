@@ -12,6 +12,12 @@ docs/
 └── tests/           # Documentation des tests
 ```
 
+## 🚀 Démarrage Rapide
+
+**Nouveau sur le projet ?** Commencez ici :
+1. **[Quick Start Guide](QUICK_START.md)** ⭐ - Installation et premiers pas
+2. **[Roadmap & Améliorations](features/ROADMAP_IMPROVEMENTS.md)** ⭐ - Plan complet des features à implémenter
+
 ## 🔍 Navigation Rapide
 
 ### 🐛 Debugging
@@ -30,6 +36,7 @@ Documentation technique pour le débogage et les corrections appliquées.
 ### ✨ Features
 Plans et spécifications des fonctionnalités de l'application.
 
+- **[ROADMAP_IMPROVEMENTS.md](features/ROADMAP_IMPROVEMENTS.md)** ⭐ - Plan complet des améliorations futures (18 features)
 - **PROFILE_FEATURES_PLAN.md** - Plan complet des fonctionnalités de profil (6 phases)
 - **COREDATA_SUPABASE_SYNC_PLAN.md** - Architecture de synchronisation CoreData ↔ Supabase
 
@@ -51,39 +58,61 @@ Les fichiers SQL sont dans le dossier [`../bdd/`](../bdd/)
 
 Voir [`../bdd/README.md`](../bdd/README.md) pour plus de détails.
 
-## 🚀 Démarrage Rapide
-
-### Pour déboguer l'application
-```bash
-cd docs/debugging
-open START_HERE.md
-```
-
-### Pour comprendre les fonctionnalités
-```bash
-cd docs/features
-open PROFILE_FEATURES_PLAN.md
-```
-
-### Pour configurer les tests
-```bash
-cd docs/tests
-open TESTS_SETUP_GUIDE.md
-```
-
 ## 📊 État du Projet
 
 ### ✅ Complété
-- 5 problèmes critiques corrigés
-- 34 tests XCTest créés
-- ErrorManager pour gestion d'erreurs UI
-- Logs nettoyés (DEBUG seulement)
-- Documentation complète
+- [x] Système de profil utilisateur
+- [x] Synchronisation Supabase (en cours de correction)
+- [x] Commentaires et likes
+- [x] 34 tests unitaires
+- [x] ErrorManager pour gestion d'erreurs
+- [x] Organisation du projet
+- [x] 5 problèmes critiques corrigés
+- [x] Logs nettoyés (DEBUG seulement)
 
-### 🔄 En cours
-- Configuration du target de tests dans Xcode
-- Intégration de ErrorBanner dans les vues
-- Tests en conditions réelles
+### 🚧 En Cours
+- [ ] Correction de la synchronisation library/sources/history
+- [ ] Correction du système de commentaires
+- [ ] Changement de couleur d'accent (cyan → bleu)
+
+### 📅 À Venir (Voir [Roadmap](features/ROADMAP_IMPROVEMENTS.md))
+- [ ] Page Découvrir (nouvelle page d'accueil)
+- [ ] Préchargement automatique des chapitres
+- [ ] Recherche globale multi-sources
+- [ ] Système de notation 0-10
+- [ ] Long-term caching avec Supabase
+- [ ] Swipe pour télécharger/supprimer chapitres
+
+## 🎯 Pour les Développeurs
+
+### Workflow Recommandé
+
+1. **Lire le [Quick Start](QUICK_START.md)** pour comprendre la structure du projet
+2. **Consulter le [Roadmap](features/ROADMAP_IMPROVEMENTS.md)** pour voir les features à implémenter
+3. **Suivre les conventions** de code et de commits
+4. **Tester** avant de commit
+
+### Build Commands
+
+```bash
+# Build iOS
+xcodebuild -project Aidoku.xcodeproj -scheme "Aidoku (iOS)" build
+
+# Run tests
+xcodebuild test -project Aidoku.xcodeproj -scheme "Aidoku (iOS)"
+
+# Clean
+xcodebuild clean -project Aidoku.xcodeproj -scheme "Aidoku (iOS)"
+```
+
+### Conventions de Commits
+
+```bash
+git commit -m "fix(sync): correct library upload to Supabase"
+git commit -m "feat(discover): add discover page"
+git commit -m "refactor(profile): move profile out of settings"
+git commit -m "test(sync): add tests for library sync"
+```
 
 ## 🛠️ Outils et Scripts
 

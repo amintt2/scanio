@@ -4,6 +4,13 @@ Une application de lecture de manga/manhwa/manhua gratuite et open source pour i
 
 > **Note**: Ce projet est un fork d'[Aidoku](https://github.com/Aidoku/Aidoku) avec des fonctionnalités étendues de profil utilisateur et de synchronisation Supabase.
 
+## 📖 Documentation
+
+- **[Quick Start Guide](docs/QUICK_START.md)** - Guide rapide pour démarrer
+- **[Roadmap & Améliorations](docs/features/ROADMAP_IMPROVEMENTS.md)** - Plan complet des améliorations à venir
+- **[Documentation Debugging](docs/debugging/)** - Guides de résolution de problèmes
+- **[Documentation Tests](docs/tests/)** - Guide des tests unitaires
+
 ## ✨ Fonctionnalités
 
 ### 📚 Lecture
