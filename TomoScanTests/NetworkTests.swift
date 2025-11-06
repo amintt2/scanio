@@ -110,12 +110,21 @@ final class NetworkTests: XCTestCase {
         XCTAssertFalse(userError.message.isEmpty)
     }
     
-    func testUserFacingErrorFromDecodingError() {
-        let error = SupabaseError.decodingError
+    func testUserFacingErrorFromInvalidData() {
+        let error = SupabaseError.invalidData
         let userError = UserFacingError(from: error, context: "Test")
-        
+
         XCTAssertEqual(userError.title, "Erreur de données")
         XCTAssertEqual(userError.icon, "doc.badge.exclamationmark")
+        XCTAssertFalse(userError.message.isEmpty)
+    }
+
+    func testUserFacingErrorFromProfileNotFound() {
+        let error = SupabaseError.profileNotFound
+        let userError = UserFacingError(from: error, context: "Test")
+
+        XCTAssertEqual(userError.title, "Profil introuvable")
+        XCTAssertEqual(userError.icon, "person.crop.circle.badge.questionmark")
         XCTAssertFalse(userError.message.isEmpty)
     }
     

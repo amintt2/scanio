@@ -74,10 +74,15 @@ struct UserFacingError: Identifiable {
                 self.message = "Réessayez dans quelques instants"
                 self.icon = "exclamationmark.triangle"
                 
-            case .decodingError:
+            case .invalidData:
                 self.title = "Erreur de données"
                 self.message = "Les données reçues sont invalides"
                 self.icon = "doc.badge.exclamationmark"
+
+            case .profileNotFound:
+                self.title = "Profil introuvable"
+                self.message = "Votre profil n'a pas été trouvé"
+                self.icon = "person.crop.circle.badge.questionmark"
             }
         } else {
             // Erreur générique

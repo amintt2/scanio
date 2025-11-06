@@ -113,10 +113,11 @@ final class SupabaseManagerTests: XCTestCase {
             .authenticationFailed,
             .notAuthenticated,
             .invalidResponse,
-            .decodingError
+            .invalidData,
+            .profileNotFound
         ]
-        
-        XCTAssertEqual(errors.count, 5, "Should have 5 error types")
+
+        XCTAssertEqual(errors.count, 6, "Should have 6 error types")
     }
     
     // MARK: - Helper Methods

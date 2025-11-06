@@ -149,8 +149,12 @@ class SupabaseManager {
     private func checkNetworkConnection() throws {
         let connectionType = Reachability.getConnectionType()
         if connectionType == .none {
-            print("🔴 No network connection available")
-            throw SupabaseError.networkError
+            #if DEBUG
+            print("🔴 No network connection")
+            #endif
+            let error = SupabaseError.networkError
+            ErrorManager.shared.handleError(error, context: "Network")
+            throw error
         }
     }
 

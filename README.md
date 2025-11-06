@@ -24,6 +24,53 @@ We have an AltStore repo that contains the latest releases ipa. You can copy the
 
 The latest ipa file will always be available from the [releases page](https://github.com/Aidoku/Aidoku/releases).
 
+## 📁 Project Structure
+
+```
+TomoScan/
+├── iOS/                    # iOS-specific code
+├── macOS/                  # macOS-specific code
+├── Shared/                 # Shared code (Managers, Models, Extensions)
+├── TomoScanTests/          # Unit tests (34 tests)
+├── docs/                   # Documentation
+│   ├── debugging/          # Debugging guides
+│   ├── features/           # Feature specifications
+│   ├── onboarding/         # Onboarding guides
+│   └── tests/              # Test documentation
+├── bdd/                    # SQL scripts for Supabase
+└── scripts/                # Utility scripts
+    ├── setup_tests.sh      # Configure tests
+    ├── run_tests.sh        # Run automated checks
+    └── add_error_manager.sh # Add ErrorManager to Xcode
+```
+
+## 🚀 Quick Start
+
+### For Developers
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/amintt2/scanio.git
+cd scanio
+
+# 2. Open in Xcode
+open Aidoku.xcodeproj
+
+# 3. Configure tests (optional)
+./scripts/setup_tests.sh
+
+# 4. Build and run
+# Press Cmd + R in Xcode
+```
+
+### Documentation
+
+- **📚 Main Documentation**: [`docs/README.md`](docs/README.md)
+- **🐛 Debugging Guide**: [`docs/debugging/`](docs/debugging/)
+- **✨ Features**: [`docs/features/`](docs/features/)
+- **🧪 Tests**: [`docs/tests/TESTS_SETUP_GUIDE.md`](docs/tests/TESTS_SETUP_GUIDE.md)
+- **🗄️ Database**: [`bdd/README.md`](bdd/README.md)
+
 ## Contributing
 Aidoku is still in a beta phase, and there are a lot of planned features and fixes. If you're interested in contributing, I'd first recommend checking with me on [Discord](https://discord.gg/kh2PYT8V8d) in the app development channel.
 
