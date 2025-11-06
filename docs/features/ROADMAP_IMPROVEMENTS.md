@@ -130,7 +130,7 @@ if let httpResponse = response as? HTTPURLResponse {
 
 ## ✨ Nouvelles Fonctionnalités
 
-### Phase 1 : Changement de Couleur d'Accent
+### Phase 1 : Changement de Couleur d'Accent ✅ TERMINÉ
 
 **Objectif** : Passer du cyan/turquoise au bleu
 
@@ -189,9 +189,11 @@ window.tintColor = .systemBlue // Au lieu de .systemPink
 
 ---
 
-### Phase 2 : Préchargement du Chapitre Suivant
+### Phase 2 : Préchargement du Chapitre Suivant ✅ TERMINÉ
 
 **Objectif** : Charger automatiquement le chapitre suivant quand l'utilisateur arrive vers la fin du chapitre actuel
+
+**Statut** : Implémenté avec préchargement anticipé à 30% du chapitre pour une lecture fluide même en scroll rapide
 
 **Fichiers Concernés**
 - `iOS/UI/Reader/Readers/Paged/ReaderPagedViewController.swift`
@@ -879,7 +881,302 @@ Task {
 
 ---
 
-### Phase 9 : Navigation Privée et Historique
+### Phase 9 : Navigation par Swipe entre Onglets
+
+**Objectif** : Permettre de naviguer entre les onglets (Library, Browse, History, Settings) en balayant vers la gauche ou la droite
+
+**Fichiers Concernés**
+- `iOS/UI/Base/BaseTabBarController.swift`
+- Créer un nouveau `SwipeableTabBarController.swift`
+
+**Problème Actuel**
+- Navigation uniquement par tap sur les onglets de la TabBar
+- Pas de geste de swipe pour changer d'onglet
+- UX moins fluide que les apps modernes
+
+**Solution Proposée**
+
+**Option 1 : UIPageViewController (Recommandé)**
+```swift
+// Créer SwipeableTabBarController.swift
+import UIKit
+
+class SwipeableTabBarController: UITabBarController {
+
+    private var pageViewController: UIPageViewController!
+    private var currentIndex: Int = 0
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupPageViewController()
+        setupSwipeGestures()
+    }
+
+    private func setupPageViewController() {
+        pageViewController = UIPageViewController(
+            transitionStyle: .scroll,
+            navigationOrientation: .horizontal,
+            options: nil
+        )
+        pageViewController.dataSource = self
+        pageViewController.delegate = self
+
+        // Désactiver le bounce aux extrémités
+        for view in pageViewController.view.subviews {
+            if let scrollView = view as? UIScrollView {
+                scrollView.bounces = false
+            }
+        }
+    }
+
+    private func setupSwipeGestures() {
+        // Ajouter les gestes de swipe
+        let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe(_:)))
+        swipeLeft.direction = .left
+        view.addGestureRecognizer(swipeLeft)
+
+        let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(handleSwipe(_:)))
+        swipeRight.direction = .right
+        view.addGestureRecognizer(swipeRight)
+    }
+
+    @objc private func handleSwipe(_ gesture: UISwipeGestureRecognizer) {
+        guard let viewControllers = viewControllers, !viewControllers.isEmpty else { return }
+
+        let currentIndex = selectedIndex
+        var newIndex = currentIndex
+
+        if gesture.direction == .left {
+            // Swipe vers la gauche = onglet suivant
+            newIndex = min(currentIndex + 1, viewControllers.count - 1)
+        } else if gesture.direction == .right {
+            // Swipe vers la droite = onglet précédent
+            newIndex = max(currentIndex - 1, 0)
+        }
+
+        if newIndex != currentIndex {
+            selectedIndex = newIndex
+
+            // Animation de transition
+            UIView.transition(
+                with: view,
+                duration: 0.3,
+                options: .transitionCrossDissolve,
+                animations: nil,
+                completion: nil
+            )
+        }
+    }
+}
+
+extension SwipeableTabBarController: UIPageViewControllerDataSource, UIPageViewControllerDelegate {
+
+    func pageViewController(
+        _ pageViewController: UIPageViewController,
+        viewControllerBefore viewController: UIViewController
+    ) -> UIViewController? {
+        guard let viewControllers = viewControllers,
+              let index = viewControllers.firstIndex(of: viewController),
+              index > 0 else {
+            return nil
+        }
+        return viewControllers[index - 1]
+    }
+
+    func pageViewController(
+        _ pageViewController: UIPageViewController,
+        viewControllerAfter viewController: UIViewController
+    ) -> UIViewController? {
+        guard let viewControllers = viewControllers,
+              let index = viewControllers.firstIndex(of: viewController),
+              index < viewControllers.count - 1 else {
+            return nil
+        }
+        return viewControllers[index + 1]
+    }
+
+    func pageViewController(
+        _ pageViewController: UIPageViewController,
+        didFinishAnimating finished: Bool,
+        previousViewControllers: [UIViewController],
+        transitionCompleted completed: Bool
+    ) {
+        if completed,
+           let viewControllers = viewControllers,
+           let currentVC = pageViewController.viewControllers?.first,
+           let index = viewControllers.firstIndex(of: currentVC) {
+            selectedIndex = index
+        }
+    }
+}
+```
+
+**Option 2 : Pan Gesture (Plus Simple)**
+```swift
+// Dans BaseTabBarController.swift
+class BaseTabBarController: UITabBarController {
+
+    private var panGesture: UIPanGestureRecognizer!
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupSwipeNavigation()
+    }
+
+    private func setupSwipeNavigation() {
+        panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
+        view.addGestureRecognizer(panGesture)
+    }
+
+    @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
+        guard let viewControllers = viewControllers, !viewControllers.isEmpty else { return }
+
+        let translation = gesture.translation(in: view)
+        let velocity = gesture.velocity(in: view)
+
+        if gesture.state == .ended {
+            let threshold: CGFloat = 100 // Distance minimale pour déclencher le swipe
+            let velocityThreshold: CGFloat = 500 // Vitesse minimale
+
+            let currentIndex = selectedIndex
+            var newIndex = currentIndex
+
+            // Swipe vers la droite (translation.x > 0) = onglet précédent
+            if translation.x > threshold || velocity.x > velocityThreshold {
+                newIndex = max(currentIndex - 1, 0)
+            }
+            // Swipe vers la gauche (translation.x < 0) = onglet suivant
+            else if translation.x < -threshold || velocity.x < -velocityThreshold {
+                newIndex = min(currentIndex + 1, viewControllers.count - 1)
+            }
+
+            if newIndex != currentIndex {
+                selectedIndex = newIndex
+
+                // Animation de transition
+                UIView.transition(
+                    with: view,
+                    duration: 0.25,
+                    options: translation.x > 0 ? .transitionCurlDown : .transitionCurlUp,
+                    animations: nil,
+                    completion: nil
+                )
+
+                // Haptic feedback
+                let generator = UIImpactFeedbackGenerator(style: .light)
+                generator.impactOccurred()
+            }
+        }
+    }
+}
+```
+
+**Modification dans SceneDelegate.swift**
+```swift
+// Remplacer BaseTabBarController par SwipeableTabBarController
+let tabBarController = SwipeableTabBarController()
+// ... reste du code
+```
+
+**Tests**
+1. Ouvrir l'app sur l'onglet Library
+2. Swiper vers la gauche
+3. Vérifier que l'onglet Browse s'affiche
+4. Swiper vers la droite
+5. Vérifier qu'on revient à Library
+6. Tester aux extrémités (Library et Settings)
+7. Vérifier qu'on ne peut pas swiper au-delà
+
+**Améliorations Possibles**
+- Ajouter une animation de transition personnalisée
+- Afficher un indicateur visuel pendant le swipe
+- Ajouter un feedback haptique
+- Permettre de désactiver le swipe dans les paramètres
+
+---
+
+### Phase 10 : Fusion Historique Local + Supabase
+
+**Objectif** : Fusionner l'historique local (CoreData) avec l'historique Supabase sans doublons
+
+**Dépendances** : Phase 0.1 (Synchronisation Library/Sources/History)
+
+**Fichiers Concernés**
+- `Shared/Managers/HistoryManager.swift`
+- `Shared/Managers/SyncManager.swift`
+
+**Problème Actuel**
+- Historique local et Supabase peuvent avoir des entrées différentes
+- Pas de fusion intelligente lors de la synchronisation
+- Risque de doublons ou de perte de données
+
+**Solution Proposée**
+```swift
+// Dans HistoryManager.swift
+func mergeHistoryFromSupabase() async throws {
+    // 1. Récupérer l'historique Supabase
+    let supabaseHistory = try await SupabaseManager.shared.fetchUserHistory()
+
+    // 2. Récupérer l'historique local
+    let localHistory = await CoreDataManager.shared.getAllHistory()
+
+    // 3. Créer un dictionnaire pour détecter les doublons
+    var historyMap: [String: HistoryEntry] = [:]
+
+    // 4. Ajouter l'historique local
+    for entry in localHistory {
+        let key = "\(entry.sourceId)_\(entry.mangaId)_\(entry.chapterId)"
+        historyMap[key] = entry
+    }
+
+    // 5. Fusionner avec Supabase (garder la date la plus récente)
+    for supabaseEntry in supabaseHistory {
+        let key = "\(supabaseEntry.sourceId)_\(supabaseEntry.mangaId)_\(supabaseEntry.chapterId)"
+
+        if let localEntry = historyMap[key] {
+            // Comparer les dates et garder la plus récente
+            if supabaseEntry.dateRead > localEntry.dateRead {
+                // Mettre à jour l'entrée locale
+                await CoreDataManager.shared.updateHistory(
+                    sourceId: supabaseEntry.sourceId,
+                    mangaId: supabaseEntry.mangaId,
+                    chapterId: supabaseEntry.chapterId,
+                    progress: supabaseEntry.progress,
+                    dateRead: supabaseEntry.dateRead,
+                    completed: supabaseEntry.completed
+                )
+            } else {
+                // Mettre à jour Supabase avec les données locales
+                try await SupabaseManager.shared.updateHistory(localEntry)
+            }
+        } else {
+            // Nouvelle entrée de Supabase, l'ajouter localement
+            await CoreDataManager.shared.createHistory(
+                sourceId: supabaseEntry.sourceId,
+                mangaId: supabaseEntry.mangaId,
+                chapterId: supabaseEntry.chapterId,
+                progress: supabaseEntry.progress,
+                dateRead: supabaseEntry.dateRead,
+                completed: supabaseEntry.completed
+            )
+        }
+    }
+
+    print("✅ Historique fusionné : \(historyMap.count) entrées")
+}
+```
+
+**Tests**
+1. Créer de l'historique local (lire des chapitres hors ligne)
+2. Se connecter à Supabase
+3. Vérifier que l'historique local est uploadé
+4. Modifier l'historique sur un autre appareil
+5. Se reconnecter
+6. Vérifier que les deux historiques sont fusionnés sans doublons
+
+---
+
+### Phase 11 : Navigation Privée et Historique
 
 **Objectif** : Respecter le mode navigation privée pour l'historique Supabase
 
@@ -1022,7 +1319,7 @@ class HistoryViewModel: ObservableObject {
 
 ---
 
-### Phase 11 : Refonte de la Page Profil
+### Phase 12 : Refonte de la Page Profil
 
 **Objectif** : Améliorer l'affichage des statistiques et déplacer le profil hors de Settings
 
@@ -1212,11 +1509,11 @@ struct StatCard: View {
 ### Sprint 2 : Améliorations UX Rapides (1 semaine)
 **Priorité** : 🟡 HAUTE
 
-3. **Phase 1** : Changement de couleur d'accent (bleu)
+3. **Phase 1** : Changement de couleur d'accent (bleu) ✅ TERMINÉ
    - Temps estimé : 1 heure
    - Impact visuel immédiat
 
-4. **Phase 2** : Préchargement du chapitre suivant
+4. **Phase 2** : Préchargement du chapitre suivant ✅ TERMINÉ
    - Temps estimé : 1-2 jours
    - Amélioration majeure de l'expérience de lecture
 
@@ -1228,11 +1525,16 @@ struct StatCard: View {
    - Temps estimé : 1 jour
    - Utile pour gérer le stockage
 
+7. **Phase 9** : Navigation par swipe entre onglets
+   - Temps estimé : 1-2 jours
+   - Navigation fluide entre Library, Browse, History, Settings
+
 **Critères de Succès**
 - ✅ App utilise le bleu comme couleur principale
 - ✅ Chapitres suivants se chargent automatiquement
 - ✅ Swipe pour télécharger/supprimer fonctionne
 - ✅ Taille des téléchargements affichée
+- ✅ Navigation par swipe entre onglets fonctionne
 
 ---
 
@@ -1251,7 +1553,7 @@ struct StatCard: View {
    - Temps estimé : 2-3 jours
    - Engagement utilisateur
 
-10. **Phase 11** : Refonte de la page Profil
+10. **Phase 12** : Refonte de la page Profil
     - Temps estimé : 3-4 jours
     - Meilleure présentation des stats
 
@@ -1271,19 +1573,19 @@ struct StatCard: View {
     - Temps estimé : 7-10 jours
     - Feature complexe, nécessite backend
 
-12. **Phase 9** : Navigation privée et historique
-    - Temps estimé : 1-2 jours
-    - Respect de la vie privée
-
-13. **Phase 10** : Fusion historique local + Supabase
+12. **Phase 10** : Fusion historique local + Supabase
     - Temps estimé : 2-3 jours
     - Dépend de Phase 0.1
+
+13. **Phase 11** : Navigation privée et historique
+    - Temps estimé : 1-2 jours
+    - Respect de la vie privée
 
 **Critères de Succès**
 - ✅ Chapitres cachés sur Supabase
 - ✅ Handshake de performance fonctionne
-- ✅ Mode incognito respecté
 - ✅ Historique fusionné sans doublons
+- ✅ Mode incognito respecté
 
 ---
 

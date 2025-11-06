@@ -45,6 +45,10 @@ class ReaderPagedViewController: BaseObservingViewController {
     private var lastPageIndex = 0
     private var navigationDirection: NavigationDirection = .unknown
 
+    // Track if next chapter has been preloaded to avoid multiple preloads
+    private var hasPreloadedNextChapter = false
+    private var hasStartedPreloading = false // Track si on a commencé le préchargement à 50%
+
     private enum NavigationDirection {
         case forward    // increasing index
         case backward   // decreasing index
@@ -689,6 +693,9 @@ extension ReaderPagedViewController: ReaderReaderDelegate {
                 // clear isolated and split pages when switching chapters
                 isolatedPages = []
                 splitPages = [:]
+                hasPreloadedNextChapter = false // Reset preload flags
+                hasStartedPreloading = false
+                print("🔄 [Paged] Reset preload flags - Nouveau chapitre: \(chapter.title ?? "Sans titre")")
 
                 loadPageControllers(chapter: chapter)
 
@@ -818,6 +825,27 @@ extension ReaderPagedViewController: UIPageViewControllerDelegate {
             }
             // preload 1 before and pagesToPreload ahead
             loadPages(in: page - 1 - (usesDoublePages ? 1 : 0)...page + pagesToPreload + (usesDoublePages ? 1 : 0))
+
+            // NOUVEAU: Préchargement anticipé très tôt pour éviter tout chargement visible
+            let progress = Float(page) / Float(displayPageCount)
+            print("📊 [Paged] Page \(page)/\(displayPageCount) - Progress: \(Int(progress * 100))% - Started: \(hasStartedPreloading) - Completed: \(hasPreloadedNextChapter)")
+
+            // Démarrer le préchargement à 30% pour avoir le temps même en lecture rapide
+            if progress >= 0.3, !hasStartedPreloading, let nextChapter = nextChapter {
+                if viewModel.preloadedChapter != nextChapter {
+                    hasStartedPreloading = true
+                    print("🔄 [Paged] Début préchargement anticipé à \(Int(progress * 100))% - Chapitre: \(nextChapter.title ?? "Sans titre") (ID: \(nextChapter.id))")
+                    Task {
+                        await viewModel.preload(chapter: nextChapter)
+                        print("✅ [Paged] Préchargement anticipé terminé - \(viewModel.preloadedPages.count) pages chargées")
+                        hasPreloadedNextChapter = true
+                    }
+                } else {
+                    print("⚠️ [Paged] Chapitre déjà préchargé, skip")
+                    hasStartedPreloading = true
+                    hasPreloadedNextChapter = true
+                }
+            }
         }
     }
 

@@ -73,3 +73,49 @@ extension Date {
         return calendar.startOfDay(for: Date())
     }
 }
+
+// MARK: - Supabase Date Decoding
+extension JSONDecoder.DateDecodingStrategy {
+    /// Custom date decoding strategy for Supabase PostgreSQL timestamps
+    /// Supports formats like: "2024-01-15T10:30:00+00:00", "2024-01-15T10:30:00Z", "2024-01-15T10:30:00.123456+00:00"
+    static var supabase: JSONDecoder.DateDecodingStrategy {
+        return .custom { decoder in
+            let container = try decoder.singleValueContainer()
+            let dateString = try container.decode(String.self)
+
+            // Try multiple formatters for different Supabase date formats
+            let formatters: [ISO8601DateFormatter] = [
+                // Format with fractional seconds and timezone
+                {
+                    let formatter = ISO8601DateFormatter()
+                    formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+                    return formatter
+                }(),
+                // Format with timezone but no fractional seconds
+                {
+                    let formatter = ISO8601DateFormatter()
+                    formatter.formatOptions = [.withInternetDateTime]
+                    return formatter
+                }(),
+                // Format with Z timezone
+                {
+                    let formatter = ISO8601DateFormatter()
+                    formatter.formatOptions = [.withInternetDateTime, .withTimeZone]
+                    return formatter
+                }()
+            ]
+
+            for formatter in formatters {
+                if let date = formatter.date(from: dateString) {
+                    return date
+                }
+            }
+
+            // If all formatters fail, throw an error
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Expected date string to be ISO8601-formatted with timezone. Got: \(dateString)"
+            )
+        }
+    }
+}

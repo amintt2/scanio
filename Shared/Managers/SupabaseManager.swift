@@ -286,7 +286,7 @@ class SupabaseManager {
         }
 
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
+        decoder.dateDecodingStrategy = .supabase
         let profiles = try decoder.decode([UserProfile].self, from: data)
         guard let profile = profiles.first else {
             throw SupabaseError.profileNotFound
@@ -320,7 +320,7 @@ class SupabaseManager {
         }
 
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
+        decoder.dateDecodingStrategy = .supabase
         let profiles = try decoder.decode([UserProfile].self, from: data)
         guard let profile = profiles.first else {
             throw SupabaseError.invalidResponse
@@ -464,7 +464,7 @@ class SupabaseManager {
         }
 
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
+        decoder.dateDecodingStrategy = .supabase
         return try decoder.decode([ReadingHistoryWithManga].self, from: data)
     }
 
@@ -491,7 +491,7 @@ class SupabaseManager {
         }
 
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
+        decoder.dateDecodingStrategy = .supabase
         return try decoder.decode([ReadingHistory].self, from: data)
     }
 

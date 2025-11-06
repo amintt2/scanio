@@ -25,6 +25,10 @@ class ReaderWebtoonViewController: ZoomableCollectionViewController {
     private var loadingPrevious = false
     private var loadingNext = false
 
+    // Track if next chapter has been preloaded to avoid multiple preloads
+    private var hasPreloadedNextChapter = false
+    private var hasStartedPreloading = false // Track si on a commencé le préchargement à 50%
+
     // The chapters currently shown in the reader view
     private var chapters: [AidokuRunner.Chapter] = []
     // The pages corresponding to the `chapters` variable
@@ -162,6 +166,38 @@ extension ReaderWebtoonViewController {
         if previousPage != page {
             previousPage = page
             delegate?.setCurrentPage(page)
+        }
+
+        // NOUVEAU: Préchargement anticipé très tôt pour éviter tout chargement visible
+        // Note: `chapter` est déjà unwrappé dans le guard au début de scrollViewDidScroll
+        if !hasStartedPreloading {
+            // Calculer la progression dans le chapitre ACTUEL (pas le scroll total)
+            let currentChapterPages = pages[safe: chapterIndex]?.filter({ $0.type == .imagePage }) ?? []
+            let totalPagesInChapter = currentChapterPages.count
+
+            if totalPagesInChapter > 0 {
+                let currentPage = page
+                let chapterProgress = Float(currentPage) / Float(totalPagesInChapter)
+                print("📊 [Webtoon] Page \(currentPage)/\(totalPagesInChapter) - Progress: \(Int(chapterProgress * 100))% - Started: \(hasStartedPreloading) - Completed: \(hasPreloadedNextChapter)")
+
+                // Démarrer le préchargement à 30% pour avoir le temps même en lecture rapide
+                if chapterProgress >= 0.3, let nextChapter = delegate?.getNextChapter() {
+                    // Vérifier que ce chapitre n'est pas déjà dans le cache
+                    if viewModel.preloadedChapter != nextChapter {
+                        hasStartedPreloading = true
+                        print("🔄 [Webtoon] Début préchargement anticipé à \(Int(chapterProgress * 100))% - Chapitre: \(nextChapter.title ?? "Sans titre") (ID: \(nextChapter.id))")
+                        Task {
+                            await viewModel.preload(chapter: nextChapter)
+                            print("✅ [Webtoon] Préchargement anticipé terminé - \(viewModel.preloadedPages.count) pages chargées")
+                            hasPreloadedNextChapter = true
+                        }
+                    } else {
+                        print("⚠️ [Webtoon] Chapitre déjà préchargé, skip")
+                        hasStartedPreloading = true
+                        hasPreloadedNextChapter = true
+                    }
+                }
+            }
         }
     }
 
@@ -414,6 +450,9 @@ extension ReaderWebtoonViewController {
             let pages = pages[safe: chapterIndex - 1]
         else { return }
         self.chapter = chapter
+        hasPreloadedNextChapter = false // Reset preload flags
+        hasStartedPreloading = false
+        print("🔄 [Webtoon] Reset preload flags - Chapitre précédent: \(chapter.title ?? "Sans titre")")
         delegate?.setChapter(chapter)
         delegate?.setPages(pages.filter({ $0.type == .imagePage }))
         viewModel.setPages(chapter: chapter, pages: pages)
@@ -428,6 +467,9 @@ extension ReaderWebtoonViewController {
             let pages = pages[safe: chapterIndex + 1]
         else { return }
         self.chapter = chapter
+        hasPreloadedNextChapter = false // Reset preload flags
+        hasStartedPreloading = false
+        print("🔄 [Webtoon] Reset preload flags - Chapitre suivant: \(chapter.title ?? "Sans titre")")
         delegate?.setChapter(chapter)
         delegate?.setPages(pages.filter({ $0.type == .imagePage }))
         viewModel.setPages(chapter: chapter, pages: pages)
@@ -531,6 +573,9 @@ extension ReaderWebtoonViewController: ReaderReaderDelegate {
     func setChapter(_ chapter: AidokuRunner.Chapter, startPage: Int) {
         self.chapter = chapter
         chapters = [chapter]
+        hasPreloadedNextChapter = false // Reset preload flags
+        hasStartedPreloading = false
+        print("🔄 [Webtoon] Reset preload flags - Nouveau chapitre: \(chapter.title ?? "Sans titre")")
 
         Task {
             await viewModel.loadPages(chapter: chapter)

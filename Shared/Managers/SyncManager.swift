@@ -46,19 +46,45 @@ class SyncManager {
 
     // MARK: - Sources Sync
 
-    /// Sync user sources from Supabase to local
+    /// Bidirectional sync: merge local sources and Supabase sources
     func syncSources() async throws {
         print("🔌 SyncManager: Syncing sources...")
 
-        // Fetch sources from Supabase
+        // 1. Fetch sources from Supabase
         let supabaseSources = try await supabase.fetchUserSources()
         print("🔌 Fetched \(supabaseSources.count) sources from Supabase")
 
-        // Get currently installed sources
+        // 2. Get currently installed sources
         let installedSources = SourceManager.shared.sources
         let installedSourceIds = Set(installedSources.map { $0.id })
+        let supabaseSourceIds = Set(supabaseSources.map { $0.sourceId })
+        print("🔌 Found \(installedSources.count) installed sources locally")
 
-        // Install missing sources
+        // 3. Upload local sources that are not in Supabase
+        var uploadedCount = 0
+        for source in installedSources {
+            if !supabaseSourceIds.contains(source.id) {
+                print("📤 Uploading source to Supabase: \(source.name) (\(source.id))")
+                do {
+                    // Note: We don't have the original download URL in CoreData
+                    // Sources will be uploaded without URL (user must add manually on other devices)
+                    try await supabase.addUserSource(
+                        sourceId: source.id,
+                        sourceName: source.name,
+                        sourceLang: source.languages.first,
+                        sourceUrl: nil
+                    )
+                    print("✅ Successfully uploaded source: \(source.id)")
+                    uploadedCount += 1
+                } catch {
+                    print("❌ Failed to upload source \(source.id): \(error)")
+                }
+            } else {
+                print("✅ Source already in Supabase: \(source.id)")
+            }
+        }
+
+        // 4. Download sources from Supabase that are not installed locally
         var installedCount = 0
         var failedCount = 0
 
@@ -93,7 +119,7 @@ class SyncManager {
             }
         }
 
-        print("✅ Sources sync completed - Installed: \(installedCount), Failed: \(failedCount)")
+        print("✅ Sources sync completed - Uploaded: \(uploadedCount), Installed: \(installedCount), Failed: \(failedCount)")
     }
 
     // MARK: - History Sync
@@ -106,17 +132,83 @@ class SyncManager {
         let supabaseHistory = try await supabase.getReadingHistory(limit: 1000)
         print("📖 Fetched \(supabaseHistory.count) history items from Supabase")
 
-        // Download history to CoreData
-        for historyItem in supabaseHistory {
-            await downloadHistoryItem(historyItem)
+        // Group history by manga to fetch metadata efficiently
+        var mangaToFetch: Set<String> = []
+        for item in supabaseHistory {
+            let key = "\(item.sourceId)|\(item.mangaId)"
+            mangaToFetch.insert(key)
         }
 
-        print("✅ History sync completed")
+        // Fetch manga metadata for all history items
+        print("📖 Need to fetch metadata for \(mangaToFetch.count) manga")
+        for mangaKey in mangaToFetch {
+            let parts = mangaKey.split(separator: "|")
+            guard parts.count == 2 else { continue }
+            let sourceId = String(parts[0])
+            let mangaId = String(parts[1])
+
+            // Check if manga already exists in CoreData
+            let exists = await coreData.container.performBackgroundTask { context in
+                self.coreData.getManga(sourceId: sourceId, mangaId: mangaId, context: context) != nil
+            }
+
+            if !exists {
+                print("📖 Fetching manga metadata: \(sourceId)/\(mangaId)")
+                await fetchMangaMetadata(sourceId: sourceId, mangaId: mangaId)
+            }
+        }
+
+        // Download history to CoreData
+        var restoredCount = 0
+        for historyItem in supabaseHistory {
+            let restored = await downloadHistoryItem(historyItem)
+            if restored {
+                restoredCount += 1
+            }
+        }
+
+        print("✅ History sync completed - Restored: \(restoredCount)/\(supabaseHistory.count)")
+    }
+
+    /// Fetch manga metadata from source and save to CoreData
+    private func fetchMangaMetadata(sourceId: String, mangaId: String) async {
+        guard let source = SourceManager.shared.source(for: sourceId) else {
+            print("⚠️ Source not found: \(sourceId)")
+            return
+        }
+
+        do {
+            // Create a basic manga object
+            let basicManga = AidokuRunner.Manga(sourceKey: sourceId, key: mangaId, title: "")
+
+            // Fetch full details with chapters
+            let manga = try await source.getMangaUpdate(manga: basicManga, needsDetails: true, needsChapters: true)
+
+            // Save to CoreData
+            await coreData.container.performBackgroundTask { context in
+                let mangaObject = self.coreData.getOrCreateManga(manga, sourceId: sourceId, context: context)
+
+                // Save chapters
+                if let chapters = manga.chapters {
+                    _ = self.coreData.setChapters(chapters, sourceId: sourceId, mangaId: mangaId, context: context)
+                }
+
+                do {
+                    try context.save()
+                    print("✅ Saved manga metadata: \(manga.title ?? mangaId)")
+                } catch {
+                    print("❌ Failed to save manga metadata: \(error)")
+                }
+            }
+        } catch {
+            print("❌ Failed to fetch manga metadata for \(sourceId)/\(mangaId): \(error)")
+        }
     }
 
     /// Download a single history item to CoreData
-    private func downloadHistoryItem(_ item: ReadingHistory) async {
-        await coreData.container.performBackgroundTask { context in
+    /// Returns true if successfully restored
+    private func downloadHistoryItem(_ item: ReadingHistory) async -> Bool {
+        return await coreData.container.performBackgroundTask { context in
             // Check if we have this manga in CoreData
             let manga = self.coreData.getManga(
                 sourceId: item.sourceId,
@@ -126,7 +218,7 @@ class SyncManager {
 
             if manga == nil {
                 print("⚠️ Cannot restore history for \(item.mangaId) - manga not in CoreData")
-                return
+                return false
             }
 
             // Find chapter by chapter number (since we don't have chapterId in Supabase)
@@ -140,7 +232,7 @@ class SyncManager {
             guard let chapterNumber = Float(item.chapterNumber),
                   let chapter = chapters.first(where: { $0.chapter?.floatValue == chapterNumber }) else {
                 print("⚠️ Cannot restore history for chapter \(item.chapterNumber) - chapter not in CoreData")
-                return
+                return false
             }
 
             // Get or create history object
@@ -171,8 +263,10 @@ class SyncManager {
             do {
                 try context.save()
                 print("✅ Restored history for chapter \(item.chapterNumber)")
+                return true
             } catch {
                 print("❌ Failed to save history: \(error)")
+                return false
             }
         }
     }
@@ -295,6 +389,9 @@ class SyncManager {
             throw SupabaseError.notAuthenticated
         }
 
+        print("📤 uploadLibraryItemToSupabase - Source: \(item.sourceId), Manga: \(item.mangaId)")
+        print("📤 Canonical ID: \(item.canonicalMangaId)")
+
         let url = URL(string: "\(supabase.supabaseURL)/rest/v1/rpc/scanio_upsert_user_library")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -313,14 +410,58 @@ class SyncManager {
             "p_last_updated": item.lastUpdated?.iso8601String as Any
         ]
 
+        print("📤 Request body: \(body)")
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
-        let (_, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await URLSession.shared.data(for: request)
 
-        guard let httpResponse = response as? HTTPURLResponse,
-              (200...299).contains(httpResponse.statusCode) else {
+        guard let httpResponse = response as? HTTPURLResponse else {
+            print("❌ Invalid HTTP response")
             throw SupabaseError.networkError
         }
+
+        print("📤 HTTP Status: \(httpResponse.statusCode)")
+
+        if !(200...299).contains(httpResponse.statusCode) {
+            let responseBody = String(data: data, encoding: .utf8) ?? "N/A"
+            print("❌ Upload failed - Response: \(responseBody)")
+            throw SupabaseError.networkError
+        }
+
+        print("✅ Successfully uploaded library item")
+    }
+
+    /// Remove a library item from Supabase
+    func removeLibraryItemFromSupabase(canonicalMangaId: String) async throws {
+        guard let userId = supabase.currentSession?.user.id else {
+            throw SupabaseError.notAuthenticated
+        }
+
+        print("🗑️ Removing library item from Supabase - Canonical ID: \(canonicalMangaId)")
+
+        let url = URL(string: "\(supabase.supabaseURL)/rest/v1/scanio_user_library?user_id=eq.\(userId)&canonical_manga_id=eq.\(canonicalMangaId)")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(supabase.supabaseAnonKey, forHTTPHeaderField: "apikey")
+        request.setValue("Bearer \(supabase.currentSession?.accessToken ?? "")", forHTTPHeaderField: "Authorization")
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            print("❌ Invalid HTTP response")
+            throw SupabaseError.networkError
+        }
+
+        print("🗑️ HTTP Status: \(httpResponse.statusCode)")
+
+        if !(200...299).contains(httpResponse.statusCode) {
+            let responseBody = String(data: data, encoding: .utf8) ?? "N/A"
+            print("❌ Delete failed - Response: \(responseBody)")
+            throw SupabaseError.networkError
+        }
+
+        print("✅ Successfully removed library item from Supabase")
     }
     
     /// Merge library item: use most recent timestamps
@@ -382,24 +523,39 @@ class SyncManager {
         return items
     }
     
-    /// Get library from CoreData
+    /// Get library from CoreData and fetch canonical IDs from Supabase
     private func getCoreDataLibrary() async -> [CoreDataLibraryItem] {
-        return await coreData.container.performBackgroundTask { context in
-            let libraryMangas = self.coreData.getLibraryManga(context: context)
+        // First, get all library mangas from CoreData
+        let libraryMangas = await coreData.container.performBackgroundTask { context in
+            self.coreData.getLibraryManga(context: context)
+        }
 
-            return libraryMangas.compactMap { libraryManga -> CoreDataLibraryItem? in
-                guard let manga = libraryManga.manga else {
-                    return nil
-                }
+        print("📚 getCoreDataLibrary - Found \(libraryMangas.count) library items")
 
-                let sourceId = manga.sourceId
-                let mangaId = manga.id
+        // Then, for each manga, get or create the canonical ID
+        var items: [CoreDataLibraryItem] = []
 
-                // We need to get the canonical manga ID
-                // For now, we'll use a placeholder - this needs to be implemented
-                let canonicalMangaId = "placeholder-\(sourceId)-\(mangaId)"
+        for libraryManga in libraryMangas {
+            guard let manga = libraryManga.manga else {
+                print("⚠️ Library manga has no manga object, skipping")
+                continue
+            }
 
-                return CoreDataLibraryItem(
+            let sourceId = manga.sourceId
+            let mangaId = manga.id
+            let title = manga.title ?? "Unknown"
+
+            do {
+                // Get or create canonical manga ID from Supabase
+                print("🔍 Getting canonical ID for: \(title) (\(sourceId)/\(mangaId))")
+                let canonicalMangaId = try await supabase.getOrCreateCanonicalManga(
+                    title: title,
+                    sourceId: sourceId,
+                    mangaId: mangaId
+                )
+                print("✅ Got canonical ID: \(canonicalMangaId)")
+
+                let item = CoreDataLibraryItem(
                     canonicalMangaId: canonicalMangaId,
                     sourceId: sourceId,
                     mangaId: mangaId,
@@ -408,8 +564,15 @@ class SyncManager {
                     lastRead: libraryManga.lastRead,
                     lastUpdated: libraryManga.lastUpdated
                 )
+                items.append(item)
+            } catch {
+                print("❌ Failed to get canonical ID for \(title): \(error)")
+                // Skip this item if we can't get the canonical ID
             }
         }
+
+        print("📚 getCoreDataLibrary - Returning \(items.count) items with canonical IDs")
+        return items
     }
     
     /// Update CoreData timestamps

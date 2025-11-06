@@ -67,6 +67,10 @@ final class CoreDataManager {
         localDescription.shouldMigrateStoreAutomatically = true
         localDescription.shouldInferMappingModelAutomatically = true
 
+        // Enable persistent history tracking for sync support
+        localDescription.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
+        localDescription.setOption(true as NSNumber, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
+
         if shouldUseiCloud {
             cloudDescription.cloudKitContainerOptions = NSPersistentCloudKitContainerOptions(
                 containerIdentifier: CoreDataManager.containerID)

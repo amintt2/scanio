@@ -71,13 +71,16 @@ Voir [`../bdd/README.md`](../bdd/README.md) pour plus de détails.
 - [x] Logs nettoyés (DEBUG seulement)
 
 ### 🚧 En Cours
-- [ ] Correction de la synchronisation library/sources/history
+- [ ] Correction de la synchronisation library/sources/history (CoreData history tracking)
 - [ ] Correction du système de commentaires
-- [ ] Changement de couleur d'accent (cyan → bleu)
+
+### ✅ Récemment Complété
+- [x] Changement de couleur d'accent (cyan → bleu)
+- [x] Préchargement automatique des chapitres (démarrage à 30%)
 
 ### 📅 À Venir (Voir [Roadmap](features/ROADMAP_IMPROVEMENTS.md))
+- [ ] Navigation par swipe entre onglets (Library ↔ Browse ↔ History ↔ Settings)
 - [ ] Page Découvrir (nouvelle page d'accueil)
-- [ ] Préchargement automatique des chapitres
 - [ ] Recherche globale multi-sources
 - [ ] Système de notation 0-10
 - [ ] Long-term caching avec Supabase

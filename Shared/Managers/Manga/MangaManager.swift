@@ -64,6 +64,35 @@ extension MangaManager {
         // add enhanced trackers
         await TrackerManager.shared.bindEnhancedTrackers(manga: manga)
 
+        // Sync to Supabase immediately if authenticated
+        if SupabaseManager.shared.isAuthenticated {
+            print("📤 Syncing library item to Supabase: \(manga.title ?? manga.key)")
+            do {
+                // Get or create canonical manga ID
+                let canonicalMangaId = try await SupabaseManager.shared.getOrCreateCanonicalManga(
+                    title: manga.title ?? "Unknown",
+                    sourceId: sourceId,
+                    mangaId: manga.key
+                )
+
+                // Upload to Supabase
+                try await SyncManager.shared.uploadLibraryItemToSupabase(
+                    CoreDataLibraryItem(
+                        canonicalMangaId: canonicalMangaId,
+                        sourceId: sourceId,
+                        mangaId: manga.key,
+                        dateAdded: Date(),
+                        lastOpened: nil,
+                        lastRead: nil,
+                        lastUpdated: nil
+                    )
+                )
+                print("✅ Library item synced to Supabase")
+            } catch {
+                print("❌ Failed to sync library item to Supabase: \(error)")
+            }
+        }
+
         NotificationCenter.default.post(
             name: .addToLibrary,
             object: manga.toOld()
@@ -103,6 +132,27 @@ extension MangaManager {
                 try context.save()
             } catch {
                 LogManager.logger.error("MangaManager.removeFromLibrary(mangaId: \(mangaId)): \(error.localizedDescription)")
+            }
+        }
+
+        // Remove from Supabase immediately if authenticated
+        if SupabaseManager.shared.isAuthenticated {
+            print("📤 Removing library item from Supabase: \(mangaId)")
+            do {
+                // Get canonical manga ID
+                if let manga = mangaForNotification {
+                    let canonicalMangaId = try await SupabaseManager.shared.getOrCreateCanonicalManga(
+                        title: manga.title ?? "Unknown",
+                        sourceId: sourceId,
+                        mangaId: mangaId
+                    )
+
+                    // Delete from Supabase
+                    try await SyncManager.shared.removeLibraryItemFromSupabase(canonicalMangaId: canonicalMangaId)
+                    print("✅ Library item removed from Supabase")
+                }
+            } catch {
+                print("❌ Failed to remove library item from Supabase: \(error)")
             }
         }
 
