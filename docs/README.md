@@ -37,7 +37,10 @@ Documentation technique pour le débogage et les corrections appliquées.
 Plans et spécifications des fonctionnalités de l'application.
 
 - **[ROADMAP_IMPROVEMENTS.md](features/ROADMAP_IMPROVEMENTS.md)** ⭐ - Plan complet des améliorations futures (18 features)
-- **PROFILE_FEATURES_PLAN.md** - Plan complet des fonctionnalités de profil (6 phases)
+- **[PROFILE_FEATURES_PLAN.md](features/PROFILE_FEATURES_PLAN.md)** ⭐ - Plan complet des fonctionnalités de profil (7 phases, Phase 7 = Présence en ligne ✅)
+- **[FUTURE_FEATURES.md](features/FUTURE_FEATURES.md)** 🔮 - Fonctionnalités futures basées sur le système de présence (chat, amis, etc.)
+- **[PRESENCE_SYSTEM_ARCHITECTURE.md](features/PRESENCE_SYSTEM_ARCHITECTURE.md)** 🟢 - Architecture technique du système de présence
+- **[PRESENCE_DEPLOYMENT_GUIDE.md](features/PRESENCE_DEPLOYMENT_GUIDE.md)** 🚀 - Guide de déploiement étape par étape
 - **COREDATA_SUPABASE_SYNC_PLAN.md** - Architecture de synchronisation CoreData ↔ Supabase
 
 ### 👋 Onboarding
@@ -69,6 +72,7 @@ Voir [`../bdd/README.md`](../bdd/README.md) pour plus de détails.
 - [x] Organisation du projet
 - [x] 5 problèmes critiques corrigés
 - [x] Logs nettoyés (DEBUG seulement)
+- [x] **Système de présence en ligne** 🟢
 
 ### 🚧 En Cours
 - [ ] Correction de la synchronisation library/sources/history (CoreData history tracking)
@@ -77,6 +81,11 @@ Voir [`../bdd/README.md`](../bdd/README.md) pour plus de détails.
 ### ✅ Récemment Complété
 - [x] Changement de couleur d'accent (cyan → bleu)
 - [x] Préchargement automatique des chapitres (démarrage à 30%)
+- [x] **Système de présence en ligne avec indicateurs visuels** 🟢
+  - Statut en ligne/hors ligne en temps réel
+  - Indicateurs "Vu il y a X min/h/j"
+  - Intégration automatique (connexion/déconnexion)
+  - Infrastructure prête pour chat, amis, et commentaires
 
 ### 📅 À Venir (Voir [Roadmap](features/ROADMAP_IMPROVEMENTS.md))
 - [ ] Navigation par swipe entre onglets (Library ↔ Browse ↔ History ↔ Settings)
@@ -85,6 +94,13 @@ Voir [`../bdd/README.md`](../bdd/README.md) pour plus de détails.
 - [ ] Système de notation 0-10
 - [ ] Long-term caching avec Supabase
 - [ ] Swipe pour télécharger/supprimer chapitres
+
+### 🔮 Fonctionnalités Futures (Infrastructure Prête)
+Basées sur le système de présence en ligne :
+- [ ] **Chat en temps réel** - Voir qui est en ligne pour discuter
+- [ ] **Liste d'amis** - Voir quels amis sont en ligne
+- [ ] **Indicateurs dans les commentaires** - Voir si l'auteur est en ligne
+- [ ] **Cleanup automatique** - Utilisateurs inactifs >5 min marqués hors ligne
 
 ## 🎯 Pour les Développeurs
 
@@ -144,6 +160,6 @@ Les scripts utiles sont à la racine du projet :
 
 ---
 
-**Dernière mise à jour** : 2025-11-06  
-**Version** : 1.0
+**Dernière mise à jour** : 2025-11-07
+**Version** : 1.1 - Ajout du système de présence en ligne
 

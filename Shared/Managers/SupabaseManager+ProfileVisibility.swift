@@ -31,7 +31,7 @@ extension SupabaseManager {
         }
         
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
+        decoder.dateDecodingStrategy = .supabase
         let settings = try decoder.decode([ProfileVisibilitySettings].self, from: data)
         
         // If no settings exist, return default settings
@@ -116,7 +116,7 @@ extension SupabaseManager {
         }
         
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
+        decoder.dateDecodingStrategy = .supabase
         let settings = try decoder.decode([ProfileVisibilitySettings].self, from: data)
         
         guard let updatedSettings = settings.first else {

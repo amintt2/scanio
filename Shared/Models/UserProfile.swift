@@ -19,7 +19,9 @@ struct UserProfile: Codable, Identifiable {
     var totalMangaRead: Int
     let createdAt: Date
     let updatedAt: Date?
-    
+    var isOnline: Bool?  // Online status from presence table
+    var lastSeen: Date?  // Last seen timestamp
+
     enum CodingKeys: String, CodingKey {
         case id
         case userName = "user_name"
@@ -31,6 +33,8 @@ struct UserProfile: Codable, Identifiable {
         case totalMangaRead = "total_manga_read"
         case createdAt = "created_at"
         case updatedAt = "updated_at"
+        case isOnline = "is_online"
+        case lastSeen = "last_seen"
     }
 }
 

@@ -52,7 +52,7 @@ extension SupabaseManager {
         }
         
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
+        decoder.dateDecodingStrategy = .supabase
         let rankings = try decoder.decode([PersonalRanking].self, from: data)
         guard let ranking = rankings.first else {
             throw SupabaseError.invalidResponse
@@ -85,7 +85,7 @@ extension SupabaseManager {
         }
 
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
+        decoder.dateDecodingStrategy = .supabase
         return try decoder.decode([PersonalRankingWithManga].self, from: data)
     }
     
@@ -111,7 +111,7 @@ extension SupabaseManager {
         }
         
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
+        decoder.dateDecodingStrategy = .supabase
         return try decoder.decode([PersonalRankingWithManga].self, from: data)
     }
     
@@ -135,7 +135,7 @@ extension SupabaseManager {
         }
         
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
+        decoder.dateDecodingStrategy = .supabase
         return try decoder.decode([PersonalRankingWithManga].self, from: data)
     }
     

@@ -38,6 +38,12 @@ class SyncManager {
             try await syncCategories()
             try await syncTrackers()
             print("✅ SyncManager: Full sync completed successfully")
+
+            // Notify UI to refresh
+            await MainActor.run {
+                NotificationCenter.default.post(name: .updateLibrary, object: nil)
+                NotificationCenter.default.post(name: .updateHistory, object: nil)
+            }
         } catch {
             print("❌ SyncManager: Full sync failed: \(error)")
             throw error
@@ -184,7 +190,7 @@ class SyncManager {
             // Fetch full details with chapters
             let manga = try await source.getMangaUpdate(manga: basicManga, needsDetails: true, needsChapters: true)
 
-            // Save to CoreData
+            // Save to CoreData in the Cloud store
             await coreData.container.performBackgroundTask { context in
                 let mangaObject = self.coreData.getOrCreateManga(manga, sourceId: sourceId, context: context)
 

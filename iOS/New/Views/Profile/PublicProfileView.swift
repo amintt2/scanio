@@ -79,10 +79,28 @@ struct PublicProfileView: View {
                         .foregroundColor(.white)
                 )
             
-            // Username
-            Text(profile.userName ?? "Utilisateur")
-                .font(.title.weight(.bold))
-            
+            // Username with online status
+            HStack(spacing: 8) {
+                Text(profile.userName ?? "Utilisateur")
+                    .font(.title.weight(.bold))
+
+                // Online status indicator
+                if let isOnline = profile.isOnline, isOnline {
+                    HStack(spacing: 4) {
+                        Circle()
+                            .fill(Color.green)
+                            .frame(width: 10, height: 10)
+                        Text("En ligne")
+                            .font(.caption)
+                            .foregroundColor(.green)
+                    }
+                } else if let lastSeen = profile.lastSeen {
+                    Text(formatLastSeen(lastSeen))
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+
             // Bio
             if let bio = profile.bio, !bio.isEmpty {
                 Text(bio)
@@ -267,6 +285,24 @@ struct PublicProfileView: View {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .abbreviated
         return formatter.localizedString(for: date, relativeTo: Date())
+    }
+
+    private func formatLastSeen(_ date: Date) -> String {
+        let now = Date()
+        let interval = now.timeIntervalSince(date)
+
+        if interval < 60 {
+            return "Vu à l'instant"
+        } else if interval < 3600 {
+            let minutes = Int(interval / 60)
+            return "Vu il y a \(minutes) min"
+        } else if interval < 86400 {
+            let hours = Int(interval / 3600)
+            return "Vu il y a \(hours)h"
+        } else {
+            let days = Int(interval / 86400)
+            return "Vu il y a \(days)j"
+        }
     }
 }
 

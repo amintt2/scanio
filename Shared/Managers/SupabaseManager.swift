@@ -105,10 +105,17 @@ class SupabaseManager {
 
         let session = try JSONDecoder().decode(AuthSession.self, from: data)
         saveSession(session)
+
+        // Set user online after successful sign in
+        await self.setOnline()
+
         return session.user
     }
 
-    func signOut() {
+    func signOut() async {
+        // Set user offline before signing out
+        await self.setOffline()
+
         clearSession()
     }
 
@@ -515,7 +522,7 @@ class SupabaseManager {
         }
 
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
+        decoder.dateDecodingStrategy = .supabase
         return try decoder.decode([MangaProgressWithManga].self, from: data)
     }
 }

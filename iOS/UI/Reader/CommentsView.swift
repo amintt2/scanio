@@ -20,6 +20,7 @@ struct CommentsView: View {
     @State private var errorMessage: String?
     @State private var replyingTo: Comment?
     @State private var canonicalMangaId: String?
+    @State private var userPresences: [String: UserPresence] = [:]  // User ID -> Presence
 
     var body: some View {
         ZStack {
@@ -191,6 +192,7 @@ struct CommentsView: View {
                             comment: comment,
                             canonicalMangaId: canonicalMangaId ?? "",
                             chapterNumber: chapter.chapterNumber.map { String(format: "%.1f", $0) } ?? "0",
+                            userPresence: userPresences[comment.userId],
                             onDelete: { deleteComment(comment) }
                         )
 
@@ -370,6 +372,10 @@ struct CommentsView: View {
                     chapterNumber: chapterNumber
                 )
                 print("🟢 Fetched \(comments.count) comments")
+
+                // Load presence status for all comment authors
+                await loadCommentPresences()
+
                 isLoading = false
             } catch {
                 print("🔴 Error loading comments: \(error)")
@@ -445,6 +451,30 @@ struct CommentsView: View {
             }
         }
     }
+
+    // MARK: - Presence Loading
+
+    private func loadCommentPresences() async {
+        // Get unique author IDs from all comments
+        let authorIds = Array(Set(comments.map { $0.userId }))
+
+        guard !authorIds.isEmpty else { return }
+
+        do {
+            print("📡 Loading presence for \(authorIds.count) comment authors")
+            let presences = try await SupabaseManager.shared.getUsersPresence(userIds: authorIds)
+
+            // Create dictionary for quick lookup
+            await MainActor.run {
+                userPresences = Dictionary(
+                    uniqueKeysWithValues: presences.map { ($0.userId, $0) }
+                )
+                print("✅ Loaded \(userPresences.count) presence statuses")
+            }
+        } catch {
+            print("❌ Error loading comment presences: \(error)")
+        }
+    }
 }
 
 // MARK: - YouTube-Style Comment Row
@@ -453,6 +483,7 @@ struct YouTubeCommentRow: View {
     let comment: Comment
     let canonicalMangaId: String
     let chapterNumber: String
+    let userPresence: UserPresence?
     let onDelete: () -> Void
 
     @State private var userVote: Int? = nil
@@ -460,10 +491,11 @@ struct YouTubeCommentRow: View {
     @State private var showRepliesSheet = false
     @State private var showUserProfile = false  // PHASE 5, Task 5.4
 
-    init(comment: Comment, canonicalMangaId: String, chapterNumber: String, onDelete: @escaping () -> Void) {
+    init(comment: Comment, canonicalMangaId: String, chapterNumber: String, userPresence: UserPresence? = nil, onDelete: @escaping () -> Void) {
         self.comment = comment
         self.canonicalMangaId = canonicalMangaId
         self.chapterNumber = chapterNumber
+        self.userPresence = userPresence
         self.onDelete = onDelete
         self._score = State(initialValue: comment.score)
     }
@@ -494,7 +526,7 @@ struct YouTubeCommentRow: View {
                 .buttonStyle(.plain)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    // Username + Time - PHASE 5, Task 5.4: Clickable username
+                    // Username + Time + Online Status - PHASE 5, Task 5.4: Clickable username
                     HStack(spacing: 6) {
                         Button {
                             showUserProfile = true
@@ -504,6 +536,22 @@ struct YouTubeCommentRow: View {
                                 .foregroundColor(.primary)
                         }
                         .buttonStyle(.plain)
+
+                        // Online status badge
+                        if let presence = userPresence, presence.isOnline {
+                            HStack(spacing: 3) {
+                                Circle()
+                                    .fill(Color.green)
+                                    .frame(width: 5, height: 5)
+                                Text("En ligne")
+                                    .font(.caption2)
+                                    .foregroundColor(.green)
+                            }
+                        } else if let presence = userPresence {
+                            Text(formatLastSeen(presence.lastSeen))
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                        }
 
                         Text("• \(timeAgoString(from: comment.createdAt))")
                             .font(.caption2)

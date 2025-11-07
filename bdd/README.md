@@ -25,6 +25,7 @@ bdd/
 - **`supabase_scanio_profiles_extended.sql`** - Tables de profils utilisateur
 - **`supabase_user_library_schema.sql`** - Bibliothèque utilisateur (favoris, lecture)
 - **`supabase_user_sources_schema.sql`** - Sources personnalisées par utilisateur
+- **`supabase_user_presence_schema.sql`** - ✅ **Système de présence en ligne** (nouveau)
 
 ### ⚙️ Functions - Fonctions SQL
 
@@ -84,13 +85,19 @@ Exécutez les scripts dans cet ordre :
 -- 5. Créer les tables de sources
 \i supabase_user_sources_schema.sql
 
--- 6. Créer les fonctions
+-- 6. Créer les tables de présence en ligne
+\i supabase_user_presence_schema.sql
+
+-- 7. Créer les fonctions
 \i supabase_scanio_functions.sql
 \i supabase_scanio_profiles_functions.sql
 \i supabase_user_library_functions.sql
 
--- 7. Créer les triggers
+-- 8. Créer les triggers
 \i supabase_scanio_triggers.sql
+
+-- 9. Activer Realtime pour la présence
+ALTER PUBLICATION supabase_realtime ADD TABLE scanio_user_presence;
 ```
 
 ### 2. Appliquer les Corrections
@@ -139,6 +146,14 @@ Pour vérifier l'état de la base :
 - `user_sources` - Sources personnalisées
 - `user_source_manga` - Mangas des sources personnalisées
 
+### Présence en Ligne ✅ NOUVEAU
+- `scanio_user_presence` - Statut en ligne/hors ligne des utilisateurs
+  - `user_id` : ID de l'utilisateur
+  - `is_online` : Statut en ligne (boolean)
+  - `last_seen` : Dernière activité (timestamp)
+  - `updated_at` : Dernière mise à jour (timestamp)
+  - Realtime activé pour mises à jour en temps réel
+
 ## 🔐 Row Level Security (RLS)
 
 Toutes les tables ont des politiques RLS activées :
@@ -186,6 +201,12 @@ SELECT * FROM get_reading_history('test-user-id', 10);
 ### Rankings
 - `get_personal_rankings(user_id)` - Obtenir les classements
 - `upsert_personal_ranking(...)` - Créer/Mettre à jour un classement
+
+### Présence en Ligne ✅ NOUVEAU
+- `scanio_update_user_presence(p_is_online)` - Mettre à jour le statut de l'utilisateur connecté
+- `scanio_get_user_presence(p_user_id)` - Récupérer le statut d'un utilisateur
+- `scanio_get_users_presence(p_user_ids[])` - Récupérer le statut de plusieurs utilisateurs (batch)
+- `scanio_cleanup_stale_presence()` - Nettoyer les statuts obsolètes (>5 min)
 
 ## 🔍 Diagnostic Rapide
 
@@ -251,8 +272,57 @@ Avec trigger automatique pour `updated_at`.
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/)
 - [Documentation TomoScan](../docs/README.md)
 
+## 🟢 Nouveautés - Système de Présence en Ligne
+
+### Vue d'ensemble
+Le système de présence en ligne permet de suivre le statut en ligne/hors ligne des utilisateurs en temps réel.
+
+### Fonctionnalités
+- ✅ Statut en ligne/hors ligne automatique
+- ✅ Indicateur "Vu il y a X min/h/j"
+- ✅ Mise à jour en temps réel avec Supabase Realtime
+- ✅ Cleanup automatique des utilisateurs inactifs (>5 min)
+- ✅ Support pour fonctionnalités futures (chat, amis, commentaires)
+
+### Déploiement
+1. Exécuter `supabase_user_presence_schema.sql` dans Supabase SQL Editor
+2. Activer Realtime :
+   ```sql
+   ALTER PUBLICATION supabase_realtime ADD TABLE scanio_user_presence;
+   ```
+3. (Optionnel) Configurer le cleanup automatique avec pg_cron :
+   ```sql
+   SELECT cron.schedule(
+       'cleanup-stale-presence',
+       '*/5 * * * *',
+       $$SELECT scanio_cleanup_stale_presence()$$
+   );
+   ```
+
+### Utilisation dans l'App
+```swift
+// Marquer comme en ligne
+await SupabaseManager.shared.setOnline()
+
+// Marquer comme hors ligne
+await SupabaseManager.shared.setOffline()
+
+// Récupérer le statut d'un utilisateur
+let presence = try await SupabaseManager.shared.getUserPresence(userId: "...")
+
+// Récupérer le statut de plusieurs utilisateurs (batch)
+let presences = try await SupabaseManager.shared.getUsersPresence(userIds: [...])
+```
+
+### Fonctionnalités Futures Préparées
+Voir [`../docs/features/FUTURE_FEATURES.md`](../docs/features/FUTURE_FEATURES.md) pour plus de détails :
+- 💬 Chat en temps réel
+- 👥 Liste d'amis
+- 💬 Indicateurs dans les commentaires
+- 🧹 Cleanup automatique
+
 ---
 
-**Dernière mise à jour** : 2025-11-06  
-**Version** : 1.0
+**Dernière mise à jour** : 2025-11-07
+**Version** : 1.1 - Ajout du système de présence en ligne
 

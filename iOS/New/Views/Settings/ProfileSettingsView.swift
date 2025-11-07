@@ -140,21 +140,35 @@ struct ProfileSettingsView: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(viewModel.profile?.userName ?? "Utilisateur")
-                        .font(.headline)
-                    
+                    HStack(spacing: 8) {
+                        Text(viewModel.profile?.userName ?? "Utilisateur")
+                            .font(.headline)
+
+                        // Online status indicator
+                        if viewModel.isAuthenticated {
+                            HStack(spacing: 4) {
+                                Circle()
+                                    .fill(Color.green)
+                                    .frame(width: 8, height: 8)
+                                Text("En ligne")
+                                    .font(.caption2)
+                                    .foregroundColor(.green)
+                            }
+                        }
+                    }
+
                     if let bio = viewModel.profile?.bio {
                         Text(bio)
                             .font(.caption)
                             .foregroundColor(.secondary)
                             .lineLimit(2)
                     }
-                    
+
                     HStack(spacing: 12) {
                         Label("\(viewModel.profile?.karma ?? 0)", systemImage: "star.fill")
                             .font(.caption)
                             .foregroundColor(.orange)
-                        
+
                         Label(viewModel.profile?.isPublic == true ? "Public" : "Privé", systemImage: viewModel.profile?.isPublic == true ? "eye" : "eye.slash")
                             .font(.caption)
                             .foregroundColor(.secondary)
@@ -294,7 +308,9 @@ struct ProfileSettingsView: View {
     private var accountSection: some View {
         Section {
             Button("Se déconnecter", role: .destructive) {
-                viewModel.signOut()
+                Task {
+                    await viewModel.signOut()
+                }
             }
         }
     }
@@ -411,8 +427,8 @@ class ProfileViewModel: ObservableObject {
         }
     }
 
-    func signOut() {
-        supabase.signOut()
+    func signOut() async {
+        await supabase.signOut()
         isAuthenticated = false
         profile = nil
         stats = nil

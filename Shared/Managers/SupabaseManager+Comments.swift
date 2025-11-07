@@ -51,7 +51,7 @@ extension SupabaseManager {
         }
 
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
+        decoder.dateDecodingStrategy = .supabase
         return try decoder.decode([Comment].self, from: data)
     }
 
@@ -90,7 +90,7 @@ extension SupabaseManager {
         }
 
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
+        decoder.dateDecodingStrategy = .supabase
         return try decoder.decode([Comment].self, from: data)
     }
 

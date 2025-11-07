@@ -111,10 +111,28 @@ struct UserProfileSheet: View {
                         .foregroundColor(.white)
                 )
             
-            // Username
-            Text(profile.userName ?? "Utilisateur")
-                .font(.title2.weight(.bold))
-            
+            // Username with online status
+            HStack(spacing: 8) {
+                Text(profile.userName ?? "Utilisateur")
+                    .font(.title2.weight(.bold))
+
+                // Online status indicator
+                if let isOnline = profile.isOnline, isOnline {
+                    HStack(spacing: 4) {
+                        Circle()
+                            .fill(Color.green)
+                            .frame(width: 8, height: 8)
+                        Text("En ligne")
+                            .font(.caption2)
+                            .foregroundColor(.green)
+                    }
+                } else if let lastSeen = profile.lastSeen {
+                    Text(formatLastSeen(lastSeen))
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+            }
+
             // Bio
             if let bio = profile.bio, !bio.isEmpty {
                 Text(bio)
@@ -257,6 +275,26 @@ struct UserProfileSheet: View {
         case 2: return .gray
         case 3: return Color(red: 0.8, green: 0.5, blue: 0.2) // Bronze
         default: return .blue
+        }
+    }
+
+    // MARK: - Helper Functions
+
+    private func formatLastSeen(_ date: Date) -> String {
+        let now = Date()
+        let interval = now.timeIntervalSince(date)
+
+        if interval < 60 {
+            return "Vu à l'instant"
+        } else if interval < 3600 {
+            let minutes = Int(interval / 60)
+            return "Vu il y a \(minutes) min"
+        } else if interval < 86400 {
+            let hours = Int(interval / 3600)
+            return "Vu il y a \(hours)h"
+        } else {
+            let days = Int(interval / 86400)
+            return "Vu il y a \(days)j"
         }
     }
 }

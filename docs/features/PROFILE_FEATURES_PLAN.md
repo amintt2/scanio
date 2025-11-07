@@ -1016,6 +1016,233 @@ xcodebuild -project Aidoku.xcodeproj -scheme "Aidoku (iOS)" -configuration Debug
 4. **PHASE 4** (Classement) - Dépend de Phase 3
 5. **PHASE 5** (Profils publics) - Fonctionnalité sociale importante
 6. **PHASE 6** (Liste de lecture) - Amélioration mineure
+7. **PHASE 7** (Système de présence en ligne) - ✅ **TERMINÉ**
+
+---
+
+## 🟢 PHASE 7 : Système de Présence en Ligne (✅ TERMINÉ)
+
+### Vue d'ensemble
+Système complet de suivi de présence en ligne des utilisateurs avec indicateurs visuels et support pour fonctionnalités sociales futures.
+
+### Tâche 7.1 : Infrastructure Backend ✅ TERMINÉ
+
+**Fichiers créés** :
+- `bdd/supabase_user_presence_schema.sql` : Schéma SQL complet avec Realtime
+- `Shared/Managers/SupabaseManager+Presence.swift` : Extension pour gérer la présence
+
+**Base de données** :
+- **Table** : `scanio_user_presence`
+  - `user_id` : UUID de l'utilisateur
+  - `is_online` : Statut en ligne (boolean)
+  - `last_seen` : Dernière activité (timestamp)
+  - `updated_at` : Dernière mise à jour (timestamp)
+  - RLS activé : Les utilisateurs peuvent voir tous les statuts, mais ne peuvent modifier que le leur
+  - Realtime activé pour les mises à jour en temps réel
+
+**Fonctions SQL** :
+- `scanio_update_user_presence(p_is_online)` : Met à jour le statut de l'utilisateur connecté
+- `scanio_get_user_presence(p_user_id)` : Récupère le statut d'un utilisateur spécifique
+- `scanio_get_users_presence(p_user_ids[])` : Récupère le statut de plusieurs utilisateurs (batch)
+- `scanio_cleanup_stale_presence()` : Nettoie automatiquement les statuts obsolètes (>5 min)
+
+**API Swift** :
+```swift
+// Mise à jour du statut
+func updatePresence(isOnline: Bool) async throws
+
+// Récupération du statut
+func getUserPresence(userId: String) async throws -> UserPresence?
+func getUsersPresence(userIds: [String]) async throws -> [UserPresence]
+
+// Helpers
+func setOnline() async
+func setOffline() async
+func keepPresenceAlive() async
+```
+
+### Tâche 7.2 : Intégration Automatique ✅ TERMINÉ
+
+**Fichiers modifiés** :
+- `Shared/Models/UserProfile.swift` : Ajout de `isOnline` et `lastSeen`
+- `Shared/Managers/SupabaseManager.swift` : Appels automatiques à `setOnline()` et `setOffline()`
+- `iOS/New/Views/Settings/ProfileSettingsView.swift` : Déconnexion async
+
+**Comportement** :
+- ✅ Connexion → `setOnline()` automatique
+- ✅ Déconnexion → `setOffline()` automatique
+- ✅ Modèle `UserProfile` étendu avec statut de présence
+
+### Tâche 7.3 : Interface Utilisateur ✅ TERMINÉ
+
+**Fichiers modifiés** :
+- `iOS/New/Views/Settings/ProfileSettingsView.swift` : Badge "En ligne" pour l'utilisateur connecté
+- `iOS/New/Views/Profile/PublicProfileView.swift` : Indicateur de statut pour les profils publics
+- `iOS/New/Views/Profile/UserProfileSheet.swift` : Indicateur de statut dans les sheets
+
+**Affichage** :
+- 🟢 **En ligne** : Point vert + "En ligne"
+- 🔴 **Hors ligne récent** : "Vu il y a X min/h/j"
+- ⚪ **Hors ligne** : Pas d'indicateur si pas de `lastSeen`
+
+**Fonction de formatage** :
+```swift
+private func formatLastSeen(_ date: Date) -> String {
+    // "Vu à l'instant" si < 1 min
+    // "Vu il y a X min" si < 1h
+    // "Vu il y a Xh" si < 24h
+    // "Vu il y a Xj" si > 24h
+}
+```
+
+### Tâche 7.4 : Fonctionnalités Futures (Préparées)
+
+#### 🔮 Chat en Temps Réel
+**Utilisation** : Voir qui est en ligne pour discuter
+**Implémentation future** :
+- Liste des utilisateurs en ligne dans l'interface de chat
+- Notification quand un ami se connecte
+- Indicateur "en train d'écrire..." avec Realtime
+
+**Exemple de code** :
+```swift
+// Récupérer tous les amis en ligne
+let friendIds = await getFriendsList()
+let onlineFriends = try await supabase.getUsersPresence(userIds: friendIds)
+    .filter { $0.isOnline }
+```
+
+#### 👥 Liste d'Amis
+**Utilisation** : Voir quels amis sont en ligne
+**Implémentation future** :
+- Section "Amis en ligne" en haut de la liste
+- Badge vert sur les avatars des amis en ligne
+- Tri automatique : en ligne d'abord, puis par dernière activité
+
+**Schéma SQL à créer** :
+```sql
+CREATE TABLE scanio_friendships (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+    friend_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+    status TEXT CHECK (status IN ('pending', 'accepted', 'blocked')),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(user_id, friend_id)
+);
+```
+
+#### 💬 Indicateurs dans les Commentaires
+**Utilisation** : Voir si l'auteur d'un commentaire est en ligne
+**Implémentation future** :
+- Badge "En ligne" à côté du nom d'utilisateur dans les commentaires
+- Permet de savoir si on peut avoir une réponse rapide
+- Charge le statut en batch pour tous les auteurs visibles
+
+**Exemple de code** :
+```swift
+// Dans CommentView
+let authorIds = comments.map { $0.userId }
+let presences = try await supabase.getUsersPresence(userIds: authorIds)
+let presenceDict = Dictionary(uniqueKeysWithValues: presences.map { ($0.userId, $0) })
+
+// Afficher le badge si en ligne
+if let presence = presenceDict[comment.userId], presence.isOnline {
+    OnlineStatusBadge()
+}
+```
+
+#### 🧹 Cleanup Automatique
+**Utilisation** : Les utilisateurs inactifs >5 min sont marqués hors ligne
+**Implémentation actuelle** :
+- Fonction SQL `scanio_cleanup_stale_presence()` déjà créée
+- Marque comme hors ligne si `updated_at` > 5 minutes
+
+**À configurer sur Supabase** :
+1. **Option 1 : pg_cron** (recommandé)
+   ```sql
+   SELECT cron.schedule(
+       'cleanup-stale-presence',
+       '*/5 * * * *', -- Toutes les 5 minutes
+       $$SELECT scanio_cleanup_stale_presence()$$
+   );
+   ```
+
+2. **Option 2 : Edge Function** (alternative)
+   - Créer une Edge Function qui appelle `scanio_cleanup_stale_presence()`
+   - Configurer un cron job externe (GitHub Actions, Vercel Cron, etc.)
+
+3. **Option 3 : Client-side** (temporaire)
+   - Appeler `keepPresenceAlive()` toutes les 2-3 minutes pendant que l'app est active
+   - Implémenter dans `AppDelegate` ou `SceneDelegate`
+
+**Exemple d'implémentation client-side** :
+```swift
+// Dans AppDelegate ou SceneDelegate
+var presenceTimer: Timer?
+
+func applicationDidBecomeActive(_ application: UIApplication) {
+    if SupabaseManager.shared.isAuthenticated {
+        Task { await SupabaseManager.shared.setOnline() }
+
+        // Maintenir la présence active
+        presenceTimer = Timer.scheduledTimer(withTimeInterval: 180, repeats: true) { _ in
+            Task { await SupabaseManager.shared.keepPresenceAlive() }
+        }
+    }
+}
+
+func applicationDidEnterBackground(_ application: UIApplication) {
+    presenceTimer?.invalidate()
+    presenceTimer = nil
+
+    if SupabaseManager.shared.isAuthenticated {
+        Task { await SupabaseManager.shared.setOffline() }
+    }
+}
+```
+
+### Tâche 7.5 : Déploiement et Configuration
+
+**Étapes de déploiement** :
+1. ✅ Exécuter `bdd/supabase_user_presence_schema.sql` dans Supabase SQL Editor
+2. ✅ Activer Realtime :
+   ```sql
+   ALTER PUBLICATION supabase_realtime ADD TABLE scanio_user_presence;
+   ```
+3. ⏳ Configurer le cleanup automatique (pg_cron ou Edge Function)
+4. ⏳ Implémenter les observers de lifecycle pour background/foreground
+5. ⏳ Tester sur plusieurs appareils simultanément
+
+**Tests à effectuer** :
+- [ ] Connexion → Statut passe à "En ligne"
+- [ ] Déconnexion → Statut passe à "Hors ligne"
+- [ ] App en background → Statut passe à "Hors ligne" après 5 min
+- [ ] App en foreground → Statut reste "En ligne"
+- [ ] Profil public → Affiche le bon statut
+- [ ] Plusieurs appareils → Synchronisation en temps réel
+
+### Avantages du Système
+
+✅ **Performance** :
+- Requêtes batch pour récupérer plusieurs statuts en une fois
+- Index sur `user_id` pour des requêtes rapides
+- Cleanup automatique pour éviter l'accumulation de données
+
+✅ **Scalabilité** :
+- Realtime Supabase pour les mises à jour en temps réel
+- RLS pour la sécurité
+- Prêt pour des milliers d'utilisateurs simultanés
+
+✅ **Extensibilité** :
+- Base solide pour le chat en temps réel
+- Support pour les listes d'amis
+- Indicateurs dans les commentaires
+- Notifications de présence
+
+✅ **UX** :
+- Feedback visuel immédiat
+- Savoir qui est disponible pour discuter
+- Meilleure expérience sociale
 
 ---
 
